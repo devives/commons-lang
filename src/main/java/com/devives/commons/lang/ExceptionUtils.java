@@ -26,7 +26,10 @@ import com.devives.commons.lang.function.FailableProcedure;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
+import java.util.Optional;
 
 /**
  * Класс содержит вспомогательные методы для работы с объектов исключения.
@@ -315,4 +318,28 @@ public class ExceptionUtils {
         }
     }
 
+    /**
+     * Метод обрабатывает исключения, выброшенные из каждого анонимного метода коллекции <tt>procs</tt>, формируя
+     * коллекцию исключений.
+     *
+     * @param procs массив анонимных методов.
+     * @return коллекция возникших исключений.
+     */
+    static public Optional<Collection<Exception>> collect(ExceptionProcedure... procs) {
+        List<Exception> throwables = null;
+        for (ExceptionProcedure proc : procs) {
+            try {
+                proc.accept();
+            } catch (Exception thr) {
+                if (throwables == null) {
+                    throwables = new ArrayList<>();
+                }
+                throwables.add(thr);
+            }
+        }
+        if (throwables != null) {
+            return Optional.of(throwables);
+        }
+        return Optional.empty();
+    }
 }

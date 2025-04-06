@@ -17,9 +17,9 @@
 package com.devives.commons.lang.function;
 
 /**
- * A procedure which can throw {@link Exception}.
+ * A procedure with three arguments that can throw an exception of the specified type.
  */
 @FunctionalInterface
-public interface ExceptionProcedure {
-    void accept() throws Exception;
+public interface FailableTriConsumer<T1, T2, T3> extends ThrowableTriConsumer<T1, T2, T3, Exception> {
+
 }

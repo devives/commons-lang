@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,9 +17,16 @@
 package com.devives.commons.lang.function;
 
 /**
- * A procedure with three arguments which can throw {@link Exception}.
+ * An alternative of {@link java.lang.Runnable} which can throw exceptions.
+ *
+ * @param <E> The type of exception
  */
 @FunctionalInterface
-public interface ExceptionProcedure3<T1, T2, T3> {
-    void accept(T1 a1, T2 a2, T3 a3) throws Exception;
+public interface ThrowableRunnable<E extends Throwable> {
+    /**
+     * Performs this operation.
+     *
+     * @throws E Thrown when the function fails.
+     */
+    void run() throws E;
 }

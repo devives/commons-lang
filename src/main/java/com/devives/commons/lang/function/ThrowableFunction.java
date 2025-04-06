@@ -17,9 +17,18 @@
 package com.devives.commons.lang.function;
 
 /**
- * A function which can throw {@link Throwable}.
+ * A function that can throw an exception of the specified type.
+ *
+ * @param <R> the type of function result.
+ * @param <E> The type of exception
  */
 @FunctionalInterface
-public interface ThrowableFunction<R> {
-    R apply() throws Throwable;
+public interface ThrowableFunction<R, E extends Throwable> {
+    /**
+     * Invoke a function without arguments.
+     *
+     * @return the result of the function
+     * @throws E The type of exception with can be thrown.
+     */
+    R apply() throws E;
 }

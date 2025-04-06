@@ -17,8 +17,8 @@
 package com.devives.commons.lang;
 
 
-import com.devives.commons.lang.function.ExceptionFunction;
-import com.devives.commons.lang.function.ExceptionProcedure;
+import com.devives.commons.lang.function.FailableFunction;
+import com.devives.commons.lang.function.FailableProcedure;
 
 public class ClassLoaderUtils {
 
@@ -30,7 +30,7 @@ public class ClassLoaderUtils {
      * @param <T>         Тип результата
      * @return Результат выполнения
      */
-    public static <T> T callFuncInContextClassLoader(ClassLoader classLoader, final ExceptionFunction<T> func) {
+    public static <T> T callFuncInContextClassLoader(ClassLoader classLoader, final FailableFunction<T> func) {
         Thread thread = Thread.currentThread();
         ClassLoader c = thread.getContextClassLoader();
         boolean setRequired = (c != classLoader);
@@ -50,7 +50,7 @@ public class ClassLoaderUtils {
      * @param classLoader загрузчик классов
      * @param proc        анонимная ф-ция
      */
-    public static void callProcInContextClassLoader(ClassLoader classLoader, final ExceptionProcedure proc) {
+    public static void callProcInContextClassLoader(ClassLoader classLoader, final FailableProcedure proc) {
         Thread thread = Thread.currentThread();
         ClassLoader c = thread.getContextClassLoader();
         boolean setRequired = (c != classLoader);

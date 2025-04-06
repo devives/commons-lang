@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -17,24 +17,11 @@
 package com.devives.commons.lang.function;
 
 /**
- * A function with three arguments that can throw an exception of the specified type.
+ * A function that can throw an exception of the specified type.
  *
- * @param <T1> the type of first argument.
- * @param <T2> the type of second argument.
- * @param <T3> the type of third argument.
- * @param <R> the type of function result.
- * @param <E> The type of exception
+ * @param <R> Return type.
  */
 @FunctionalInterface
-public interface ThrowableFunction3<T1, T2, T3, R, E extends Throwable> {
-    /**
-     * Applies this function to the given arguments.
-     *
-     * @param a1 the first argument.
-     * @param a2 the second argument.
-     * @param a3 the third argument.
-     * @return the result of the function
-     * @throws E The type of exception with can be thrown.
-     */
-    R apply(T1 a1, T2 a2, T3 a3) throws E;
+public interface FailableCallable<R> extends ThrowableCallable<R, Exception> {
+
 }

@@ -17,9 +17,16 @@
 package com.devives.commons.lang.function;
 
 /**
- * A procedure with two arguments which can throw {@link Exception}.
+ * An alternative of {@link java.util.function.Consumer} which can throw exceptions.
+ * @param <E> The type of exception
  */
 @FunctionalInterface
-public interface ExceptionProcedure2<T1, T2> {
-    void accept(T1 a1, T2 a2) throws Exception;
+public interface ThrowableConsumer<T, E extends Throwable> {
+    /**
+     * Performs this operation on the given argument.
+     *
+     * @param a the input argument
+     * @throws E if unable to compute a result
+     */
+    void accept(T a) throws E;
 }

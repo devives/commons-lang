@@ -17,24 +17,23 @@
 package com.devives.commons.lang.function;
 
 /**
- * A function with three arguments that can throw an exception of the specified type.
+ * A procedure with three arguments that can throw an exception of the specified type.
  *
  * @param <T1> the type of first argument.
  * @param <T2> the type of second argument.
  * @param <T3> the type of third argument.
- * @param <R> the type of function result.
  * @param <E> The type of exception
  */
 @FunctionalInterface
-public interface ThrowableFunction3<T1, T2, T3, R, E extends Throwable> {
+public interface ThrowableTriConsumer<T1, T2, T3, E extends Throwable> {
+
     /**
-     * Applies this function to the given arguments.
+     * Performs the operation given the specified arguments.
      *
      * @param a1 the first argument.
      * @param a2 the second argument.
      * @param a3 the third argument.
-     * @return the result of the function
      * @throws E The type of exception with can be thrown.
      */
-    R apply(T1 a1, T2 a2, T3 a3) throws E;
+    void accept(T1 a1, T2 a2, T3 a3) throws E;
 }

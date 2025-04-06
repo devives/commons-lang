@@ -17,7 +17,7 @@
 package com.devives.commons.lang.reflection;
 
 import com.devives.commons.lang.ExceptionUtils;
-import com.devives.commons.lang.function.ExceptionProcedure1;
+import com.devives.commons.lang.function.FailableProcedure1;
 
 import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Method;
@@ -40,7 +40,7 @@ public class CloseInterceptor<T> implements InvocationHandler {
 
     private static final Map<Class<?>, Class<?>[]> KNOWN_INTERFACES = new ConcurrentHashMap<>();
     private final Object closeable_;
-    private final ExceptionProcedure1<T> closeHandler_;
+    private final FailableProcedure1<T> closeHandler_;
 
     /**
      * Создаёт экземпляр прокси объекта для {@link AutoCloseable} объекта.
@@ -52,7 +52,7 @@ public class CloseInterceptor<T> implements InvocationHandler {
      * @param <T>          тип класса декорируемого объекта.
      * @return прокси объект
      */
-    public static <T> T build(T closeable, ExceptionProcedure1<T> closeHandler) {
+    public static <T> T build(T closeable, FailableProcedure1<T> closeHandler) {
         try {
             Objects.requireNonNull(closeable, "closeable");
             Objects.requireNonNull(closeHandler, "closeHandler");
@@ -84,7 +84,7 @@ public class CloseInterceptor<T> implements InvocationHandler {
         }
     }
 
-    private CloseInterceptor(T closeable, ExceptionProcedure1<T> closeHandler) {
+    private CloseInterceptor(T closeable, FailableProcedure1<T> closeHandler) {
         closeable_ = closeable;
         closeHandler_ = closeHandler;
     }

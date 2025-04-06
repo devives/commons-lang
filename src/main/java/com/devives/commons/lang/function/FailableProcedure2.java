@@ -20,6 +20,6 @@ package com.devives.commons.lang.function;
  * A procedure with two arguments that can throw an exception of the specified type.
  */
 @FunctionalInterface
-public interface FailableProcedure2<T1, T2, E extends Throwable> {
-    void accept(T1 a1, T2 a2) throws E;
+public interface FailableProcedure2<T1, T2> extends ThrowableProcedure2<T1, T2, Exception> {
+
 }

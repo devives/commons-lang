@@ -18,8 +18,6 @@ package com.devives.commons.lang;
 
 import com.devives.commons.lang.exception.AggregateException;
 import com.devives.commons.lang.exception.ArgumentNullException;
-import com.devives.commons.lang.function.ExceptionFunction;
-import com.devives.commons.lang.function.ExceptionProcedure;
 import com.devives.commons.lang.function.FailableFunction;
 import com.devives.commons.lang.function.FailableProcedure;
 
@@ -148,7 +146,7 @@ public class ExceptionUtils {
      * @throws Exception исключение выброшенное из анонимного метода.
      */
     @SafeVarargs
-    static public <R, E extends Throwable> R suppressExceptionOfClass(FailableFunction<R, Exception> func, Class<E>... exClasses) throws Exception {
+    static public <R, E extends Throwable> R suppressExceptionOfClass(FailableFunction<R> func, Class<E>... exClasses) throws Exception {
         try {
             return func.apply();
         } catch (Throwable th) {
@@ -174,7 +172,7 @@ public class ExceptionUtils {
      * @throws Exception исключение выброшенное из анонимного метода.
      */
     @SafeVarargs
-    static public <E extends Throwable> void suppressExceptionOfClass(FailableProcedure<Exception> proc, Class<E>... exClasses) throws Exception {
+    static public <E extends Throwable> void suppressExceptionOfClass(FailableProcedure proc, Class<E>... exClasses) throws Exception {
         try {
             proc.accept();
         } catch (Throwable th) {
@@ -293,7 +291,7 @@ public class ExceptionUtils {
      * @param <R>  тип результата анонимного метода.
      * @return результат анонимного метода.
      */
-    static public <R> R passChecked(ExceptionFunction<R> func) {
+    static public <R> R passChecked(FailableFunction<R> func) {
         try {
             return func.apply();
         } catch (Exception e) {
@@ -310,7 +308,7 @@ public class ExceptionUtils {
      *
      * @param proc анонимный метод.
      */
-    static public void passChecked(ExceptionProcedure proc) {
+    static public void passChecked(FailableProcedure proc) {
         try {
             proc.accept();
         } catch (Exception e) {
@@ -325,9 +323,9 @@ public class ExceptionUtils {
      * @param procs массив анонимных методов.
      * @return коллекция возникших исключений.
      */
-    static public Optional<Collection<Exception>> collect(ExceptionProcedure... procs) {
+    static public Optional<Collection<Exception>> collect(FailableProcedure... procs) {
         List<Exception> throwables = null;
-        for (ExceptionProcedure proc : procs) {
+        for (FailableProcedure proc : procs) {
             try {
                 proc.accept();
             } catch (Exception thr) {

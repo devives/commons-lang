@@ -17,9 +17,21 @@
 package com.devives.commons.lang.function;
 
 /**
- * A procedure with two argument which can throw {@link Throwable}.
+ * A procedure with two arguments that can throw an exception of the specified type.
+ *
+ * @param <T1> the type of first argument.
+ * @param <T2> the type of second argument.
+ * @param <E> The type of exception
  */
 @FunctionalInterface
-public interface ThrowableProcedure2<T1, T2> {
-    void accept(T1 a1, T2 a2) throws Throwable;
+public interface ThrowableProcedure2<T1, T2, E extends Throwable> {
+
+    /**
+     * Performs the operation given the specified arguments.
+     *
+     * @param a1 the first argument.
+     * @param a2 the second argument.
+     * @throws E The type of exception with can be thrown.
+     */
+    void accept(T1 a1, T2 a2) throws E;
 }

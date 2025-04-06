@@ -18,8 +18,8 @@ package com.devives.commons.lang.util;
 
 
 import com.devives.commons.lang.ExceptionUtils;
-import com.devives.commons.lang.function.ExceptionProcedure;
 import com.devives.commons.lang.function.FailableFunction;
+import com.devives.commons.lang.function.FailableProcedure;
 
 import java.time.Duration;
 
@@ -72,7 +72,7 @@ public class DurationMeter {
      *
      * @param proc анонимный метод
      */
-    public void measure(ExceptionProcedure proc) {
+    public void measure(FailableProcedure proc) {
         start();
         try {
             proc.accept();
@@ -91,7 +91,7 @@ public class DurationMeter {
      * @param <R>  тип результата анонимного метода
      * @return результат выполнения анонимного метода
      */
-    public <R> R measure(FailableFunction<R, Exception> func) {
+    public <R> R measure(FailableFunction<R> func) {
         start();
         try {
             return func.apply();

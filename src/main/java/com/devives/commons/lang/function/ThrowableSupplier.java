@@ -17,9 +17,16 @@
 package com.devives.commons.lang.function;
 
 /**
- * A procedure with one argument which can throw {@link Exception}.
+ * An alternative of {@link java.util.function.Supplier} which can throw exceptions of specified type.
+ * @param <R> the type of function result.
  */
 @FunctionalInterface
-public interface ExceptionProcedure1<T> {
-    void accept(T a) throws Exception;
+public interface ThrowableSupplier<R, E extends Throwable> {
+    /**
+     * Gets a result.
+     *
+     * @return a result
+     * @throws E исключение.
+     */
+    R get() throws E;
 }

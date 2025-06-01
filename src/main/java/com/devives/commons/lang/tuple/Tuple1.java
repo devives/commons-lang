@@ -18,15 +18,11 @@ package com.devives.commons.lang.tuple;
 
 import java.util.Objects;
 
-public final class Tuple3<T1, T2, T3> extends Tuple {
+public final class Tuple1<T1> extends Tuple {
     public final T1 _1;
-    public final T2 _2;
-    public final T3 _3;
 
-    Tuple3(T1 _1, T2 _2, T3 _3) {
+    Tuple1(T1 _1) {
         this._1 = _1;
-        this._2 = _2;
-        this._3 = _3;
     }
 
     @Override
@@ -34,10 +30,6 @@ public final class Tuple3<T1, T2, T3> extends Tuple {
         switch (n) {
             case 0:
                 return this._1;
-            case 1:
-                return this._2;
-            case 2:
-                return this._3;
             default:
                 throw new IndexOutOfBoundsException(Integer.toString(n));
         }
@@ -45,35 +37,28 @@ public final class Tuple3<T1, T2, T3> extends Tuple {
 
     @Override
     public int productArity() {
-        return 3;
+        return 1;
     }
 
     public Object[] toArray() {
-        return new Object[]{_1, _2, _3};
+        return new Object[]{_1};
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Tuple3<?, ?, ?> tuple3 = (Tuple3<?, ?, ?>) o;
-        return Objects.equals(_1, tuple3._1)
-                && Objects.equals(_2, tuple3._2)
-                && Objects.equals(_3, tuple3._3);
+        Tuple2<?, ?> tuple2 = (Tuple2<?, ?>) o;
+        return Objects.equals(_1, tuple2._1);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(_1, _2, _3);
-    }
-
-    @Deprecated
-    public static <T1, T2, T3> Tuple3<T1, T2, T3> of(T1 a1, T2 a2, T3 a3) {
-        return new Tuple3<>(a1, a2, a3);
+        return Objects.hash(_1);
     }
 
     @Override
-    public Tuple3<T1, T2, T3> clone() {
-        return new Tuple3<>(_1, _2, _3);
+    public Tuple1<T1> clone() {
+        return new Tuple1<>(_1);
     }
 }

@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- *
- *      http://www.apache.org/licenses/LICENSE-2.0
- *
+ * <p>
+ * http://www.apache.org/licenses/LICENSE-2.0
+ * <p>
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -16,24 +16,14 @@
  */
 package com.devives.commons.lang.tuple;
 
-import java.util.Objects;
+public final class Tuple0 extends Tuple {
 
-public final class Tuple2<T1, T2> extends Tuple {
-    public final T1 _1;
-    public final T2 _2;
-
-    Tuple2(T1 _1, T2 _2) {
-        this._1 = _1;
-        this._2 = _2;
+    Tuple0() {
     }
 
     @Override
     public Object productElement(int n) {
         switch (n) {
-            case 0:
-                return this._1;
-            case 1:
-                return this._2;
             default:
                 throw new IndexOutOfBoundsException(Integer.toString(n));
         }
@@ -41,29 +31,16 @@ public final class Tuple2<T1, T2> extends Tuple {
 
     @Override
     public int productArity() {
-        return 2;
+        return 0;
     }
 
     public Object[] toArray() {
-        return new Object[]{_1, _2};
+        return new Object[0];
     }
 
     @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Tuple2<?, ?> tuple2 = (Tuple2<?, ?>) o;
-        return Objects.equals(_1, tuple2._1)
-                && Objects.equals(_2, tuple2._2);
+    public Tuple0 clone() {
+        return new Tuple0();
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(_1, _2);
-    }
-
-    @Override
-    public Tuple2<T1, T2> clone() {
-        return new Tuple2<>(_1, _2);
-    }
 }

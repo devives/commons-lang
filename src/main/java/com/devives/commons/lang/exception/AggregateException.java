@@ -16,25 +16,38 @@
  */
 package com.devives.commons.lang.exception;
 
+import java.util.Collection;
+import java.util.stream.Stream;
+
 /**
  * Агрегирующее исключение.
  * <p>
  * Объединяет несколько последовательно возникших исключений в коллекции {@link Exception#getSuppressed()}.
  */
-public class AggregateException extends Exception {
+public class AggregateException extends RuntimeException {
+
     public AggregateException(String message) {
         super(message);
     }
 
-    public AggregateException(String message, Throwable cause) {
-        super(message, cause);
+    public <E extends Throwable> AggregateException(Collection<E> suppressed) {
+        super();
+        suppressed.forEach(this::addSuppressed);
     }
 
-    public AggregateException(Throwable cause) {
-        super(cause);
+    public <E extends Throwable> AggregateException(E[] suppressed) {
+        super();
+        Stream.of(suppressed).forEach(this::addSuppressed);
     }
 
-    public AggregateException(String message, Throwable cause, boolean enableSuppression, boolean writableStackTrace) {
-        super(message, cause, enableSuppression, writableStackTrace);
+    public <E extends Throwable> AggregateException(String message, E[] suppressed) {
+        super(message);
+        Stream.of(suppressed).forEach(this::addSuppressed);
     }
+
+    public <E extends Throwable> AggregateException(String message, Collection<E> suppressed) {
+        super(message);
+        suppressed.forEach(this::addSuppressed);
+    }
+
 }

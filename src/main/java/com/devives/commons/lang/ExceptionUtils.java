@@ -245,9 +245,9 @@ public class ExceptionUtils {
             case 1:
                 throw ExceptionUtils.asUnchecked(collection.stream().findFirst().get());
             default:
-                AggregateException aggregateException = new AggregateException(StringUtils.getFirstNonEmpty(message, DEFAULT_AGGREGATE_EXCEPTION_MESSAGE));
-                collection.forEach(aggregateException::addSuppressed);
-                throw ExceptionUtils.asUnchecked(aggregateException);
+                throw new AggregateException(
+                        StringUtils.getFirstNonEmpty(message, DEFAULT_AGGREGATE_EXCEPTION_MESSAGE),
+                        collection);
         }
     }
 
@@ -323,7 +323,7 @@ public class ExceptionUtils {
      * @param procs массив анонимных методов.
      * @return коллекция возникших исключений.
      */
-    static public Optional<Collection<Exception>> collect(FailableProcedure... procs) {
+    static public Optional<List<Exception>> collect(FailableProcedure... procs) {
         List<Exception> throwables = null;
         for (FailableProcedure proc : procs) {
             try {
@@ -335,9 +335,17 @@ public class ExceptionUtils {
                 throwables.add(thr);
             }
         }
-        if (throwables != null) {
-            return Optional.of(throwables);
-        }
-        return Optional.empty();
+        return Optional.ofNullable(throwables);
+    }
+
+    /**
+     * Метод обрабатывает исключения, выброшенные из каждого анонимного метода коллекции <tt>procs</tt>, формируя
+     * коллекцию исключений. Если при выполнении анонимных методов было выброшено одно исключение, оно будет выброшено
+     * из текущего метода. Если было выброшено несколько исключений, из метода будет выброшено агрегированное исключение.
+     *
+     * @param procs массив анонимных методов.
+     */
+    static public void collectAndThrow(FailableProcedure... procs) {
+        collect(procs).ifPresent(ExceptionUtils::throwCollected);
     }
 }

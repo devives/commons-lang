@@ -16,6 +16,11 @@
  */
 package com.devives.commons.lang.exception;
 
+/**
+ * Агрегирующее исключение.
+ * <p>
+ * Объединяет несколько последовательно возникших исключений в коллекции {@link Exception#getSuppressed()}.
+ */
 public class AggregateException extends Exception {
     public AggregateException(String message) {
         super(message);

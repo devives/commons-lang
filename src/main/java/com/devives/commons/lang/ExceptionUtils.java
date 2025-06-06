@@ -30,43 +30,34 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Класс содержит вспомогательные методы для работы с объектов исключения.
+ * The class contains helper methods for working with exception objects.
  */
 public class ExceptionUtils {
 
     /**
-     * Возвращает текст сообщения об ошибке вместе со стеком.
+     * Returns the error message text along with the stack.
      *
-     * @param e Исключение
-     * @return Текст исключения со стеком
+     * @param throwable exception.
+     * @return a string containing the message and stack.
      */
-    public static String getMessageWithStackTrace(Throwable e) {
-        return getMessageWithStackTrace_(e);
-    }
-
-    public static String getStackTrace() {
-        return getStackTrace((String) null);
-    }
-
-    public static String getStackTrace(String message) {
-        return getMessageWithStackTrace_(new Exception(StringUtils.getFirstNonEmpty(message, "Stack trace")));
+    public static String getMessageWithStackTrace(Throwable throwable) {
+        return getStackTrace_(throwable, true);
     }
 
     /**
-     * Возвращает текст исходного сообщения об ошибке вместе со стеком.
-     *
-     * @param e Исключение
-     * @return Текст исключения со стеком
+     * Returns a string representation of the exception stack.
+     * @param throwable exception.
+     * @return a string containing the stack.
      */
-    public static String getCauseMessageWithStackTrace(Throwable e) {
-        return getMessageWithStackTrace_(getOriginalCauseThrowable(e));
+    public static String getStackTrace(Throwable throwable) {
+        return getStackTrace_(throwable, false);
     }
 
-    private static String getMessageWithStackTrace_(Throwable throwable) {
+    private static String getStackTrace_(Throwable throwable, boolean printMessage) {
         ByteArrayOutputStream out = new ByteArrayOutputStream();
         PrintStream printStream = new PrintStream(out);
         if (throwable != null) {
-            if (StringUtils.nonEmpty(throwable.getMessage())) {
+            if (printMessage && StringUtils.nonEmpty(throwable.getMessage())) {
                 printStream.println(throwable.getMessage());
             }
             throwable.printStackTrace(printStream);
@@ -77,50 +68,26 @@ public class ExceptionUtils {
         return new String(out.toByteArray(), StandardCharsets.UTF_8);
     }
 
-    public static String getStackTrace(Throwable throwable) {
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-        PrintStream printStream = new PrintStream(out);
-        if (throwable != null) {
-            throwable.printStackTrace(printStream);
-        } else {
-            new ArgumentNullException("throwable").printStackTrace(printStream);
-        }
-        printStream.flush();
-        return new String(out.toByteArray(), StandardCharsets.UTF_8);
-    }
-
     /**
-     * Возвращает объект исключения, являющийся исходным.
+     * Returns the original exception.
      *
-     * @param e Исключение
-     * @return Исходное исключение.
+     * @param throwable exception
+     * @return the original exception.
      */
-    public static Throwable getOriginalCauseThrowable(final Throwable e) {
-        Throwable cause = e;
+    public static Throwable getInitialCause(final Throwable throwable) {
+        Throwable cause = throwable;
         while (cause != null && cause.getCause() != null) {
             cause = cause.getCause();
         }
         return cause;
     }
 
-    public static RuntimeException toRuntimeException(Throwable e) {
-        return (e instanceof RuntimeException)
-                ? (RuntimeException) e
-                : new RuntimeException(e);
-    }
-
-    public static Exception toException(Throwable e) {
-        return (e instanceof Exception)
-                ? (Exception) e
-                : new Exception(e);
-    }
-
     /**
-     * Метод проверяет присутствие в цепочке исключений указанных классов
+     * The method checks for the presence of specified classes in the exception chain
      *
-     * @param throwable    Проверяемая цепочка исключений
-     * @param innerClasses Классы искомых исключений
-     * @return true, если в цепочке исключений есть исключения указанных классов
+     * @param throwable    The exception chain to be checked
+     * @param innerClasses Classes of the exceptions to be searched for
+     * @return {@code true} if the exception chain contains exceptions of the specified classes, otherwise {@code false}.
      */
     public static boolean hasCauseOfClass(Throwable throwable, Class... innerClasses) {
         Throwable t = throwable;
@@ -136,67 +103,58 @@ public class ExceptionUtils {
     }
 
     /**
-     * Метод подавляет исключения указанных типов и выбрасывает остальные.
+     * The method suppresses exceptions of the specified types and throws the rest.
      *
-     * @param func      анонимный метод.
-     * @param exClasses типы подавляемых исключений.
-     * @param <R>       тип результата анонимного метода.
-     * @param <E>       тип подавляемых исключений.
-     * @return результат анонимного метода.
-     * @throws Exception исключение выброшенное из анонимного метода.
+     * @param func            anonymous method.
+     * @param failResult      result in case of exception suppression.
+     * @param suppressClasses types of suppressed exceptions.
+     * @param <R>       result type of the anonymous method.
+     * @param <E>       type of suppressed exceptions.
+     * @return result of the anonymous method or <tt>failResult</tt> if an exception was suppressed.
      */
     @SafeVarargs
-    static public <R, E extends Throwable> R suppressExceptionOfClass(FailableFunction<R> func, Class<E>... exClasses) throws Exception {
+    static public <R, E extends Throwable> R suppressExceptionOfClass(FailableFunction<R> func, R failResult, Class<E>... suppressClasses) {
         try {
             return func.apply();
         } catch (Throwable th) {
-            for (Class<?> exClass : exClasses) {
+            for (Class<?> exClass : suppressClasses) {
                 if (exClass.isInstance(th)) {
-                    return null;
+                    return failResult;
                 }
             }
-            if (th instanceof RuntimeException) {
-                throw (RuntimeException) th;
-            } else {
-                throw th;
-            }
+            throw asUnchecked(th);
         }
     }
 
     /**
-     * Метод подавляет исключения указанных типов и выбрасывает остальные.
+     * The method suppresses exceptions of the specified types and throws the rest.
      *
-     * @param proc      анонимный метод.
-     * @param exClasses типы подавляемых исключений.
-     * @param <E>       тип подавляемых исключений.
-     * @throws Exception исключение выброшенное из анонимного метода.
+     * @param proc      anonymous method.
+     * @param suppressClasses types of suppressed exceptions.
+     * @param <E>       type of suppressed exceptions.
      */
     @SafeVarargs
-    static public <E extends Throwable> void suppressExceptionOfClass(FailableProcedure proc, Class<E>... exClasses) throws Exception {
+    static public <E extends Throwable> void suppressExceptionOfClass(FailableProcedure proc, Class<E>... suppressClasses) {
         try {
             proc.accept();
         } catch (Throwable th) {
-            for (Class<?> exClass : exClasses) {
+            for (Class<?> exClass : suppressClasses) {
                 if (exClass.isInstance(th)) {
                     return;
                 }
             }
-            if (th instanceof RuntimeException) {
-                throw (RuntimeException) th;
-            } else {
-                throw th;
-            }
+            throw asUnchecked(th);
         }
     }
 
     static private final String DEFAULT_AGGREGATE_EXCEPTION_MESSAGE = "The group of Exceptions was thrown";
 
     /**
-     * Выбрасывает исключение, если коллекция исключений не пуста.
-     * Если в коллекции одно исключение, оно будет выброшено.
-     * Если в коллекции несколько исключений, будет выброшено исключение, агрегирующее все собранные исключения
-     * в коллекции Throwable.getSuppressed().<br>
-     * Пример использования:  сбор исключений, выбрасываемых, при обработке коллекции неких объектов.
+     * Throws an exception if the collection of exceptions is not empty.
+     * If there is one exception in the collection, it will be thrown.
+     * If there are several exceptions in the collection, an exception will be thrown that aggregates all the collected exceptions
+     * in the Throwable.getSuppressed() collection.<br>
+     * Example usage: collection of exceptions thrown while processing a collection of some objects.
      * <pre>{@code
      * List<Exception> collector = new ArrayList<>();
      * for (AutoCloseable item : iterable) {
@@ -209,7 +167,7 @@ public class ExceptionUtils {
      * ExceptionUtils.throwCollected(collector);
      * }</pre>
      *
-     * @param collection Коллекция исключений
+     * @param collection Collection of exceptions
      * @param <E>        type of exceptions.
      */
     static public <E extends Throwable> void throwCollected(Collection<E> collection) /*throws E*/ {
@@ -217,11 +175,11 @@ public class ExceptionUtils {
     }
 
     /**
-     * Выбрасывает исключение, если коллекция исключений не пуста.
-     * Если в коллекции одно исключение, оно будет выброшено.
-     * Если в коллекции несколько исключений, будет выброшено исключение, агрегирующее все собранные исключения
-     * в коллекции Throwable.getSuppressed().
-     * Пример использования:  сбор исключений, выбрасываемых, при обработке коллекции неких объектов.
+     * Throws an exception if the collection of exceptions is not empty.
+     * If there is one exception in the collection, it will be thrown.
+     * If there are several exceptions in the collection, an exception will be thrown that aggregates all the collected exceptions
+     * in the Throwable.getSuppressed() collection.
+     * Example usage: collection of exceptions thrown while processing a collection of some objects.
      * <pre>{@code
      * List<Exception> collector = new ArrayList<>();
      * for (AutoCloseable item : iterable) {
@@ -234,8 +192,8 @@ public class ExceptionUtils {
      * ExceptionUtils.throwCollected(collector, "Exceptions was thrown while close collection of objects");
      * }</pre>
      *
-     * @param collection Коллекция исключений
-     * @param message    Сообщение агрегированного сообщения
+     * @param collection Collection of exceptions
+     * @param message    Message of the aggregated message
      * @param <E>        type of exceptions.
      */
     static public <E extends Throwable> void throwCollected(Collection<E> collection, String message) /*throws E*/ {
@@ -252,13 +210,13 @@ public class ExceptionUtils {
     }
 
     /**
-     * ДЕЛАЕТ ВИД, что возвращает исключение обёрнутое либо приведённое к unchecked исключения.
-     * НА САМОМ ДЕЛЕ бросает {@code throwable} без проверки компилятора на обработку checked исключений.
-     * Используется на правах хака снижающего захламление кода неправильно используемыми checked исключениями.
+     * PRETENDS to return an exception wrapped or cast to an unchecked exception.
+     * IN FACT throws {@code throwable} without checking the compiler for handling checked exceptions.
+     * Used as a hack to reduce code clutter caused by incorrectly used checked exceptions.
      * <p>
-     * В отличие от throwAsUnchecked позволяет использовать конструкции вида
-     * {@code throws ExceptionUtils.asUnchecked(e)} чтобы объяснить компилятору что после этого метода
-     * уже ничего выполняться не будет.
+     * Unlike throwAsUnchecked, allows using constructs like
+     * {@code throws ExceptionUtils.asUnchecked(e)} to explain to the compiler that after this method
+     * nothing will be executed anymore.
      *
      * @param throwable type castable throwable.
      * @param <E>       type of exceptions.
@@ -281,15 +239,15 @@ public class ExceptionUtils {
     }
 
     /**
-     * Преобразует отмеченные исключения, выбрасываемые методом, в неотмеченные.
-     * Сервисный метод для сокращения кода в лямбда-выражениях, при вызовах методов с отмеченным исключениями.
+     * Converts checked exceptions thrown by the method into unchecked ones.
+     * A service method to reduce code in lambda expressions when calling methods with checked exceptions.
      * <pre>{@code
      *   List<File> tempFiles = uploadItems.stream().map(item -> ExceptionUtils.asUnchecked(item::getFile)).collect(Collectors.toList());
      * }</pre>
      *
-     * @param func анонимный метод.
-     * @param <R>  тип результата анонимного метода.
-     * @return результат анонимного метода.
+     * @param func anonymous method.
+     * @param <R>  result type of the anonymous method.
+     * @return result of the anonymous method.
      */
     static public <R> R passChecked(FailableFunction<R> func) {
         try {
@@ -300,13 +258,13 @@ public class ExceptionUtils {
     }
 
     /**
-     * Преобразует отмеченные исключения, выбрасываемые методом, в неотмеченные.
-     * Сервисный метод для сокращения кода в лямбда-выражениях, при вызовах методов с отмеченным исключениями.
+     * Converts checked exceptions thrown by the method into unchecked ones.
+     * A service method to reduce code in lambda expressions when calling methods with checked exceptions.
      * <pre>{@code
      *   List<File> tempFiles = uploadItems.stream().map(item -> ExceptionUtils.asUnchecked(item::getFile)).collect(Collectors.toList());
      * }</pre>
      *
-     * @param proc анонимный метод.
+     * @param proc anonymous method.
      */
     static public void passChecked(FailableProcedure proc) {
         try {
@@ -317,11 +275,14 @@ public class ExceptionUtils {
     }
 
     /**
-     * Метод обрабатывает исключения, выброшенные из каждого анонимного метода коллекции <tt>procs</tt>, формируя
-     * коллекцию исключений.
+     * The method processes exceptions thrown from each anonymous method in the <tt>procs</tt> collection, forming
+     * a collection of exceptions.
+     * <pre>{@code
+     *   ExceptionUtils.collect(obj1::someProc, obj2::someProc).ifPresent(ExceptionUtils::throwCollected);
+     * }</pre>
      *
-     * @param procs массив анонимных методов.
-     * @return коллекция возникших исключений.
+     * @param procs array of anonymous methods.
+     * @return collection of occurred exceptions.
      */
     static public Optional<List<Exception>> collect(FailableProcedure... procs) {
         List<Exception> throwables = null;
@@ -339,11 +300,11 @@ public class ExceptionUtils {
     }
 
     /**
-     * Метод обрабатывает исключения, выброшенные из каждого анонимного метода коллекции <tt>procs</tt>, формируя
-     * коллекцию исключений. Если при выполнении анонимных методов было выброшено одно исключение, оно будет выброшено
-     * из текущего метода. Если было выброшено несколько исключений, из метода будет выброшено агрегированное исключение.
+     * The method processes exceptions thrown from each anonymous method in the <tt>procs</tt> collection, forming
+     * a collection of exceptions. If one exception was thrown during the execution of anonymous methods, it will be thrown
+     * from the current method. If several exceptions were thrown, an aggregated exception will be thrown from the method.
      *
-     * @param procs массив анонимных методов.
+     * @param procs array of anonymous methods.
      */
     static public void collectAndThrow(FailableProcedure... procs) {
         collect(procs).ifPresent(ExceptionUtils::throwCollected);

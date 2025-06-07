@@ -37,7 +37,7 @@ import java.util.function.Supplier;
  *
  * @param <T> - Тип объекта, на который будет храниться ссылка.
  */
-public class LazyRef<T> {
+public final class LazyRef<T> {
     private T val_;
     private final Supplier<T> initiator_;
 

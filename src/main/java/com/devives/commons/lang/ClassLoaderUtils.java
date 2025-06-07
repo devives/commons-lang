@@ -20,7 +20,10 @@ package com.devives.commons.lang;
 import com.devives.commons.lang.function.FailableFunction;
 import com.devives.commons.lang.function.FailableProcedure;
 
-public class ClassLoaderUtils {
+public final class ClassLoaderUtils {
+
+    private ClassLoaderUtils() {
+    }
 
     /**
      * Устанавливает переданный загрузчик классов в качестве текущего для текущего потока и выполняет анонимную функцию.

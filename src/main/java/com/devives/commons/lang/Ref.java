@@ -23,7 +23,7 @@ import java.util.function.Supplier;
 /**
  * Вспомогательный класс для организации передачи скалярных переменных по ссылке
  */
-public class Ref<C> {
+public final class Ref<C> {
     private C value = null;
 
     public C get() {

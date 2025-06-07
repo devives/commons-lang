@@ -32,7 +32,10 @@ import java.util.Optional;
 /**
  * The class contains helper methods for working with exception objects.
  */
-public class ExceptionUtils {
+public final class ExceptionUtils {
+
+    private ExceptionUtils() {
+    }
 
     /**
      * Returns the error message text along with the stack.

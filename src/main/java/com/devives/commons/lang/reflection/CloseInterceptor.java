@@ -36,7 +36,7 @@ import java.util.concurrent.ConcurrentHashMap;
  * Применяется в пулах и менеджерах объектов, где необходимо регистрировать момент завершения использования объекта
  * для уменьшения счётчика использований и/или возврата объекта в пул.
  */
-public class CloseInterceptor<T> implements InvocationHandler {
+public final class CloseInterceptor<T> implements InvocationHandler {
 
     private static final Map<Class<?>, Class<?>[]> KNOWN_INTERFACES = new ConcurrentHashMap<>();
     private final Object closeable_;

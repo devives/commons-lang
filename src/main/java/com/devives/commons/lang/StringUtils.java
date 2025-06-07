@@ -24,7 +24,10 @@ import java.util.function.Supplier;
 /**
  * Вспомогательные методы по работе со строками
  */
-public abstract class StringUtils {
+public final class StringUtils {
+
+    private StringUtils() {
+    }
 
     /**
      * Проверяет строку на равенство Null и пустой строке

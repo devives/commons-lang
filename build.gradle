@@ -94,7 +94,8 @@ publishing {
                 packaging = "jar"
                 artifactId = archivesBaseName
                 url = "https://github.com/devives/commons-lang"
-                description = "Devive Commons Lang"
+                description = "A common library of utility classes and structures"
+                name = "Devive Commons Lang"
 
                 properties = [
                         "project.build.sourceEncoding": "UTF-8"

@@ -16,22 +16,27 @@
  */
 package com.devives.commons.lang.reflection;
 
-import java.lang.reflect.Method;
+import java.util.Objects;
 
 /**
- * Declaration of the method for finding a suitable method for calling the class.
+ * Transparent decorator.
+ * <p>
+ * Allows you to declare only part of the required interface methods in the decorator object. If the required interface method is not implemented in the decorator object,
+ * the search for the required method will be performed on the delegate.
+ *
+ * @param <DELEGATE> delegate type.
+ * @see ProxyBuilder#setTarget(Object)
  */
-@FunctionalInterface
-public interface MethodFinder {
-    /**
-     * @param clazz          The class in which the method is being searched
-     * @param name           The name of the method being searched
-     * @param parameterTypes The parameters of the method being searched
-     * @return The found method or `null`.
-     * @throws NoSuchMethodException If the method is not found
-     * @throws SecurityException     If there is no access
-     */
-    Method getMethod(Class<?> clazz, String name, Class<?>... parameterTypes) throws NoSuchMethodException, SecurityException;
+public class TransparentDecorator<DELEGATE> {
+
+    private final DELEGATE delegate_;
+
+    public TransparentDecorator(DELEGATE delegate) {
+        delegate_ = Objects.requireNonNull(delegate, "delegate");
+    }
+
+    protected final DELEGATE getDelegate() {
+        return delegate_;
+    }
 
 }
-

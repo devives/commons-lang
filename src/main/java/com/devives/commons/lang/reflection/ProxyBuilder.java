@@ -16,197 +16,306 @@
  */
 package com.devives.commons.lang.reflection;
 
+import com.devives.commons.lang.ExceptionUtils;
+
 import java.lang.reflect.*;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
+import java.util.stream.Stream;
 
 /**
- * Фабрика Proxy-объектов.
+ * Proxy object factory.
  * <p>
- * Создаёт экземпляр прокси-объекта, реализующего заглушки-методов требуемого ИНТЕРФЕЙСА.
+ * Creates an instance of a proxy object that implements stubs-methods of the required interfaces.
  */
-public class ProxyBuilder {
+public final class ProxyBuilder<T> {
+
+    private final Class<?>[] interfacesOfProxy_;
+    private final ClassLoader classLoader_;
+    private Object target_;
+    private MethodFinder methodFinder_;
+    private Supplier<Map> methodMapFactory_;
 
     /**
-     * Создаёт экземпляр объекта, реализующего методы переданного интерфейса.
+     * Creates a proxy object builder.
      *
-     * @param classOfProxy класс создаваемого объекта
-     * @param <T>          тип создаваемого объекта.
-     * @return экземпляр прокси класса.
+     * @param iface      the interface of the created object.
+     * @param additional additional interfaces of the created object.
+     * @param <T>        the type of the created object.
+     * @return the proxy object builder.
      */
-    public static <T> T build(final Class<T> classOfProxy) {
-        return build(classOfProxy, new Object());
-    }
-
-    /**
-     * Создаёт экземпляр объекта, реализующего методы переданного интерфейса.
-     *
-     * @param classOfProxy класс создаваемого объекта
-     * @param classOfStub  класс объекта-делегата, реализующего методы создаваемого класса.
-     * @param <T>          тип создаваемого объекта.
-     * @param <S>          тит объекта-делегата, реализующего методы создаваемого класса.
-     * @return новый экземпляр прокси класса.
-     */
-    public static <T, S> T build(final Class<T> classOfProxy, final Class<S> classOfStub) {
-        try {
-            Object stub = classOfStub.getConstructors()[0].newInstance();
-            return build(classOfProxy, stub);
-        } catch (InstantiationException | IllegalAccessException | InvocationTargetException e) {
-            throw new RuntimeException("Proxy object initialisation error", e);
+    public static <T> ProxyBuilder<T> forClasses(final Class<T> iface, final Class<?>... additional) {
+        Objects.requireNonNull(iface, "iface");
+        Class<?>[] classesOfProxy = new Class<?>[1 + additional.length];
+        classesOfProxy[0] = iface;
+        if (additional.length >= 0) {
+            System.arraycopy(additional, 0, classesOfProxy, 1, additional.length);
         }
+        Stream.of(classesOfProxy).toArray(Class[]::new);
+        return new ProxyBuilder<T>(iface.getClassLoader(), classesOfProxy);
     }
 
     /**
-     * Создаёт экземпляр объекта, реализующего методы переданного интерфейса.
+     * Constructs the builder object
      *
-     * @param classOfProxy Класс интерфейса, для которого будет создаваться прокси-объект
-     * @param stub         Экземпляр объекта, обладающего методами, сигнатуры которых совпадают с сигнатурами методов
-     *                     интерфейса, требующих специфической реализации.
-     * @param <T>          тип создаваемого объекта.
-     * @return Прокси-объект реализующий требуемый интерфейс
+     * @param classLoader    the class loader of the required interfaces.
+     * @param interfacesOfProxy the classes of the required interfaces.
      */
-    @SuppressWarnings("unchecked")
-    public static <T> T build(final Class<T> classOfProxy, final Object stub) {
-        return build(classOfProxy, stub, Class::getMethod);
+    private ProxyBuilder(ClassLoader classLoader, Class<?>[] interfacesOfProxy) {
+        classLoader_ = classLoader;
+        interfacesOfProxy_ = interfacesOfProxy;
     }
 
     /**
-     * Создаёт экземпляр объекта, реализующего методы переданного интерфейса.
+     * Sets a reference to an object that has methods with signatures that match the signatures of the interface methods.
+     * <pre>{@code
+     * public interface SomeInterface {
+     *     int foo();
+     * }
      *
-     * @param classOfProxy Класс интерфейса, для которого будет создаваться прокси-объект
-     * @param stub         Экземпляр объекта, обладающего методами, сигнатуры которых совпадают с сигнатурами методов
-     *                     интерфейса, требующих специфической реализации.
-     * @param methodFinder Метод поиска подходящего для вызова метода экземпляра объекта {@code stub}.
-     * @param <T>          тип создаваемого объекта.
-     * @return Прокси-объект реализующий требуемый интерфейс
+     * SomeInterface proxy = ProxyBuilder
+     *   .forClasses(SomeInterface.class)
+     *   .setTarget(new Object() {
+     *       public int foo() {
+     *           return 100500;
+     *       }
+     *   })
+     *   .build();
+     *
+     * proxy.foo();
+     * }</pre>
+     * Example of using {@link TransparentDecorator}.
+     * <pre>{@code
+     * public interface SomeInterface {
+     *     int foo();
+     *     int doSome();
+     * }
+     *
+     * public class SomeTarget {
+     *     public final int foo() {
+     *         return 100000;
+     *     }
+     *     public final int doSome() {
+     *         return 100000;
+     *     }
+     * }
+     *
+     * SomeInterface proxy = ProxyBuilder
+     *   .forClasses(SomeInterface.class)
+     *   .setTarget(new TransparentDecorator(new SomeTarget()) {
+     *       public int foo() {
+     *           return 100500;
+     *       }
+     *   })
+     *   .build();
+     *
+     * proxy.foo(); // Will invoke TransparentDecorator#foo()
+     * proxy.doSome();  // Will invoke SomeTarget#doSome()
+     * }</pre>
+     * @param target the object implementing the interface methods
+     * @return the current proxy object builder.
+     */
+    public ProxyBuilder<T> setTarget(Object target) {
+        target_ = target;
+        return this;
+    }
+
+    /**
+     * Sets the method for finding the method suitable for calling the {@code target} object instance.
+     * <p>
+     * By default, {@link Class#getMethod(String, Class[])} is used.
+     * @param methodFinder the method finder.
+     * @return the current proxy object builder.
+     */
+    public ProxyBuilder<T> setMethodFinder(MethodFinder methodFinder) {
+        methodFinder_ = methodFinder;
+        return this;
+    }
+
+    /**
+     * Sets the factory of the map that will be used to cache the links to the methods of the stub object.
+     * <p>
+     * By default, {@link HashMap} is used. If multiple threads are expected to call the proxy object methods,
+     * you should use {@link ConcurrentHashMap} or another thread-safe map implementation.
+     *
+     * @param factory the map factory
+     * @return the current proxy object builder.
+     */
+    public ProxyBuilder<T> setMethodMapFactory(Supplier<Map> factory) {
+        methodMapFactory_ = factory;
+        return this;
+    }
+
+    /**
+     * Creates a new object that implements the required interfaces.
+     *
+     * @return the object that implements the required interfaces.
      */
     @SuppressWarnings("unchecked")
-    public static <T> T build(final Class<T> classOfProxy, final Object stub, final MethodFinder methodFinder) {
-        return (T) Proxy.newProxyInstance(classOfProxy.getClassLoader(),
-                new Class[]{classOfProxy},
-                new InvocationHandler() {
-
-                    private final Object stub_ = stub;
-                    private final Class<?> stubClass_ = stub.getClass();
-                    private final Map<Method, StubMethod> methodMap_ = new ConcurrentHashMap<>();
-
-                    @Override
-                    public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
-                        try {
-                            // Проверка вынесена из finally для минимизации кода и вероятности ошибки внутри finally.
-                            final boolean isClose = method.getDeclaringClass().equals(AutoCloseable.class);
-                            try {
-                                if (method.getDeclaringClass().equals(Object.class)) {
-                                    if (method.getName().equals("equals")) {
-                                        if (proxy == args[0]) {
-                                            return true;
-                                        } else if (args[0] != null && Proxy.isProxyClass(args[0].getClass())) {
-                                            Object otherStub = Proxy.getInvocationHandler(proxy);
-                                            return stub_.equals(otherStub);
-                                        } else {
-                                            return false;
-                                        }
-                                    } else {
-                                        return method.invoke(stub_, args);
-                                    }
-                                } else {
-                                    return methodMap_.computeIfAbsent(method, key -> {
-                                                try {
-                                                    Method exactMethod = methodFinder.getMethod(stubClass_, method.getName(), method.getParameterTypes());
-                                                    if (exactMethod == null) {
-                                                        throw new NoSuchMethodException(method.getName());
-                                                    }
-                                                    if (!exactMethod.isAccessible()) {
-                                                        exactMethod.setAccessible(true);
-                                                    }
-                                                    return new StubMethod(exactMethod, method.getReturnType(), methodFinder);
-                                                } catch (NoSuchMethodException e) {
-                                                    throw new UndeclaredThrowableException(e);
-                                                }
-                                            })
-                                            .invoke(stub_, args);
-                                }
-                            } finally {
-                                if (isClose) {
-                                    methodMap_.clear();
-                                }
-                            }
-                        } catch (IllegalAccessException e) {
-                            // Если не обернуть отмеченное исключение в RuntimeException,
-                            // java.lang.reflect.Proxy обернёт его в UndeclaredThrowableException,
-                            // что скроет исходное "юзеро-читаемое" сообщение.
-                            throw new UndeclaredThrowableException(e);
-                        } catch (InvocationTargetException e) {
-                            if (e.getCause() instanceof RuntimeException) {
-                                throw e.getCause();
-                            } else if (e.getCause() instanceof Exception) {
-                                throw new UndeclaredThrowableException(e.getCause());
-                            } else {
-                                throw e.getCause();
-                            }
-                        }
-                    }
-                }
+    public T build() {
+        return (T) Proxy.newProxyInstance(
+                classLoader_,
+                interfacesOfProxy_,
+                new InvocationHandlerImpl(
+                        target_ != null ? target_ : new Object(),
+                        methodMapFactory_ != null ? Objects.requireNonNull(methodMapFactory_.get(), "Factory must return Map instance.") : new HashMap<>(),
+                        methodFinder_ != null ? methodFinder_ : Class::getMethod)
         );
     }
 
-    private static final class StubMethod {
+    /**
+     * Implementation of {@link InvocationHandler}.
+     */
+    private static final class InvocationHandlerImpl implements InvocationHandler {
+        private final Object stub_;
+        private final Class<?> stubClass_;
+        private final MethodFinder methodFinder_;
+        private final Map<Method, StubMethod> methodMap_;
+
+        public InvocationHandlerImpl(final Object target, final Map<Method, StubMethod> methodMap, final MethodFinder methodFinder) {
+            stub_ = target;
+            stubClass_ = target.getClass();
+            methodMap_ = methodMap;
+            methodFinder_ = methodFinder;
+        }
+
+        @Override
+        public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
+            try {
+                return getStubMethod(method).invoke(args);
+            } catch (InvocationTargetException e) {
+                if (e.getCause() instanceof RuntimeException) {
+                    throw e.getCause();
+                } else if (e.getCause() instanceof Exception) {
+                    throw new UndeclaredThrowableException(e.getCause());
+                } else {
+                    throw e.getCause();
+                }
+            } catch (Throwable e) {
+                // If we don't wrap the marked exception in RuntimeException,
+                // java.lang.reflect.Proxy will wrap it in UndeclaredThrowableException,
+                // which will hide the original "user-readable" message.
+                throw new UndeclaredThrowableException(e);
+            }
+        }
+
+        private StubMethod getStubMethod(Method method) {
+            return methodMap_.computeIfAbsent(method, key -> {
+                try {
+                    if (method.getDeclaringClass().equals(Object.class) && method.getName().equals("equals")) {
+                        return new EqualsStubMethod(stub_, method, method.getReturnType(), methodFinder_);
+                    } else {
+                        Object exactStub;
+                        Method exactMethod;
+                        try {
+                            exactStub = stub_;
+                            exactMethod = methodFinder_.getMethod(stubClass_, method.getName(), method.getParameterTypes());
+                        } catch (NoSuchMethodException nsc) {
+                            if (stub_ instanceof TransparentDecorator) {
+                                exactStub = ((TransparentDecorator) stub_).getDelegate();
+                                exactMethod = methodFinder_.getMethod(exactStub.getClass(), method.getName(), method.getParameterTypes());
+                            } else {
+                                throw nsc;
+                            }
+                        }
+                        if (!exactMethod.isAccessible()) {
+                            exactMethod.setAccessible(true);
+                        }
+                        return new StubMethod(exactStub, exactMethod, method.getReturnType(), methodFinder_);
+                    }
+                } catch (NoSuchMethodException e) {
+                    throw ExceptionUtils.asUnchecked(e);
+                }
+            });
+        }
+    }
+
+    private static class EqualsStubMethod extends StubMethod {
+
+        public EqualsStubMethod(Object target, Method method, Class<?> returnType, MethodFinder methodFinder) {
+            super(target, method, returnType, methodFinder);
+        }
+
+        @Override
+        protected Object[] prepareArgs(Object... args) {
+            if (args[0] != null && Proxy.isProxyClass(args[0].getClass())) {
+                final InvocationHandler otherInvocationHandler = Proxy.getInvocationHandler(args[0]);
+                if (otherInvocationHandler instanceof InvocationHandlerImpl) {
+                    return new Object[]{((InvocationHandlerImpl) otherInvocationHandler).stub_};
+                }
+            }
+            return super.prepareArgs(args);
+        }
+    }
+
+    private static class StubMethod {
         /**
-         * Ссылка на метод класса Stub-объекта
+         * Reference to the method of the Stub object class
          */
         public final Method method;
         /**
-         * Класс ожидаемого результата
+         * The expected result class
          */
         private final Class<?> returnType;
         /**
-         * Метод поиска подходящего для вызова метода класса.
+         * The method for finding the suitable method of the class.
          */
         private final MethodFinder methodFinder_;
         /**
-         * Реальный результат, возвращённый Stub-методом. Его тип может не совпадать с {@link StubMethod#returnType}.
+         * The actual result returned by the Stub method. Its type may not match {@link StubMethod#returnType}.
          */
         private Object rawResult;
         /**
-         * Результат предыдущего вызова {@link StubMethod#invoke(Object, Object...)}, тип которого
-         * совпадает с ожидаемым {@link StubMethod#returnType}.
+         * The result of the previous call to {@link StubMethod#invoke(Object...)}, whose type
+         * matches the expected {@link StubMethod#returnType}.
          */
         private Object typedResult;
+        /**
+         * The target object for which the method will be called.
+         */
+        private final Object target;
 
-        public StubMethod(Method method, Class<?> returnType, MethodFinder methodFinder) {
+        public StubMethod(Object target, Method method, Class<?> returnType, MethodFinder methodFinder) {
+            this.target = target;
             this.method = method;
             this.returnType = returnType;
             this.methodFinder_ = methodFinder;
         }
 
-        public Object invoke(Object obj, Object... args) throws InvocationTargetException, IllegalAccessException {
-            return castResult(method.invoke(obj, args));
+        public final Object invoke(Object... args) throws InvocationTargetException, IllegalAccessException {
+            return castResult(method.invoke(target, prepareArgs(args)));
         }
 
+        protected Object[] prepareArgs(Object... args) {
+            return args;
+        }
         /**
-         * Stub-метод может вернуть объект, не поддерживающий ожидаемый интерфейс/класс. В этом случае создаю прокси объект.
+         * The Stub method may return an object that does not support the expected interface/class. In this case, a proxy object is created.
          *
-         * @param value Значение, возвращённое stub-методом.
-         * @return Значение ожидаемого типа
+         * @param value The value returned by the target method.
+         * @return The value of the expected type
          */
-        private Object castResult(Object value) {
+        protected Object castResult(Object value) {
             synchronized (this) {
                 if (value != null) {
-                    //Сравнение на равенство ссылок.
+                    // Reference equality comparison.
                     if (value == rawResult) {
-                        //Если вернулся тот же объект, что при предыдущем вызове, возвращаем тот же объект.
+                        // If the same object was returned as in the previous call, return the same object.
                         return typedResult;
                     } else if (returnType.isInstance(value)) {
                         rawResult = value;
                         typedResult = value;
                     } else if (returnType.isInterface()) {
-                        // Тип rawResult не совпал с ожидаемым интерфейсом, создаём прокси-объект.
-                        typedResult = ProxyBuilder.build(returnType, value, methodFinder_);
+                        // The rawResult type did not match the expected interface, create a proxy object.
+                        typedResult = ProxyBuilder.forClasses(returnType).setTarget(value).setMethodFinder(methodFinder_).build();
                         rawResult = value;
                         value = typedResult;
                     } else {
-                        // Если ожидаемым результатом является примитив, рассчитываем на получение преобразуемого в прмитив значения.
-                        // Если же классы не конвертируемы, то будет ошибка приведения, тут ничего не поделать.
+                        // If the expected result is a primitive, we expect to get a convertible primitive value.
+                        // If the classes are not convertible, there will be a casting error, there is nothing we can do about it.
                         rawResult = value;
                         typedResult = value;
                     }
@@ -219,12 +328,4 @@ public class ProxyBuilder {
         }
     }
 
-    public static Class<?>[] getArgsClasses(Object[] args) {
-        if (args == null) return null;
-        Class<?>[] result = new Class<?>[args.length];
-        for (int i = 0; i < args.length; i++) {
-            result[i] = (args[i] != null) ? args[i].getClass() : null;
-        }
-        return result;
-    }
 }

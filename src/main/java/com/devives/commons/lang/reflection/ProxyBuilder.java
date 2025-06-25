@@ -24,6 +24,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -213,10 +214,16 @@ public final class ProxyBuilder<T> {
                         try {
                             exactStub = stub_;
                             exactMethod = methodFinder_.getMethod(stubClass_, method.getName(), method.getParameterTypes());
+                            if (exactMethod == null) {
+                                throw new NoSuchMethodException(method.getDeclaringClass().getName() + "." + method.getName() + argumentTypesToString(method.getParameterTypes()));
+                            }
                         } catch (NoSuchMethodException nsc) {
                             if (stub_ instanceof TransparentDecorator) {
                                 exactStub = ((TransparentDecorator) stub_).getDelegate();
                                 exactMethod = methodFinder_.getMethod(exactStub.getClass(), method.getName(), method.getParameterTypes());
+                                if (exactMethod == null) {
+                                    throw new NoSuchMethodException(method.getDeclaringClass().getName() + "." + method.getName() + argumentTypesToString(method.getParameterTypes()));
+                                }
                             } else {
                                 throw nsc;
                             }
@@ -328,4 +335,7 @@ public final class ProxyBuilder<T> {
         }
     }
 
+    private static String argumentTypesToString(Class<?>[] parameterTypes) {
+        return "(" + Stream.of(parameterTypes).map(t -> t != null ? t.getName() : "null").collect(Collectors.joining(", ")) + ")";
+    }
 }

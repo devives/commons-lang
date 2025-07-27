@@ -28,6 +28,8 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testImplementation 'org.junit.platform:junit-platform-suite'
+    testImplementation 'org.apache.commons:commons-lang3:3.16.0'
+    testImplementation("org.apache.commons:commons-collections4:4.5.0:tests")
 }
 
 java {

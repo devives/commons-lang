@@ -24,6 +24,12 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.Objects;
 
+/**
+ * Реализация хранилища бинарных данных разбитых на чанки.
+ *
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
+ */
 public final class ChunkedByteStore extends AbstractByteStore {
 
     private final ChunkManager<?> chunkManager_;

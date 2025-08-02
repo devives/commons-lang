@@ -16,7 +16,6 @@
  */
 package com.devives.commons.collection;
 
-import com.devives.commons.collection.store.BufferController;
 import com.devives.commons.collection.store.BufferedStore;
 import com.devives.commons.io.store.FileByteStore;
 
@@ -24,10 +23,15 @@ import com.devives.commons.io.store.FileByteStore;
  * A buffered list of elements stored in a file on disk, in serialized form.
  * <p>
  * When data is inserted or deleted at the beginning or middle of the store, the tail of the data is shifted within the file.
-
+ * <pre>{@code
+ * Path tempPath = Paths.get(System.getProperty("java.io.tmpdir"));
+ * list = FileList.ofLongs().setFileByteStore(tempPath).setBuffered().build();
+ * }</pre>
  * @see FileByteStore
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
-public class BufferedFileList<E> extends FileList<E> implements AutoCloseable, BufferController {
+public class BufferedFileList<E> extends FileList<E> implements BufferedList<E> {
 
     BufferedFileList(BufferedStore<E> bufferedStore, AutoCloseable... autoCloseable) {
         super(bufferedStore, autoCloseable);

@@ -16,42 +16,16 @@
  */
 package com.devives.commons.collection;
 
-import com.devives.commons.collection.store.BufferedObjectStore;
-import com.devives.commons.collection.store.BufferedStoreList;
-import com.devives.commons.collection.store.ObjectStore;
-
 import java.util.List;
 
 /**
  * Буферизированный список элементов.
- * <p>
- * В качестве буфера и основного хранилища элементов используются списки {@link List}.
- * <p>
- * Структура обеспечивает ускорение массовых вставок и удалений элементов в начале/середине большого {@link java.util.ArrayList}.
  *
  * @param <E> Тип элемента
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
-public class BufferedList<E> extends BufferedStoreList<E> {
+public interface BufferedList<E> extends List<E>, BufferController {
 
-    /**
-     * Создаёт буферизированный список.
-     * <p>
-     * В качестве буфера используется {@link java.util.ArrayList}.
-     *
-     * @param list основной список, который будет использоваться в качестве основного хранилища элементов.
-     */
-    public BufferedList(List<E> list) {
-        super(new BufferedObjectStore<>(new ObjectStore<E>(list)));
-    }
-
-    /**
-     * Создаёт буферизированный список.
-     *
-     * @param list       основной список, который будет использоваться в качестве основного хранилища элементов.
-     * @param bufferList буферный список, который будет использоваться в качестве буфера.
-     */
-    public BufferedList(List<E> list, List<E> bufferList) {
-        super(new BufferedObjectStore<E>(new ObjectStore<E>(list), new ObjectStore<E>(bufferList)));
-    }
 
 }

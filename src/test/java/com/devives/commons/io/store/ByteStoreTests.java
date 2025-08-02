@@ -491,7 +491,7 @@ public class ByteStoreTests extends TempDirectoryTestBase {
     class HeapByteBufferStoreTest extends CommonTests {
         @BeforeEach
         void setUp() throws IOException {
-            store = new ByteBufferStore(ByteBuffer.allocate(8));
+            store = new ByteBufferStore(ByteBuffer::allocate, 8);
             super.setUp();
         }
     }
@@ -500,7 +500,7 @@ public class ByteStoreTests extends TempDirectoryTestBase {
     class DirectByteBufferStoreTest extends CommonTests {
         @BeforeEach
         void setUp() throws IOException {
-            store = new ByteBufferStore(ByteBuffer.allocateDirect(8));
+            store = new ByteBufferStore(ByteBuffer::allocateDirect, 8);
             super.setUp();
         }
     }

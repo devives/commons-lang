@@ -25,6 +25,8 @@ import java.io.IOException;
  * Interface of element transformer to a binary stream and back.
  *
  * @param <E> Type of element.
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
 public interface BinarySerializer<E> {
 

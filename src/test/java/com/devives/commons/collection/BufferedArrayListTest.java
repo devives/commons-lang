@@ -16,7 +16,6 @@
  */
 package com.devives.commons.collection;
 
-import com.devives.commons.collection.store.BufferController;
 import org.junit.jupiter.api.BeforeEach;
 
 import java.util.ArrayList;
@@ -25,7 +24,7 @@ public class BufferedArrayListTest extends RndOpsTestBase {
 
     @BeforeEach
     public void beforeEach() {
-        list = new BufferedList(new ArrayList());
+        list = BufferedLists.of(new ArrayList()).build();
         ((BufferController) list).setBufferSize(1024);
     }
 

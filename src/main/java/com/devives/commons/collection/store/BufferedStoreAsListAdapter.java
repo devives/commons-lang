@@ -16,14 +16,18 @@
  */
 package com.devives.commons.collection.store;
 
+import com.devives.commons.collection.BufferedList;
+
 import java.util.List;
 
 /**
  * Адаптер буферизированного хранилища объектов {@link BufferedStore} к интерфейсу {@link List}.
  *
  * @param <E> тип элемента списка.
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
-public class BufferedStoreList<E> extends StoreList<E> implements BufferController {
+public class BufferedStoreAsListAdapter<E> extends StoreAsListAdapter<E> implements BufferedList<E> {
     /**
      * Буферизированное хранилище элементов.
      */
@@ -33,7 +37,7 @@ public class BufferedStoreList<E> extends StoreList<E> implements BufferControll
      *
      * @param bufferedStore Хранилище элементов.
      */
-    public BufferedStoreList(BufferedStore<E> bufferedStore) {
+    public BufferedStoreAsListAdapter(BufferedStore<E> bufferedStore) {
         super(bufferedStore);
         bufferedStore_ = bufferedStore;
     }

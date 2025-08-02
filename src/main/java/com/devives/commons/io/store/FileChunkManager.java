@@ -29,6 +29,14 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * Реализация менеджера чанков бинарных данных, хранимых в файлах на диске.
+ * <pre>{@code
+ *
+ * }</pre>
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
+ */
 public final class FileChunkManager
         extends AbstractChunkManager<FileChunkManager.FileChunk, FileChunkManager.FileChunkDescriptor>
         implements Closeable {
@@ -38,7 +46,7 @@ public final class FileChunkManager
 
     public FileChunkManager(Path directoryPath, int chunkMaxCapacity, int openedFileMaxCount) {
         super(chunkMaxCapacity);
-        Objects.requireNonNull(directoryPath, "The path to work directory can not be null.");
+        directoryPath_ = Objects.requireNonNull(directoryPath, "The path to work directory can not be null.");
         try {
             if (!Files.exists(directoryPath)) {
                 throw new IOException(String.format("Directory '%s' is not exist.", directoryPath.toAbsolutePath()));
@@ -47,7 +55,6 @@ public final class FileChunkManager
                 throw new IOException(String.format("Path '%s' is not a directory.", directoryPath.toAbsolutePath()));
             }
             chunkMap_ = new LimitedLinkedHashMap(openedFileMaxCount);
-            this.directoryPath_ = directoryPath;
         } catch (IOException e) {
             throw ExceptionUtils.asUnchecked(e);
         }

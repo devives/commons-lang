@@ -16,6 +16,8 @@
  */
 package com.devives.commons.collection.store;
 
+import com.devives.commons.collection.BufferController;
+
 /**
  * Интерфейс хранилища элементов с поддержкой буферизации.
  * <p>
@@ -23,6 +25,8 @@ package com.devives.commons.collection.store;
  * и стандартного хранилища ({@link Store}).
  *
  * @param <E> тип элементов, хранимых в буфере и основном хранилище
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
 public interface BufferedStore<E> extends Store<E>, BufferController {
 }

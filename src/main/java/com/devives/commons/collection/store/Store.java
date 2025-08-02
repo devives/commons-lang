@@ -16,6 +16,9 @@
  */
 package com.devives.commons.collection.store;
 
+import com.devives.commons.collection.store.serializer.BinarySerializer;
+
+import java.io.DataInput;
 import java.util.Collection;
 import java.util.Collections;
 
@@ -23,14 +26,18 @@ import java.util.Collections;
  * Interface of object storage with indexed access.
  *
  * @param <E> Type of stored elements.
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
 public interface Store<E> {
 
     /**
-     * Returns an element by index.
+     * Метод считывает из хранилища бинарные данные, соответствующие элементу с указанным индексом, и вызывает
+     * метод преобразователя {@link BinarySerializer#deserialize(DataInput)} для десериализации объекта. Преобразователь может
+     * вернуть новый или существующий объект.
      *
-     * @param index Index from "0" to "size() - 1".
-     * @return Element.
+     * @param index Индекс от "0" до "size() - 1".
+     * @return Объект, десериализованный преобразователем.
      */
     E get(int index);
 

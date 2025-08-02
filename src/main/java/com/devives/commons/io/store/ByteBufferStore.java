@@ -18,13 +18,17 @@ package com.devives.commons.io.store;
 
 import java.nio.ByteBuffer;
 import java.util.Objects;
+import java.util.function.Function;
 
 /**
  * Byte storage based on a byte array.
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
 public final class ByteBufferStore extends AbstractByteStore {
 
     private final static int DEFAULT_CAPACITY = 16 * 1024;
+    private Function<Integer, ByteBuffer> byteBufferFactory_;
     private ByteBuffer byteBuffer_;
 
     /**
@@ -40,16 +44,29 @@ public final class ByteBufferStore extends AbstractByteStore {
      * @param initialCapacity Buffer size. Optimal: 16..32Kb.
      */
     public ByteBufferStore(int initialCapacity) {
-        this(ByteBuffer.allocate(initialCapacity), 0);
+        this(ByteBuffer::allocate, ByteBuffer.allocate(initialCapacity), 0);
     }
 
     /**
-     * Creates a byte storage based on the specified array.
+     * Creates a byte storage based on byte buffer.
      *
-     * @param byteBuffer byte array
+     * @param byteBufferFactory byte buffer factory
      */
-    public ByteBufferStore(ByteBuffer byteBuffer) {
-        byteBuffer_ = Objects.requireNonNull(byteBuffer);
+    public ByteBufferStore(Function<Integer, ByteBuffer> byteBufferFactory) {
+        byteBufferFactory_ = Objects.requireNonNull(byteBufferFactory);
+        byteBuffer_ = byteBufferFactory.apply(DEFAULT_CAPACITY);
+        size_ = 0;
+    }
+
+    /**
+     * Creates a byte storage based on byte buffer.
+     *
+     * @param byteBufferFactory byte buffer factory
+     * @param initialCapacity   initial capacity of the byte buffer.
+     */
+    public ByteBufferStore(Function<Integer, ByteBuffer> byteBufferFactory, int initialCapacity) {
+        byteBufferFactory_ = Objects.requireNonNull(byteBufferFactory);
+        byteBuffer_ = byteBufferFactory.apply(initialCapacity);
         size_ = 0;
     }
 
@@ -58,7 +75,8 @@ public final class ByteBufferStore extends AbstractByteStore {
      *
      * @param byteBuffer byte array
      */
-    public ByteBufferStore(ByteBuffer byteBuffer, int size) {
+    public ByteBufferStore(Function<Integer, ByteBuffer> byteBufferFactory, ByteBuffer byteBuffer, int size) {
+        byteBufferFactory_ = Objects.requireNonNull(byteBufferFactory);
         byteBuffer_ = Objects.requireNonNull(byteBuffer);
         size_ = size;
     }

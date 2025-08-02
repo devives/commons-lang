@@ -16,6 +16,12 @@
  */
 package com.devives.commons.collection.store;
 
+/**
+ *
+ * @param <E>
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
+ */
 public abstract class AbstractStore<E> implements Store<E> {
 
 

@@ -27,6 +27,8 @@ import java.util.Objects;
  * <p>
  * The class does not implement the storage functionality, but only imposes additional restrictions on the sizes
  * of the read and written data buffers.
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
 public final class AlignedByteStore implements ByteStore {
 

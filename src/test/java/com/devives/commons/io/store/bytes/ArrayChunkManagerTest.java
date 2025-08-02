@@ -16,9 +16,8 @@
  */
 package com.devives.commons.io.store.bytes;
 
+import com.devives.commons.collection.BufferedList;
 import com.devives.commons.collection.SerializedChunkedLists;
-import com.devives.commons.collection.store.BufferedStoreList;
-import com.devives.commons.collection.store.StoreList;
 import com.devives.commons.io.store.ArrayChunkManager;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -61,7 +60,7 @@ public class ArrayChunkManagerTest {
     @Test
     public void test_0() throws Exception {
         ArrayChunkManager chunkManager = new ArrayChunkManager(16);
-        BufferedStoreList<Long> list = SerializedChunkedLists.ofLongs().setChunkManager(chunkManager).setBuffered().build();
+        BufferedList<Long> list = SerializedChunkedLists.ofLongs().setChunkManager(chunkManager).setBuffered().build();
         list.setBufferSize(6);
         list.addAll(Arrays.asList(0L, 1L, 2L, 3L, 4L, 5L));
         list.flushBuffer();
@@ -77,7 +76,7 @@ public class ArrayChunkManagerTest {
     @Test
     public void test_1() throws Exception {
         ArrayChunkManager chunkManager = new ArrayChunkManager(24);
-        StoreList<Long> list = SerializedChunkedLists.ofLongs().setChunkManager(chunkManager).build();
+        List<Long> list = SerializedChunkedLists.ofLongs().setChunkManager(chunkManager).build();
         list.addAll(Arrays.asList(0L, 1L, 2L, 3L, 4L, 5L));
         Assertions.assertEquals(2, chunkManager.getChunkCount());
         list.addAll(2, Arrays.asList(6L, 7L, 8L, 9L, 10L, 11L, 12L));

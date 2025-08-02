@@ -17,7 +17,7 @@
 package com.devives.commons.io.store;
 
 import com.devives.commons.TempDirectoryTestBase;
-import com.devives.commons.collection.store.BufferController;
+import com.devives.commons.collection.BufferController;
 import com.devives.commons.collection.store.BufferedSerializedStore;
 import com.devives.commons.collection.store.SerializedStore;
 import com.devives.commons.collection.store.Store;

@@ -14,12 +14,14 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.devives.commons.collection.store;
+package com.devives.commons.collection;
 
 /**
  * Interface of the buffer controller.
  * <p>
  * The buffer optimizes the operations of reading/writing elements from/to the element store.
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
 public interface BufferController {
 

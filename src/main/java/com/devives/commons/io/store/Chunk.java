@@ -23,6 +23,8 @@ package com.devives.commons.io.store;
  * чтения, записи, вставки, замены и удаления диапазонов байтов.
  * <p>
  * Реализации могут использовать различные способы хранения данных (например, в памяти или на диске).
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
 public interface Chunk extends ByteStore {
 

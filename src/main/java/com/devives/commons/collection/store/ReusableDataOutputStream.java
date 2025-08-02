@@ -20,6 +20,8 @@ import java.io.DataOutputStream;
 
 /**
  * The class implements an output stream that can have the number of bytes written reset.
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
 final class ReusableDataOutputStream extends DataOutputStream {
 

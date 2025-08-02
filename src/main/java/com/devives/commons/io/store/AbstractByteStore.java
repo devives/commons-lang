@@ -23,6 +23,8 @@ import java.nio.ByteBuffer;
 
 /**
  * An abstract implementation of random-access byte storage.
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
 public abstract class AbstractByteStore implements ByteStore {
 

@@ -24,6 +24,8 @@ import java.util.*;
  * Commonly used as a buffer store of elements.
  *
  * @param <E> an element type.
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
 public final class ObjectStore<E> extends AbstractStore<E> {
 

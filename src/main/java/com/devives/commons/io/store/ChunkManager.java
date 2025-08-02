@@ -23,6 +23,8 @@ package com.devives.commons.io.store;
  * Используется для эффективного управления крупными массивами данных, разбитыми на части (чанки).
  *
  * @param <C> тип чанка
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
 public interface ChunkManager<C extends Chunk> {
 

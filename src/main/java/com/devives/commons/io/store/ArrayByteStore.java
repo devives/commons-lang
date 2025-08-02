@@ -22,6 +22,8 @@ import java.util.Objects;
 
 /**
  * Byte storage based on a byte array.
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
 public final class ArrayByteStore extends AbstractByteStore {
 

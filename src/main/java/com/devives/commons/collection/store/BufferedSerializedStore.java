@@ -24,7 +24,11 @@ import java.util.Objects;
 /**
  * The class implements a buffered storage of objects in serialized form.
  *
+ * При добавлении объекта в хранилище, он сразу же сериализуется в бинарную форму и помещается в буфер.
+ *
  * @param <E> Type of elements.
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
 public final class BufferedSerializedStore<E> extends AbstractBufferedStore<E> implements Serialized {
     /**

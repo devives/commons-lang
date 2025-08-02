@@ -20,11 +20,19 @@ import com.devives.commons.lang.ExceptionUtils;
 
 import java.io.*;
 
+/**
+ * @param <E> тип объектов.
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
+ */
 public class ObjectBinarySerializer<E> implements BinarySerializer<E> {
 
     private final int size_;
 
     public ObjectBinarySerializer(int size) {
+        if (size < 1) {
+            throw new IllegalArgumentException("Size can not be lower than '1'. Actual: '" + size + "'.");
+        }
         size_ = size;
     }
 

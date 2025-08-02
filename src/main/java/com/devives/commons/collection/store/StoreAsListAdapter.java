@@ -26,8 +26,10 @@ import java.util.Objects;
  * Адаптер хранилища объектов {@link Store} к интерфейсу {@link List}.
  *
  * @param <E> тип элемента списка.
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
-public class StoreList<E> extends AbstractList<E> {
+public class StoreAsListAdapter<E> extends AbstractList<E> {
     /**
      * Хранилище сериализованных элементов.
      */
@@ -37,7 +39,7 @@ public class StoreList<E> extends AbstractList<E> {
      *
      * @param store Хранилище элементов.
      */
-    public StoreList(Store<E> store) {
+    public StoreAsListAdapter(Store<E> store) {
         store_ = Objects.requireNonNull(store);
     }
 

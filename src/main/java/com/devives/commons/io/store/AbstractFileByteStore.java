@@ -27,6 +27,8 @@ import java.util.Objects;
 
 /**
  * Abstract implementation of byte storage based on {@link File}.
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
 public abstract class AbstractFileByteStore extends AbstractByteStore implements AutoCloseable {
 
@@ -82,7 +84,7 @@ public abstract class AbstractFileByteStore extends AbstractByteStore implements
             options_ = Objects.requireNonNull(options, "options");
         }
 
-        public FileChannel openChannel(OpenOption ... options) throws IOException {
+        protected FileChannel openChannel(OpenOption ... options) throws IOException {
             return FileChannel.open(file_.toPath(), options);
         }
 
@@ -96,6 +98,7 @@ public abstract class AbstractFileByteStore extends AbstractByteStore implements
 
         protected void closeChannel() throws IOException {
             try {
+                // The file may exist, but the channel was not opened.
                 if (channel_ != null && channel_.isOpen()) {
                     channel_.close();
                 } else if (Arrays.binarySearch(options_, StandardOpenOption.DELETE_ON_CLOSE) >= 0) {

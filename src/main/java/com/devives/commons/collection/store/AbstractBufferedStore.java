@@ -25,6 +25,8 @@ import java.util.Objects;
  * When an object is added to the storage, the object is cached. Depending on the implementation,
  * the cache may store a reference or perform serialization.
  * @param <E> Type of elements.
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
 abstract class AbstractBufferedStore<E> extends AbstractStore<E> implements BufferedStore<E> {
     protected final AbstractBuffer<E> buffer_;

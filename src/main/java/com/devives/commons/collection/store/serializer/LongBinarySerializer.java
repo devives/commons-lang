@@ -20,6 +20,10 @@ import java.io.DataInput;
 import java.io.DataOutput;
 import java.io.IOException;
 
+/**
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
+ */
 public class LongBinarySerializer implements BinarySerializer<Long> {
 
     @Override

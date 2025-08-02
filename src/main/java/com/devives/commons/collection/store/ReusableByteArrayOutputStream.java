@@ -28,6 +28,8 @@ import java.util.Objects;
  * <li>The methods of the class are not synchronized.
  * <li>The reference to the buffer and the number of bytes written can be changed.
  * </ul>
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
 final class ReusableByteArrayOutputStream extends OutputStream {
 

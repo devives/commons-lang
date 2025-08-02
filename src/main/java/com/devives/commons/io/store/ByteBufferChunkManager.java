@@ -17,16 +17,21 @@
 package com.devives.commons.io.store;
 
 
-import com.devives.commons.lang.function.Function1;
-
 import java.nio.ByteBuffer;
 import java.util.Objects;
+import java.util.function.Function;
 
+/**
+ * Реализация менеджера чанков бинарных данных, хранимых в {@link ByteBuffer}.
+ *
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
+ */
 public final class ByteBufferChunkManager extends AbstractChunkManager<ByteBufferChunkManager.ByteBufferChunk, ByteBufferChunkManager.ByteBufferChunkDescriptor> {
 
-    private final Function1<Integer, ByteBuffer> byteBufferFactory_;
+    private final Function<Integer, ByteBuffer> byteBufferFactory_;
 
-    public ByteBufferChunkManager(int chunkMaxCapacity, Function1<Integer, ByteBuffer> byteBufferFactory) {
+    public ByteBufferChunkManager(int chunkMaxCapacity, Function<Integer, ByteBuffer> byteBufferFactory) {
         super(chunkMaxCapacity);
         byteBufferFactory_ = Objects.requireNonNull(byteBufferFactory, "byteBufferFactory");
     }
@@ -40,7 +45,7 @@ public final class ByteBufferChunkManager extends AbstractChunkManager<ByteBuffe
 
         private final ByteBufferChunk chunk_;
 
-        public ByteBufferChunkDescriptor(int chunkCapacity, Function1<Integer, ByteBuffer> byteBufferFactory) {
+        public ByteBufferChunkDescriptor(int chunkCapacity, Function<Integer, ByteBuffer> byteBufferFactory) {
             chunk_ = new ByteBufferChunk(this, chunkCapacity, byteBufferFactory);
         }
 
@@ -59,9 +64,9 @@ public final class ByteBufferChunkManager extends AbstractChunkManager<ByteBuffe
 
         private final ByteBufferStore byteStore_;
 
-        public ByteBufferChunk(ByteBufferChunkDescriptor descriptor, int initialCapacity, Function1<Integer, ByteBuffer> byteBufferFactory) {
+        public ByteBufferChunk(ByteBufferChunkDescriptor descriptor, int initialCapacity, Function<Integer, ByteBuffer> byteBufferFactory) {
             super(descriptor);
-            byteStore_ = new ByteBufferStore(byteBufferFactory.apply(initialCapacity));
+            byteStore_ = new ByteBufferStore(byteBufferFactory, initialCapacity);
         }
 
         @Override

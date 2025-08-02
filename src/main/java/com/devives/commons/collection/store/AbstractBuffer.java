@@ -25,6 +25,8 @@ import java.util.Objects;
  * Abstract buffer of &lt;E&gt; elements .
  *
  * @param <E> Type of elements.
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
 abstract class AbstractBuffer<E> {
 

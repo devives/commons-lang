@@ -20,6 +20,15 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Абстрактная реализация менеджера чанков бинарных данных.
+ * <p>
+ *
+ * @param <C> тип чанков
+ * @param <D> тип описателей чанков
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
+ */
 public abstract class AbstractChunkManager<
         C extends AbstractChunkManager.AbstractChunk,
         D extends AbstractChunkManager.AbstractChunkDescriptor>

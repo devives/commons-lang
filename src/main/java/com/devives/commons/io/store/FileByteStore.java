@@ -32,10 +32,12 @@ import java.util.Objects;
  * A single file-based {@link File} byte store.
  * <p>
  * When inserting or deleting data at the beginning or middle of a store, the tail of the data is moved.
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
 public final class FileByteStore extends AbstractFileByteStore {
     private final FileChannelSource fileChannelSource_;
-    private int transferBufferSize_ = 64 * 1024; // 16 KiB
+    private int transferBufferSize_ = 64 * 1024; // 64 KiB
 
     /**
      * @param file file.

@@ -34,6 +34,8 @@ import java.util.Objects;
  * <p>
  * Read and write operations to the end are performed within one file.
  * If writing to the middle is required, the data is transferred to the second file, which becomes active.
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
 public final class BiFileByteStore extends AbstractFileByteStore {
     private FileChannelSource activeFileChannelSource_;

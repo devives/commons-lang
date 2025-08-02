@@ -26,6 +26,8 @@ import java.io.InputStream;
  * <li>Class methods are not synchronized.
  * <li>Buffer reference and current position can be changed.
  * </ul>
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
 final class ReusableByteArrayInputStream extends InputStream {
 

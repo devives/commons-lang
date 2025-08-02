@@ -21,7 +21,6 @@ import com.devives.commons.io.store.AlignedByteStore;
 import com.devives.commons.io.store.ArrayByteStore;
 import com.devives.commons.lang.ExceptionUtils;
 
-import java.io.DataInput;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -32,6 +31,8 @@ import java.util.Objects;
  * The class implements a storage of &lt;E&gt; elements in serialized form.
  *
  * @param <E> Type of elements.
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
 public final class SerializedStore<E> extends AbstractStore<E> implements Serialized {
 
@@ -48,13 +49,13 @@ public final class SerializedStore<E> extends AbstractStore<E> implements Serial
     public SerializedStore(BinarySerializer<E> binarySerializer, AlignedByteStore alignedByteStore) {
         alignedByteStore_ = Objects.requireNonNull(alignedByteStore);
         elementMarshaller_ = new ElementMarshaller(binarySerializer);
-        writeBufferSize_ = Math.max(1, 8192 / getElementSize());
+        writeBufferSize_ = Math.max(1, 16 * 1024 / getElementSize());
     }
 
     /**
      * Return the write buffer size, in elements.
      *
-     * @return size.
+     * @return size, in elements.
      */
     public int getWriteBufferSize() {
         return writeBufferSize_;
@@ -63,7 +64,7 @@ public final class SerializedStore<E> extends AbstractStore<E> implements Serial
     /**
      * Set the property {@link #getWriteBufferSize()}.
      *
-     * @param value new value.
+     * @param value new value, in elements.
      */
     public void setWriteBufferSize(int value) {
         if (value < 1) {
@@ -77,14 +78,7 @@ public final class SerializedStore<E> extends AbstractStore<E> implements Serial
         alignedByteStore_.insert(index, elementMarshaller_.serialize(element));
     }
 
-    /**
-     * Метод считывает из хранилища бинарные данные, соответствующие элементу с указанным индексом, и вызывает
-     * метод преобразователя {@link BinarySerializer#deserialize(DataInput)} для десериализации объекта. Преобразователь может
-     * вернуть новый или существующий объект.
-     *
-     * @param index Индекс от "0" до "size() - 1".
-     * @return Объект, десериализованный преобразователем.
-     */
+
     @Override
     public E get(int index) {
         return elementMarshaller_.deserialize(index);

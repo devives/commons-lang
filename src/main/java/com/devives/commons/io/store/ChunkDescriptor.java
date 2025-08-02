@@ -22,6 +22,8 @@ package com.devives.commons.io.store;
  * Используется для управления метаданными и ссылками на чанк в менеджерах чанков.
  *
  * @param <C> тип чанка
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
 public interface ChunkDescriptor<C extends Chunk> {
 

@@ -20,6 +20,8 @@ import java.nio.ByteBuffer;
 
 /**
  * The interface of random access byte storage.
+ * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
+ * @since 0.3.0
  */
 public interface ByteStore {
 

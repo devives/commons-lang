@@ -21,7 +21,10 @@ import com.devives.commons.collection.store.BufferedStoreAsListAdapter;
 import com.devives.commons.collection.store.SerializedStore;
 import com.devives.commons.collection.store.StoreAsListAdapter;
 import com.devives.commons.collection.store.serializer.*;
-import com.devives.commons.io.store.*;
+import com.devives.commons.io.store.AlignedByteStore;
+import com.devives.commons.io.store.ArrayByteStore;
+import com.devives.commons.io.store.ByteBufferStore;
+import com.devives.commons.io.store.ByteStore;
 
 import java.nio.ByteBuffer;
 import java.util.List;
@@ -37,9 +40,9 @@ import java.util.Objects;
  * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
  * @since 0.3.0
  */
-public final class SerializedChunkedLists {
+public final class SerializedLists {
 
-    private SerializedChunkedLists() {
+    private SerializedLists() {
 
     }
 
@@ -88,12 +91,11 @@ public final class SerializedChunkedLists {
         }
 
         @Override
-        public StoreAsListAdapter<E> build() {
-            final ChunkManager<?> chunkManager = chunkManager_ != null ? chunkManager_ : new ArrayChunkManager(DEFAULT_CHUNK_MAX_CAPACITY);
-            final ByteStore chunkedByteStore = new ChunkedByteStore(chunkManager);
+        public List<E> build() {
             final int elementSize = binarySerializer_.getElementSize();
-            final AlignedByteStore mainStore = new AlignedByteStore(chunkedByteStore, elementSize);
-            final SerializedStore<E> elementStore = new SerializedStore<E>(binarySerializer_, mainStore);
+            final ByteStore mainStore = byteStore_ != null ? byteStore_ : new ArrayByteStore();
+            final AlignedByteStore mainAlignedStore = new AlignedByteStore(mainStore, elementSize);
+            final SerializedStore<E> elementStore = new SerializedStore<E>(binarySerializer_, mainAlignedStore);
             return new StoreAsListAdapter<>(elementStore);
         }
     }
@@ -122,15 +124,14 @@ public final class SerializedChunkedLists {
             return this;
         }
 
-        public BufferedStoreAsListAdapter<E> build() {
-            final ChunkManager<?> chunkManager = chunkManager_ != null ? chunkManager_ : new ArrayChunkManager(DEFAULT_CHUNK_MAX_CAPACITY);
-            final ByteStore chunkedByteStore = new ChunkedByteStore(chunkManager);
+        public BufferedList<E> build() {
             final int elementSize = binarySerializer_.getElementSize();
-            final AlignedByteStore mainStore = new AlignedByteStore(chunkedByteStore, elementSize);
+            final ByteStore mainStore = byteStore_ != null ? byteStore_ : new ArrayByteStore();
+            final AlignedByteStore mainAlignedStore = new AlignedByteStore(mainStore, elementSize);
             final SerializedStore<E> bufferStore = new SerializedStore<E>(
                     binarySerializer_,
                     new AlignedByteStore(bufferByteStore_, elementSize));
-            final BufferedSerializedStore<E> elementStore = new BufferedSerializedStore<E>(mainStore, bufferStore);
+            final BufferedSerializedStore<E> elementStore = new BufferedSerializedStore<E>(mainAlignedStore, bufferStore);
             return new BufferedStoreAsListAdapter<>(elementStore);
         }
     }
@@ -142,58 +143,56 @@ public final class SerializedChunkedLists {
      * @param <SELF> тип строителя
      */
     public static abstract class AbstractBuilder<E, SELF extends AbstractBuilder<E, SELF>> {
-        protected static final int DEFAULT_CHUNK_MAX_CAPACITY = 1024 * 1024; // 1 MB
         protected final BinarySerializer<E> binarySerializer_;
-        protected ChunkManager<?> chunkManager_;
+        protected ByteStore byteStore_;
 
         protected AbstractBuilder(BinarySerializer<E> binarySerializer) {
             binarySerializer_ = Objects.requireNonNull(binarySerializer, "binarySerializer");
         }
 
-        public SELF setChunkManager(ChunkManager<?> chunkManager) {
-            chunkManager_ = Objects.requireNonNull(chunkManager, "chunkManager");
-            return (SELF) this;
-        }
 
-        public SELF setArrayChunkManager() {
-            setArrayChunkManager(DEFAULT_CHUNK_MAX_CAPACITY);
+        public SELF setByteStore(ByteStore ByteStore) {
+            byteStore_ = Objects.requireNonNull(ByteStore, "ByteStore");
             return (SELF) this;
         }
 
         /**
-         * @param chunkMaxCapacity максимальный размер чанка, в байтах.
          * @return текущий экземпляр строителя.
          */
-        public SELF setArrayChunkManager(int chunkMaxCapacity) {
-            chunkManager_ = new ArrayChunkManager(chunkMaxCapacity);
-            return (SELF) this;
-        }
-
-        public SELF setHeapChunkManager() {
-            setHeapChunkManager(DEFAULT_CHUNK_MAX_CAPACITY);
+        public SELF setArrayByteStore() {
+            byteStore_ = new ArrayByteStore();
             return (SELF) this;
         }
 
         /**
-         * @param chunkMaxCapacity максимальный размер чанка, в байтах.
          * @return текущий экземпляр строителя.
          */
-        public SELF setHeapChunkManager(int chunkMaxCapacity) {
-            chunkManager_ = new ByteBufferChunkManager(chunkMaxCapacity, ByteBuffer::allocate);
-            return (SELF) this;
-        }
-
-        public SELF setOffHeapChunkManager() {
-            setOffHeapChunkManager(DEFAULT_CHUNK_MAX_CAPACITY);
+        public SELF setHeapByteStore() {
+            byteStore_ = new ByteBufferStore(ByteBuffer::allocate);
             return (SELF) this;
         }
 
         /**
-         * @param chunkMaxCapacity максимальный размер чанка, в байтах.
          * @return текущий экземпляр строителя.
          */
-        public SELF setOffHeapChunkManager(int chunkMaxCapacity) {
-            chunkManager_ = new ByteBufferChunkManager(chunkMaxCapacity, ByteBuffer::allocateDirect);
+        public SELF setHeapByteStore(int initialCapacity) {
+            byteStore_ = new ByteBufferStore(ByteBuffer::allocate, initialCapacity);
+            return (SELF) this;
+        }
+
+        /**
+         * @return текущий экземпляр строителя.
+         */
+        public SELF setOffHeapByteStore() {
+            byteStore_ = new ByteBufferStore(ByteBuffer::allocateDirect);
+            return (SELF) this;
+        }
+
+        /**
+         * @return текущий экземпляр строителя.
+         */
+        public SELF setOffHeapByteStore(int initialCapacity) {
+            byteStore_ = new ByteBufferStore(ByteBuffer::allocateDirect, initialCapacity);
             return (SELF) this;
         }
 
@@ -204,7 +203,7 @@ public final class SerializedChunkedLists {
         public BufferedBuilder<E> setBufferByteStore(ByteStore bufferByteStore) {
             Objects.requireNonNull(bufferByteStore, "bufferByteStore");
             BufferedBuilder<E> bufferedBuilder = new BufferedBuilder<>(binarySerializer_);
-            bufferedBuilder.chunkManager_ = chunkManager_;
+            bufferedBuilder.byteStore_ = byteStore_;
             bufferedBuilder.bufferByteStore_ = bufferByteStore;
             return bufferedBuilder;
         }

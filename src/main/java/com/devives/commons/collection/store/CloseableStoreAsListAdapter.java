@@ -18,6 +18,8 @@ package com.devives.commons.collection.store;
 
 import com.devives.commons.lang.ExceptionUtils;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -29,7 +31,7 @@ import java.util.Objects;
  * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
  * @since 0.3.0
  */
-public abstract class CloseableStoreAsListAdapter<E> extends StoreAsListAdapter<E> implements AutoCloseable {
+public abstract class CloseableStoreAsListAdapter<E> extends StoreAsListAdapter<E> implements Closeable {
     /**
      * Массив, объектов, которые необходимо закрыть при закрытии текущего экземпляра.
      */
@@ -58,7 +60,7 @@ public abstract class CloseableStoreAsListAdapter<E> extends StoreAsListAdapter<
     }
 
     @Override
-    public void close() throws Exception {
+    public void close() throws IOException {
         opened_ = false;
         List<Exception> exceptions = new ArrayList<>();
         for (AutoCloseable closeable : autoCloseableArray_) {

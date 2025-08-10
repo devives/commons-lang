@@ -21,12 +21,15 @@ import com.devives.commons.collection.store.BufferedStoreAsListAdapter;
 import com.devives.commons.collection.store.SerializedStore;
 import com.devives.commons.collection.store.StoreAsListAdapter;
 import com.devives.commons.collection.store.serializer.*;
-import com.devives.commons.io.store.AlignedByteStore;
-import com.devives.commons.io.store.ArrayByteStore;
-import com.devives.commons.io.store.ByteBufferStore;
-import com.devives.commons.io.store.ByteStore;
+import com.devives.commons.io.store.*;
 
+import java.io.File;
+import java.io.IOException;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.OpenOption;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Objects;
 
@@ -90,14 +93,108 @@ public final class SerializedLists {
             super(binarySerializer);
         }
 
-        @Override
-        public List<E> build() {
-            final int elementSize = binarySerializer_.getElementSize();
-            final ByteStore mainStore = byteStore_ != null ? byteStore_ : new ArrayByteStore();
-            final AlignedByteStore mainAlignedStore = new AlignedByteStore(mainStore, elementSize);
-            final SerializedStore<E> elementStore = new SerializedStore<E>(binarySerializer_, mainAlignedStore);
-            return new StoreAsListAdapter<>(elementStore);
+        /**
+         * @return текущий экземпляр строителя.
+         */
+        public RamBuilder<E> setHeapByteStore() {
+            return new RamBuilder<>(
+                    binarySerializer_,
+                    new ByteBufferStore(ByteBuffer::allocate));
         }
+
+        /**
+         * @return текущий экземпляр строителя.
+         */
+        public RamBuilder<E> setHeapByteStore(int initialCapacity) {
+            return new RamBuilder<>(
+                    binarySerializer_,
+                    new ByteBufferStore(ByteBuffer::allocate, initialCapacity));
+        }
+
+        /**
+         * @return текущий экземпляр строителя.
+         */
+        public RamBuilder<E> setOffHeapByteStore() {
+            return new RamBuilder<>(
+                    binarySerializer_,
+                    new ByteBufferStore(ByteBuffer::allocateDirect));
+        }
+
+        /**
+         * @return текущий экземпляр строителя.
+         */
+        public RamBuilder<E> setOffHeapByteStore(int initialCapacity) {
+            return new RamBuilder<>(
+                    binarySerializer_,
+                    new ByteBufferStore(ByteBuffer::allocateDirect, initialCapacity));
+        }
+
+
+        public FileBuilder<E> setFileStorePath(Path directoryPath) throws IOException {
+            FileBuilder<E> fileBuilder = new FileBuilder<E>(binarySerializer_);
+            fileBuilder.setFileStorePath(directoryPath);
+            return fileBuilder;
+        }
+
+        public FileBuilder<E> setFileStoreFile(File file) throws IOException {
+            FileBuilder<E> fileBuilder = new FileBuilder<E>(binarySerializer_);
+            fileBuilder.setFileStoreFile(file);
+            return fileBuilder;
+        }
+
+        public FileBuilder<E> setBiFileStorePath(Path directoryPath) throws IOException {
+            FileBuilder<E> fileBuilder = new FileBuilder<E>(binarySerializer_);
+            fileBuilder.setBiFileStorePath(directoryPath);
+            return fileBuilder;
+        }
+
+        public FileBuilder<E> setBiFileStoreFiles(File file1, File file2) throws IOException {
+            FileBuilder<E> fileBuilder = new FileBuilder<E>(binarySerializer_);
+            fileBuilder.setBiFileStoreFiles(file1, file2);
+            return fileBuilder;
+        }
+
+        public BufferedRamBuilder<E> setBuffered() {
+            return setBufferByteStore(new ArrayByteStore());
+        }
+
+        public BufferedRamBuilder<E> setBufferByteStore(ByteStore bufferByteStore) {
+            Objects.requireNonNull(bufferByteStore, "bufferByteStore");
+            BufferedRamBuilder<E> bufferedBuilder = new BufferedRamBuilder<>(binarySerializer_);
+            bufferedBuilder.byteStore_ = byteStore_;
+            bufferedBuilder.bufferByteStore_ = bufferByteStore;
+            return bufferedBuilder;
+        }
+
+        public List<E> build() {
+            int elementSize = binarySerializer_.getElementSize();
+
+            ByteStore mainStore = byteStore_ != null ? byteStore_ : new ArrayByteStore();
+            AlignedByteStore mainAlignedStore = new AlignedByteStore(mainStore, elementSize);
+            SerializedStore<E> serializedStore = new SerializedStore<E>(binarySerializer_, mainAlignedStore);
+
+            return new StoreAsListAdapter<>(serializedStore);
+        }
+    }
+
+
+    public static final class RamBuilder<E> extends AbstractBuilder<E, Builder<E>> {
+
+        protected RamBuilder(BinarySerializer<E> binarySerializer, ByteStore byteStore) {
+            super(binarySerializer);
+            byteStore_ = Objects.requireNonNull(byteStore, "byteStore");
+        }
+
+        public List<E> build() {
+            int elementSize = binarySerializer_.getElementSize();
+
+            ByteStore mainByteStore = byteStore_ != null ? byteStore_ : new ArrayByteStore();
+            AlignedByteStore mainAlignedStore = new AlignedByteStore(mainByteStore, elementSize);
+            SerializedStore<E> serializedStore = new SerializedStore<E>(binarySerializer_, mainAlignedStore);
+
+            return new StoreAsListAdapter<>(serializedStore);
+        }
+
     }
 
     /**
@@ -105,7 +202,7 @@ public final class SerializedLists {
      *
      * @param <E> тип элементов.
      */
-    public static final class BufferedBuilder<E> extends AbstractBuilder<E, BufferedBuilder<E>> {
+    public static final class BufferedRamBuilder<E> extends AbstractBuilder<E, BufferedRamBuilder<E>> {
 
         protected ByteStore bufferByteStore_;
 
@@ -114,26 +211,169 @@ public final class SerializedLists {
          *
          * @param binarySerializer сериализатор элементов.
          */
-        private BufferedBuilder(BinarySerializer<E> binarySerializer) {
+        private BufferedRamBuilder(BinarySerializer<E> binarySerializer) {
             super(binarySerializer);
         }
 
-        @Override
-        public BufferedBuilder<E> setBufferByteStore(ByteStore bufferByteStore) {
+        public BufferedRamBuilder<E> setBufferByteStore(ByteStore bufferByteStore) {
             bufferByteStore_ = Objects.requireNonNull(bufferByteStore, "bufferByteStore");
             return this;
         }
 
         public BufferedList<E> build() {
-            final int elementSize = binarySerializer_.getElementSize();
-            final ByteStore mainStore = byteStore_ != null ? byteStore_ : new ArrayByteStore();
-            final AlignedByteStore mainAlignedStore = new AlignedByteStore(mainStore, elementSize);
-            final SerializedStore<E> bufferStore = new SerializedStore<E>(
-                    binarySerializer_,
-                    new AlignedByteStore(bufferByteStore_, elementSize));
-            final BufferedSerializedStore<E> elementStore = new BufferedSerializedStore<E>(mainAlignedStore, bufferStore);
-            return new BufferedStoreAsListAdapter<>(elementStore);
+            int elementSize = binarySerializer_.getElementSize();
+
+            ByteStore bufferByteStore = bufferByteStore_ != null ? bufferByteStore_ : new ArrayByteStore();
+            AlignedByteStore bufferAlignedStore = new AlignedByteStore(bufferByteStore, elementSize);
+            SerializedStore<E> bufferSerializedStore = new SerializedStore<E>(binarySerializer_, bufferAlignedStore);
+
+            ByteStore mainByteStore = byteStore_ != null ? byteStore_ : new ArrayByteStore();
+            AlignedByteStore mainAlignedStore = new AlignedByteStore(mainByteStore, elementSize);
+
+            BufferedSerializedStore<E> serializedStore = new BufferedSerializedStore<E>(mainAlignedStore, bufferSerializedStore);
+            return new BufferedStoreAsListAdapter<>(serializedStore);
         }
+    }
+
+
+    public static final class FileBuilder<E> extends AbstractFileBuilder<E, FileBuilder<E>> {
+        public FileBuilder(BinarySerializer<E> binarySerializer) {
+            super(binarySerializer);
+        }
+
+        public BufferedFileBuilder<E> setBuffered() {
+            return setBufferByteStore(new ArrayByteStore());
+        }
+
+        public BufferedFileBuilder<E> setBufferByteStore(ByteStore bufferByteStore) {
+            Objects.requireNonNull(bufferByteStore, "bufferByteStore");
+            BufferedFileBuilder<E> bufferedBuilder = new BufferedFileBuilder<>(binarySerializer_);
+            bufferedBuilder.bufferByteStore_ = bufferByteStore;
+            bufferedBuilder.file1_ = file1_;
+            bufferedBuilder.file2_ = file2_;
+            bufferedBuilder.openOptions_ = openOptions_;
+            return bufferedBuilder;
+        }
+
+        @Override
+        public FileList<E> build() throws IOException {
+            int elementSize = binarySerializer_.getElementSize();
+
+            AbstractFileByteStore fileByteStore = buildFileByteStore();
+            AlignedByteStore mainAlignedStore = new AlignedByteStore(fileByteStore, elementSize);
+            SerializedStore<E> serializedStore = new SerializedStore<>(binarySerializer_, mainAlignedStore);
+
+            return new FileList(serializedStore, fileByteStore);
+        }
+
+    }
+
+    public static final class BufferedFileBuilder<E> extends AbstractFileBuilder<E, BufferedFileBuilder<E>> {
+
+        protected ByteStore bufferByteStore_;
+
+        public BufferedFileBuilder(BinarySerializer<E> binarySerializer) {
+            super(binarySerializer);
+        }
+        
+        @Override
+        public BufferedFileList<E> build() throws IOException {
+            int elementSize = binarySerializer_.getElementSize();
+
+            ByteStore bufferByteStore = bufferByteStore_ != null ? bufferByteStore_ : new ArrayByteStore();
+            AlignedByteStore bufferAlignedStore = new AlignedByteStore(bufferByteStore, elementSize);
+            SerializedStore<E> bufferSerializedStore = new SerializedStore<>(binarySerializer_, bufferAlignedStore);
+
+            AbstractFileByteStore mainByteStore = buildFileByteStore();
+            AlignedByteStore mainAlignedStore = new AlignedByteStore(mainByteStore, elementSize);
+
+            BufferedSerializedStore<E> elementStore = new BufferedSerializedStore(mainAlignedStore, bufferSerializedStore);
+            return new BufferedFileList(elementStore, mainByteStore);
+        }
+
+    }
+
+    public static abstract class AbstractFileBuilder<E, SELF extends AbstractFileBuilder<E, SELF>> extends AbstractBuilder<E, SELF> {
+        protected OpenOption[] openOptions_ = new OpenOption[]{
+                StandardOpenOption.READ,
+                StandardOpenOption.WRITE,
+                StandardOpenOption.CREATE,
+                StandardOpenOption.TRUNCATE_EXISTING,
+                StandardOpenOption.DELETE_ON_CLOSE};
+        protected File file1_;
+        protected File file2_;
+
+        AbstractFileBuilder(BinarySerializer<E> binarySerializer) {
+            super(binarySerializer);
+        }
+
+        protected AbstractFileByteStore buildFileByteStore() throws IOException {
+            AbstractFileByteStore fileByteStore;
+            if (file1_ != null && file2_ != null) {
+                fileByteStore = new BiFileByteStore(file1_, file2_, openOptions_);
+            } else {
+                file1_ = (file1_ != null)
+                        ? file1_
+                        : File.createTempFile("list", ".bin");
+                fileByteStore = new FileByteStore(file1_, openOptions_);
+            }
+            return fileByteStore;
+        }
+
+        private void validateDirectoryPath(Path tempDirectory) throws IOException {
+            if (!Files.isDirectory(tempDirectory)) {
+                throw new IOException(String.format("Path '%s' is not a directory.", tempDirectory));
+            }
+            if (!Files.exists(tempDirectory)) {
+                throw new IOException(String.format("Directory '%s' not exists.", tempDirectory.toAbsolutePath()));
+            }
+        }
+
+        SELF setFileStorePath(Path directoryPath) throws IOException {
+            Objects.requireNonNull(directoryPath);
+            validateDirectoryPath(directoryPath.toAbsolutePath());
+            File file = File.createTempFile("list", ".bin", directoryPath.toFile());
+            setFileStoreFile(file);
+            return (SELF) this;
+        }
+
+        SELF setFileStoreFile(File file) throws IOException {
+            Objects.requireNonNull(file, "file");
+            validateDirectoryPath(file.toPath().toAbsolutePath().getParent());
+            file1_ = file;
+            file2_ = null;
+            return (SELF) this;
+        }
+
+        SELF setBiFileStorePath(Path directoryPath) throws IOException {
+            Objects.requireNonNull(directoryPath);
+            validateDirectoryPath(directoryPath);
+            File file1 = File.createTempFile("list", ".bin", directoryPath.toFile());
+            File file2 = File.createTempFile("list", ".bin", directoryPath.toFile());
+            setBiFileStoreFiles(file1, file2);
+            return (SELF) this;
+        }
+
+        SELF setBiFileStoreFiles(File file1, File file2) throws IOException {
+            Objects.requireNonNull(file1, "file1");
+            Objects.requireNonNull(file2, "file2");
+            validateDirectoryPath(file1.toPath().toAbsolutePath().getParent());
+            validateDirectoryPath(file2.toPath().toAbsolutePath().getParent());
+            file1_ = file1;
+            file2_ = file2;
+            return (SELF) this;
+        }
+
+        public SELF setOpenOptions(OpenOption... openOptions) {
+            if (openOptions.length == 0) {
+                throw new IllegalArgumentException("A non-empty array is required.");
+            }
+            openOptions_ = openOptions;
+            return (SELF) this;
+        }
+
+        public abstract FileList<E> build() throws IOException;
+
     }
 
     /**
@@ -150,65 +390,10 @@ public final class SerializedLists {
             binarySerializer_ = Objects.requireNonNull(binarySerializer, "binarySerializer");
         }
 
-
-        public SELF setByteStore(ByteStore ByteStore) {
+        SELF setByteStore(ByteStore ByteStore) {
             byteStore_ = Objects.requireNonNull(ByteStore, "ByteStore");
             return (SELF) this;
         }
-
-        /**
-         * @return текущий экземпляр строителя.
-         */
-        public SELF setArrayByteStore() {
-            byteStore_ = new ArrayByteStore();
-            return (SELF) this;
-        }
-
-        /**
-         * @return текущий экземпляр строителя.
-         */
-        public SELF setHeapByteStore() {
-            byteStore_ = new ByteBufferStore(ByteBuffer::allocate);
-            return (SELF) this;
-        }
-
-        /**
-         * @return текущий экземпляр строителя.
-         */
-        public SELF setHeapByteStore(int initialCapacity) {
-            byteStore_ = new ByteBufferStore(ByteBuffer::allocate, initialCapacity);
-            return (SELF) this;
-        }
-
-        /**
-         * @return текущий экземпляр строителя.
-         */
-        public SELF setOffHeapByteStore() {
-            byteStore_ = new ByteBufferStore(ByteBuffer::allocateDirect);
-            return (SELF) this;
-        }
-
-        /**
-         * @return текущий экземпляр строителя.
-         */
-        public SELF setOffHeapByteStore(int initialCapacity) {
-            byteStore_ = new ByteBufferStore(ByteBuffer::allocateDirect, initialCapacity);
-            return (SELF) this;
-        }
-
-        public BufferedBuilder<E> setBuffered() {
-            return setBufferByteStore(new ArrayByteStore());
-        }
-
-        public BufferedBuilder<E> setBufferByteStore(ByteStore bufferByteStore) {
-            Objects.requireNonNull(bufferByteStore, "bufferByteStore");
-            BufferedBuilder<E> bufferedBuilder = new BufferedBuilder<>(binarySerializer_);
-            bufferedBuilder.byteStore_ = byteStore_;
-            bufferedBuilder.bufferByteStore_ = bufferByteStore;
-            return bufferedBuilder;
-        }
-
-        public abstract List<E> build();
 
     }
 }

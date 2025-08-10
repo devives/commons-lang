@@ -31,7 +31,7 @@ import com.devives.commons.io.store.FileByteStore;
  * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
  * @since 0.3.0
  */
-public class BufferedFileList<E> extends FileList<E> implements BufferedList<E> {
+public class BufferedFileList<E> extends FileList<E> implements CloseableBufferedList<E> {
 
     BufferedFileList(BufferedStore<E> bufferedStore, AutoCloseable... autoCloseable) {
         super(bufferedStore, autoCloseable);
@@ -66,4 +66,6 @@ public class BufferedFileList<E> extends FileList<E> implements BufferedList<E> 
     public void flushBuffer() {
         getStore().flushBuffer();
     }
+
+
 }

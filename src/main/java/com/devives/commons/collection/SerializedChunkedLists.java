@@ -89,11 +89,13 @@ public final class SerializedChunkedLists {
 
         @Override
         public StoreAsListAdapter<E> build() {
-            final ChunkManager<?> chunkManager = chunkManager_ != null ? chunkManager_ : new ArrayChunkManager(DEFAULT_CHUNK_MAX_CAPACITY);
-            final ByteStore chunkedByteStore = new ChunkedByteStore(chunkManager);
-            final int elementSize = binarySerializer_.getElementSize();
-            final AlignedByteStore mainStore = new AlignedByteStore(chunkedByteStore, elementSize);
-            final SerializedStore<E> elementStore = new SerializedStore<E>(binarySerializer_, mainStore);
+            int elementSize = binarySerializer_.getElementSize();
+
+            ChunkManager<?> chunkManager = chunkManager_ != null ? chunkManager_ : new ArrayChunkManager(DEFAULT_CHUNK_MAX_CAPACITY);
+            ByteStore mainByteStore = new ChunkedByteStore(chunkManager);
+            AlignedByteStore mainAlignedStore = new AlignedByteStore(mainByteStore, elementSize);
+
+            SerializedStore<E> elementStore = new SerializedStore<E>(binarySerializer_, mainAlignedStore);
             return new StoreAsListAdapter<>(elementStore);
         }
     }
@@ -123,15 +125,18 @@ public final class SerializedChunkedLists {
         }
 
         public BufferedStoreAsListAdapter<E> build() {
-            final ChunkManager<?> chunkManager = chunkManager_ != null ? chunkManager_ : new ArrayChunkManager(DEFAULT_CHUNK_MAX_CAPACITY);
-            final ByteStore chunkedByteStore = new ChunkedByteStore(chunkManager);
-            final int elementSize = binarySerializer_.getElementSize();
-            final AlignedByteStore mainStore = new AlignedByteStore(chunkedByteStore, elementSize);
-            final SerializedStore<E> bufferStore = new SerializedStore<E>(
-                    binarySerializer_,
-                    new AlignedByteStore(bufferByteStore_, elementSize));
-            final BufferedSerializedStore<E> elementStore = new BufferedSerializedStore<E>(mainStore, bufferStore);
-            return new BufferedStoreAsListAdapter<>(elementStore);
+            int elementSize = binarySerializer_.getElementSize();
+
+            ByteStore bufferByteStore = bufferByteStore_ != null ? bufferByteStore_ : new ArrayByteStore();
+            AlignedByteStore bufferAlignedStore = new AlignedByteStore(bufferByteStore, elementSize);
+            SerializedStore<E> bufferSerializedStore = new SerializedStore<E>(binarySerializer_, bufferAlignedStore);
+
+            ChunkManager<?> chunkManager = chunkManager_ != null ? chunkManager_ : new ArrayChunkManager(DEFAULT_CHUNK_MAX_CAPACITY);
+            ByteStore mainByteStore = new ChunkedByteStore(chunkManager);
+            AlignedByteStore mainAlignedStore = new AlignedByteStore(mainByteStore, elementSize);
+
+            BufferedSerializedStore<E> serializedStore = new BufferedSerializedStore<E>(mainAlignedStore, bufferSerializedStore);
+            return new BufferedStoreAsListAdapter<>(serializedStore);
         }
     }
 

@@ -192,7 +192,7 @@ public final class BiFileByteStore extends AbstractFileByteStore {
      * {@inheritDoc}
      */
     @Override
-    protected void internalClose() throws Exception {
+    protected void internalClose() throws IOException {
         ExceptionUtils.collectAndThrow(
                 activeFileChannelSource_::close,
                 tempFileChannelSource_::close,

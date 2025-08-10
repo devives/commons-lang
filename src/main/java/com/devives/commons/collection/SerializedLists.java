@@ -22,7 +22,9 @@ import com.devives.commons.collection.store.SerializedStore;
 import com.devives.commons.collection.store.StoreAsListAdapter;
 import com.devives.commons.collection.store.serializer.*;
 import com.devives.commons.io.store.*;
+import com.devives.commons.lang.ExceptionUtils;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -32,6 +34,7 @@ import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Точка входа для создания списка элементов, сериализованных в чанки.
@@ -129,6 +132,65 @@ public final class SerializedLists {
                     new ByteBufferStore(ByteBuffer::allocateDirect, initialCapacity));
         }
 
+        private void validateChunkMaxCapacity(int value) {
+            if (value % binarySerializer_.getElementSize() != 0) {
+                throw new IllegalArgumentException(
+                        String.format("Illegal ChunkMaxCapacity value '%s'. The value must be a multiple of the element size '%s'.",
+                                value,
+                                binarySerializer_.getElementSize()
+                        ));
+            }
+        }
+
+        /**
+         * @return текущий экземпляр строителя.
+         */
+        public RamBuilder<E> setArrayChunkedByteStore(int chunkMaxCapacity) {
+            validateChunkMaxCapacity(chunkMaxCapacity);
+            return setChunkedByteStore(
+                    new ChunkedByteStore(
+                            new ArrayChunkManager(chunkMaxCapacity)));
+        }
+
+        /**
+         * @return текущий экземпляр строителя.
+         */
+        public RamBuilder<E> setHeapChunkedByteStore(int chunkMaxCapacity) {
+            validateChunkMaxCapacity(chunkMaxCapacity);
+            return setChunkedByteStore(
+                    new ChunkedByteStore(
+                            new ByteBufferChunkManager(chunkMaxCapacity, ByteBuffer::allocate)));
+        }
+
+        /**
+         * @return текущий экземпляр строителя.
+         */
+        public RamBuilder<E> setOffHeapChunkedByteStore(int chunkMaxCapacity) {
+            validateChunkMaxCapacity(chunkMaxCapacity);
+            return setChunkedByteStore(
+                    new ChunkedByteStore(
+                            new ByteBufferChunkManager(chunkMaxCapacity, ByteBuffer::allocateDirect)));
+        }
+
+        /**
+         * @return текущий экземпляр строителя.
+         */
+        public RamBuilder<E> setChunkedByteStore(ChunkedByteStore chunkedByteStore) {
+            validateChunkMaxCapacity(chunkedByteStore.getChunkManager().getChunkMaxCapacity());
+            RamBuilder<E> fileBuilder = new RamBuilder<E>(binarySerializer_, chunkedByteStore);
+            return fileBuilder;
+        }
+
+        /**
+         * @return текущий экземпляр строителя.
+         */
+        public FileBuilder<E> setFileChunkedByteStore(int chunkMaxCapacity, Path directoryPath, int activeFileMaxCount) {
+            FileBuilder<E> fileBuilder = new FileBuilder<E>(binarySerializer_);
+            fileBuilder.setByteStore(
+                    new ChunkedByteStore(
+                            new FileChunkManager(chunkMaxCapacity, directoryPath, activeFileMaxCount)));
+            return fileBuilder;
+        }
 
         public FileBuilder<E> setFileStorePath(Path directoryPath) throws IOException {
             FileBuilder<E> fileBuilder = new FileBuilder<E>(binarySerializer_);
@@ -185,6 +247,18 @@ public final class SerializedLists {
             byteStore_ = Objects.requireNonNull(byteStore, "byteStore");
         }
 
+        public BufferedRamBuilder<E> setBuffered() {
+            return setBufferByteStore(new ArrayByteStore());
+        }
+
+        public BufferedRamBuilder<E> setBufferByteStore(ByteStore bufferByteStore) {
+            Objects.requireNonNull(bufferByteStore, "bufferByteStore");
+            BufferedRamBuilder<E> bufferedBuilder = new BufferedRamBuilder<>(binarySerializer_);
+            bufferedBuilder.byteStore_ = byteStore_;
+            bufferedBuilder.bufferByteStore_ = bufferByteStore;
+            return bufferedBuilder;
+        }
+
         public List<E> build() {
             int elementSize = binarySerializer_.getElementSize();
 
@@ -213,11 +287,6 @@ public final class SerializedLists {
          */
         private BufferedRamBuilder(BinarySerializer<E> binarySerializer) {
             super(binarySerializer);
-        }
-
-        public BufferedRamBuilder<E> setBufferByteStore(ByteStore bufferByteStore) {
-            bufferByteStore_ = Objects.requireNonNull(bufferByteStore, "bufferByteStore");
-            return this;
         }
 
         public BufferedList<E> build() {
@@ -249,6 +318,7 @@ public final class SerializedLists {
             Objects.requireNonNull(bufferByteStore, "bufferByteStore");
             BufferedFileBuilder<E> bufferedBuilder = new BufferedFileBuilder<>(binarySerializer_);
             bufferedBuilder.bufferByteStore_ = bufferByteStore;
+            bufferedBuilder.byteStore_ = byteStore_;
             bufferedBuilder.file1_ = file1_;
             bufferedBuilder.file2_ = file2_;
             bufferedBuilder.openOptions_ = openOptions_;
@@ -256,14 +326,16 @@ public final class SerializedLists {
         }
 
         @Override
-        public FileList<E> build() throws IOException {
+        public CloseableList<E> build() throws IOException {
             int elementSize = binarySerializer_.getElementSize();
 
-            AbstractFileByteStore fileByteStore = buildFileByteStore();
-            AlignedByteStore mainAlignedStore = new AlignedByteStore(fileByteStore, elementSize);
-            SerializedStore<E> serializedStore = new SerializedStore<>(binarySerializer_, mainAlignedStore);
+            ByteStore mainByteStore = Optional.ofNullable(byteStore_).orElseGet(() -> buildFileByteStore());
+            AlignedByteStore mainAlignedStore = new AlignedByteStore(mainByteStore, elementSize);
 
-            return new FileList(serializedStore, fileByteStore);
+            Closeable closeable = getCloseable(mainByteStore);
+
+            SerializedStore<E> serializedStore = new SerializedStore<>(binarySerializer_, mainAlignedStore);
+            return new CloseableListWrapper<>(new StoreAsListAdapter<>(serializedStore), closeable);
         }
 
     }
@@ -277,18 +349,20 @@ public final class SerializedLists {
         }
         
         @Override
-        public BufferedFileList<E> build() throws IOException {
+        public CloseableBufferedList<E> build() throws IOException {
             int elementSize = binarySerializer_.getElementSize();
 
             ByteStore bufferByteStore = bufferByteStore_ != null ? bufferByteStore_ : new ArrayByteStore();
             AlignedByteStore bufferAlignedStore = new AlignedByteStore(bufferByteStore, elementSize);
             SerializedStore<E> bufferSerializedStore = new SerializedStore<>(binarySerializer_, bufferAlignedStore);
 
-            AbstractFileByteStore mainByteStore = buildFileByteStore();
+            ByteStore mainByteStore = Optional.ofNullable(byteStore_).orElseGet(() -> buildFileByteStore());
             AlignedByteStore mainAlignedStore = new AlignedByteStore(mainByteStore, elementSize);
 
-            BufferedSerializedStore<E> elementStore = new BufferedSerializedStore(mainAlignedStore, bufferSerializedStore);
-            return new BufferedFileList(elementStore, mainByteStore);
+            Closeable closeable = getCloseable(mainByteStore);
+
+            BufferedSerializedStore<E> serializedStore = new BufferedSerializedStore(mainAlignedStore, bufferSerializedStore);
+            return new CloseableBufferedListWrapper<>(new BufferedStoreAsListAdapter<>(serializedStore), closeable);
         }
 
     }
@@ -307,14 +381,26 @@ public final class SerializedLists {
             super(binarySerializer);
         }
 
-        protected AbstractFileByteStore buildFileByteStore() throws IOException {
+        protected final Closeable getCloseable(ByteStore byteStore) {
+            Closeable closeable;
+            if (byteStore instanceof Closeable) {
+                closeable = (Closeable) byteStore;
+            } else if (byteStore instanceof ChunkedByteStore) {
+                closeable = (Closeable) ((ChunkedByteStore) byteStore).getChunkManager();
+            } else {
+                throw new IllegalStateException("The ByteStore or ChunkManager instances must supports java.io.Closeable.");
+            }
+            return closeable;
+        }
+
+        protected final AbstractFileByteStore buildFileByteStore() {
             AbstractFileByteStore fileByteStore;
             if (file1_ != null && file2_ != null) {
                 fileByteStore = new BiFileByteStore(file1_, file2_, openOptions_);
             } else {
                 file1_ = (file1_ != null)
                         ? file1_
-                        : File.createTempFile("list", ".bin");
+                        : ExceptionUtils.passChecked(() -> File.createTempFile("list", ".bin"));
                 fileByteStore = new FileByteStore(file1_, openOptions_);
             }
             return fileByteStore;
@@ -340,7 +426,16 @@ public final class SerializedLists {
         SELF setFileStoreFile(File file) throws IOException {
             Objects.requireNonNull(file, "file");
             validateDirectoryPath(file.toPath().toAbsolutePath().getParent());
+            byteStore_ = null;
             file1_ = file;
+            file2_ = null;
+            return (SELF) this;
+        }
+
+        SELF setFileByteStore(FileByteStore byteStore) throws IOException {
+            Objects.requireNonNull(byteStore, "byteStore");
+            byteStore_ = byteStore;
+            file1_ = null;
             file2_ = null;
             return (SELF) this;
         }
@@ -359,6 +454,7 @@ public final class SerializedLists {
             Objects.requireNonNull(file2, "file2");
             validateDirectoryPath(file1.toPath().toAbsolutePath().getParent());
             validateDirectoryPath(file2.toPath().toAbsolutePath().getParent());
+            byteStore_ = null;
             file1_ = file1;
             file2_ = file2;
             return (SELF) this;
@@ -372,7 +468,7 @@ public final class SerializedLists {
             return (SELF) this;
         }
 
-        public abstract FileList<E> build() throws IOException;
+        public abstract CloseableList<E> build() throws IOException;
 
     }
 

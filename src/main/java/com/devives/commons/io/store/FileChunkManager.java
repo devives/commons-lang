@@ -44,7 +44,7 @@ public final class FileChunkManager
     private final Path directoryPath_;
     private final LimitedLinkedHashMap chunkMap_;
 
-    public FileChunkManager(Path directoryPath, int chunkMaxCapacity, int openedFileMaxCount) {
+    public FileChunkManager(int chunkMaxCapacity, Path directoryPath, int openedFileMaxCount) {
         super(chunkMaxCapacity);
         directoryPath_ = Objects.requireNonNull(directoryPath, "The path to work directory can not be null.");
         try {

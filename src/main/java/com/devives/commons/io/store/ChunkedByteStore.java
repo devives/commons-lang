@@ -39,6 +39,10 @@ public final class ChunkedByteStore extends AbstractByteStore {
         chunkManager_ = Objects.requireNonNull(chunkManager, "chunkManager");
     }
 
+    public ChunkManager<?> getChunkManager() {
+        return chunkManager_;
+    }
+
     @Override
     protected int internalRead(long fromPosition, ByteBuffer outByteBuffer) {
         int wasRead = 0;

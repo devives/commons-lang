@@ -43,28 +43,8 @@ public class BufferedStoreAsListAdapter<E> extends StoreAsListAdapter<E> impleme
     }
 
     @Override
-    public int getBufferSize() {
-        return bufferedStore_.getBufferSize();
-    }
-
-    @Override
-    public void setBufferSize(int size) {
-        bufferedStore_.setBufferSize(size);
-    }
-
-    @Override
-    public int getBufferMaxSize() {
-        return bufferedStore_.getBufferMaxSize();
-    }
-
-    @Override
-    public void setBufferMaxSize(int size) {
-        bufferedStore_.setBufferMaxSize(size);
-    }
-
-    @Override
-    public void flushBuffer() {
-        bufferedStore_.flushBuffer();
+    public BufferController getBufferController() {
+        return bufferedStore_.getBufferController();
     }
 
 }

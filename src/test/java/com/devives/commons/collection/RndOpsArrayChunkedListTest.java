@@ -22,7 +22,7 @@ public class RndOpsArrayChunkedListTest extends RndOpsTestBase {
 
     @BeforeEach
     public void beforeEach() {
-        list = SerializedChunkedLists.ofLongs().setArrayChunkManager(16*1024).build();
+        list = SerializedLists.ofLongs().setArrayChunkedByteStore(16*1024).build();
     }
 
 

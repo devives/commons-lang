@@ -17,8 +17,8 @@
 package com.devives.commons.io.store;
 
 import com.devives.commons.TempDirectoryTestBase;
-import com.devives.commons.collection.BufferController;
 import com.devives.commons.collection.store.BufferedSerializedStore;
+import com.devives.commons.collection.store.BufferedStore;
 import com.devives.commons.collection.store.SerializedStore;
 import com.devives.commons.collection.store.Store;
 import com.devives.commons.collection.store.serializer.BinarySerializer;
@@ -331,7 +331,7 @@ public class StoreTest extends TempDirectoryTestBase {
             SerializedStore<Long> serializedStore = new SerializedStore<>(binarySerializer, new AlignedByteStore(new ArrayByteStore(), binarySerializer.getElementSize()));
             AlignedByteStore alignedByteStore = new AlignedByteStore(new ArrayByteStore(), binarySerializer.getElementSize());
             store = new BufferedSerializedStore<>(alignedByteStore, serializedStore);
-            ((BufferController) store).setBufferSize(2);
+            ((BufferedStore) store).getBufferController().setBufferSize(2);
         }
 
         @Nested
@@ -342,7 +342,7 @@ public class StoreTest extends TempDirectoryTestBase {
                 for (int i = 0; i < 10; i++) {
                     store.add(Long.valueOf(i));
                 }
-                ((BufferController) store).flushBuffer();
+                ((BufferedStore) store).getBufferController().flushBuffer();
             }
 
             @Test

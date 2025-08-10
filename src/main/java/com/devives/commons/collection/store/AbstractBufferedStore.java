@@ -30,53 +30,16 @@ import java.util.Objects;
  */
 abstract class AbstractBufferedStore<E> extends AbstractStore<E> implements BufferedStore<E> {
     protected final AbstractBuffer<E> buffer_;
-    private int bufferSize_ = 512;
-    private int bufferMaxSize_ = 1024;
+    protected final BufferController bufferController_;
 
     protected AbstractBufferedStore(AbstractBuffer<E> buffer) {
         buffer_ = Objects.requireNonNull(buffer, "buffer");
+        bufferController_ = new BufferControllerImpl();
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    public int getBufferSize() {
-        return bufferSize_;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setBufferSize(int size) {
-        if (size < 1) {
-            throw new IllegalArgumentException("The buffer size '" + size + "' is lower then one.");
-        }
-        buffer_.commit();
-        buffer_.clear();
-        bufferSize_ = size;
-        bufferMaxSize_ = bufferSize_ * 2;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public int getBufferMaxSize() {
-        return bufferMaxSize_;
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public void setBufferMaxSize(int maxSize) {
-        if (maxSize < 2) {
-            throw new IllegalArgumentException("The max buffer size '" + maxSize + "' is lower then two.");
-        }
-        if (maxSize <= bufferSize_) {
-            throw new IllegalArgumentException("The max buffer size '" + maxSize + "'is lower or equals buffer size '" + bufferSize_ + "'.");
-        }
-        buffer_.commit();
-        buffer_.clear();
-        bufferMaxSize_ = maxSize;
+    @Override
+    public BufferController getBufferController() {
+        return bufferController_;
     }
 
     /**
@@ -86,7 +49,7 @@ abstract class AbstractBufferedStore<E> extends AbstractStore<E> implements Buff
      * @return element index.
      */
     protected final int getStartOfPage(int pageNumber) {
-        return pageNumber * bufferSize_;
+        return pageNumber * bufferController_.getBufferSize();
     }
 
     /**
@@ -96,7 +59,7 @@ abstract class AbstractBufferedStore<E> extends AbstractStore<E> implements Buff
      * @return page number.
      */
     protected final int getPageNumber(int index) {
-        return index / bufferSize_;
+        return index / bufferController_.getBufferSize();
     }
 
     /**
@@ -107,10 +70,10 @@ abstract class AbstractBufferedStore<E> extends AbstractStore<E> implements Buff
         if (!buffer_.canAdd(index)) {
             buffer_.commit();
             int startPageIndex = getStartOfPage(getPageNumber(index));
-            buffer_.load(startPageIndex, startPageIndex + bufferSize_);
+            buffer_.load(startPageIndex, startPageIndex + bufferController_.getBufferSize());
         }
         buffer_.add(index, element);
-        if (buffer_.size() >= bufferMaxSize_) {
+        if (buffer_.size() >= bufferController_.getBufferMaxSize()) {
             buffer_.commit();
             buffer_.collapse(index, index);
         }
@@ -146,7 +109,7 @@ abstract class AbstractBufferedStore<E> extends AbstractStore<E> implements Buff
         if (!buffer_.contains(index)) {
             buffer_.commit();
             int startPageIndex = getStartOfPage(getPageNumber(index));
-            buffer_.load(startPageIndex, startPageIndex + bufferSize_);
+            buffer_.load(startPageIndex, startPageIndex + bufferController_.getBufferSize());
             if (!buffer_.contains(index)) {
                 throw new IndexOutOfBoundsException("Index: " + index + ". Size: " + size() + ".");
             }
@@ -194,14 +157,63 @@ abstract class AbstractBufferedStore<E> extends AbstractStore<E> implements Buff
         }
     }
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    public void flushBuffer() {
-        buffer_.commit();
-        // Remove all records without changing mainOffset_, so that the next insertion occurs without loading data.
-        buffer_.collapse();
-    }
+    private class BufferControllerImpl implements BufferController {
 
+        private int bufferSize_ = 512;
+        private int bufferMaxSize_ = 1024;
+
+        /**
+         * {@inheritDoc}
+         */
+        public int getBufferSize() {
+            return bufferSize_;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void setBufferSize(int size) {
+            if (size < 1) {
+                throw new IllegalArgumentException("The buffer size '" + size + "' is lower then one.");
+            }
+            buffer_.commit();
+            buffer_.clear();
+            bufferSize_ = size;
+            bufferMaxSize_ = bufferSize_ * 2;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public int getBufferMaxSize() {
+            return bufferMaxSize_;
+        }
+
+        /**
+         * {@inheritDoc}
+         */
+        public void setBufferMaxSize(int maxSize) {
+            if (maxSize < 2) {
+                throw new IllegalArgumentException("The max buffer size '" + maxSize + "' is lower then two.");
+            }
+            if (maxSize <= bufferSize_) {
+                throw new IllegalArgumentException("The max buffer size '" + maxSize + "'is lower or equals buffer size '" + bufferSize_ + "'.");
+            }
+            buffer_.commit();
+            buffer_.clear();
+            bufferMaxSize_ = maxSize;
+        }
+
+
+        /**
+         * {@inheritDoc}
+         */
+        @Override
+        public void flushBuffer() {
+            buffer_.commit();
+            // Remove all records without changing mainOffset_, so that the next insertion occurs without loading data.
+            buffer_.collapse();
+        }
+
+    }
 }

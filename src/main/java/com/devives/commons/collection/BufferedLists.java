@@ -37,6 +37,9 @@ import java.util.Optional;
  */
 public final class BufferedLists {
 
+    private BufferedLists() {
+    }
+
     public static <E> Builder<E> of(List<E> list) {
         return new Builder<>(list);
     }

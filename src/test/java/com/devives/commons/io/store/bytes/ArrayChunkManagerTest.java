@@ -17,8 +17,9 @@
 package com.devives.commons.io.store.bytes;
 
 import com.devives.commons.collection.BufferedList;
-import com.devives.commons.collection.SerializedChunkedLists;
+import com.devives.commons.collection.SerializedLists;
 import com.devives.commons.io.store.ArrayChunkManager;
+import com.devives.commons.io.store.ChunkedByteStore;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -34,7 +35,8 @@ public class ArrayChunkManagerTest {
     @Test
     public void getChunkCount_afterRemoveLastElement_lastChunkNotRemoved() throws Exception {
         ArrayChunkManager chunkManager = new ArrayChunkManager(8);
-        List<Long> list = SerializedChunkedLists.ofLongs().setChunkManager(chunkManager).build();
+        ChunkedByteStore chunkedByteStore = new ChunkedByteStore(chunkManager);
+        List<Long> list = SerializedLists.ofLongs().setChunkedByteStore(chunkedByteStore).build();
         list.addAll(Arrays.asList(0L, 1L, 2L));
         Assertions.assertEquals(3, chunkManager.getChunkCount());
         list.remove(2);
@@ -48,7 +50,8 @@ public class ArrayChunkManagerTest {
     @Test
     public void getChunkCount_afterRemoveMiddleElement_middleChunkRemoved() throws Exception {
         ArrayChunkManager chunkManager = new ArrayChunkManager(8);
-        List<Long> list = SerializedChunkedLists.ofLongs().setChunkManager(chunkManager).build();
+        ChunkedByteStore chunkedByteStore = new ChunkedByteStore(chunkManager);
+        List<Long> list = SerializedLists.ofLongs().setChunkedByteStore(chunkedByteStore).build();
         list.addAll(Arrays.asList(0L, 1L, 2L, 3L));
         Assertions.assertEquals(4, chunkManager.getChunkCount());
         list.remove(3);
@@ -60,15 +63,16 @@ public class ArrayChunkManagerTest {
     @Test
     public void test_0() throws Exception {
         ArrayChunkManager chunkManager = new ArrayChunkManager(16);
-        BufferedList<Long> list = SerializedChunkedLists.ofLongs().setChunkManager(chunkManager).setBuffered().build();
-        list.setBufferSize(6);
+        ChunkedByteStore chunkedByteStore = new ChunkedByteStore(chunkManager);
+        BufferedList<Long> list = SerializedLists.ofLongs().setChunkedByteStore(chunkedByteStore).setBuffered().build();
+        list.getBufferController().setBufferSize(6);
         list.addAll(Arrays.asList(0L, 1L, 2L, 3L, 4L, 5L));
-        list.flushBuffer();
+        list.getBufferController().flushBuffer();
         list.remove(3L);
-        list.flushBuffer();
+        list.getBufferController().flushBuffer();
         Assertions.assertEquals(3, chunkManager.getChunkCount());
         list.remove(4L);
-        list.flushBuffer();
+        list.getBufferController().flushBuffer();
         Assertions.assertEquals(2, chunkManager.getChunkCount());
         Assertions.assertArrayEquals(new Long[]{0L, 1L, 2L, 5L}, list.toArray(list.toArray(new Long[0])));
     }
@@ -76,7 +80,8 @@ public class ArrayChunkManagerTest {
     @Test
     public void test_1() throws Exception {
         ArrayChunkManager chunkManager = new ArrayChunkManager(24);
-        List<Long> list = SerializedChunkedLists.ofLongs().setChunkManager(chunkManager).build();
+        ChunkedByteStore chunkedByteStore = new ChunkedByteStore(chunkManager);
+        List<Long> list = SerializedLists.ofLongs().setChunkedByteStore(chunkedByteStore).build();
         list.addAll(Arrays.asList(0L, 1L, 2L, 3L, 4L, 5L));
         Assertions.assertEquals(2, chunkManager.getChunkCount());
         list.addAll(2, Arrays.asList(6L, 7L, 8L, 9L, 10L, 11L, 12L));

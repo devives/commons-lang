@@ -25,7 +25,7 @@ public class BufferedArrayListTest extends RndOpsTestBase {
     @BeforeEach
     public void beforeEach() {
         list = BufferedLists.of(new ArrayList()).build();
-        ((BufferController) list).setBufferSize(1024);
+        ((BufferedList) list).getBufferController().setBufferSize(1024);
     }
 
 

@@ -25,5 +25,10 @@ package com.devives.commons.collection;
  */
 public interface CloseableBufferedList<E> extends BufferedList<E>, CloseableList<E> {
 
-
+    /**
+     * Свойство сигнализирует о факте закрытия экземпляра списка.
+     *
+     * @return true, если был вызван метод {@link #close()}, иначе false.
+     */
+    boolean isClosed();
 }

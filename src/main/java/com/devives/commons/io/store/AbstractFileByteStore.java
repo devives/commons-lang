@@ -16,6 +16,7 @@
  */
 package com.devives.commons.io.store;
 
+import java.io.Closeable;
 import java.io.File;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -30,7 +31,7 @@ import java.util.Objects;
  * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
  * @since 0.3.0
  */
-public abstract class AbstractFileByteStore extends AbstractByteStore implements AutoCloseable {
+public abstract class AbstractFileByteStore extends AbstractByteStore implements Closeable {
 
     protected final File[] files_;
     protected boolean opened_ = true;
@@ -43,7 +44,7 @@ public abstract class AbstractFileByteStore extends AbstractByteStore implements
      * {@inheritDoc}
      */
     @Override
-    public final void close() throws Exception {
+    public final void close() throws IOException {
         opened_ = false;
         internalClose();
     }
@@ -51,9 +52,9 @@ public abstract class AbstractFileByteStore extends AbstractByteStore implements
     /**
      * Method is calling while {@link #close()} called.
      *
-     * @throws Exception if exception thrown
+     * @throws IOException if exception thrown
      */
-    protected void internalClose() throws Exception {
+    protected void internalClose() throws IOException {
 
     }
 
@@ -115,7 +116,7 @@ public abstract class AbstractFileByteStore extends AbstractByteStore implements
             }
         }
 
-        public void close() throws Exception {
+        public void close() throws IOException {
             opened_ = false;
             closeChannel();
         }

@@ -16,6 +16,8 @@
  */
 package com.devives.commons.collection;
 
+import com.devives.commons.collection.store.Buffered;
+
 import java.util.List;
 
 /**
@@ -25,7 +27,6 @@ import java.util.List;
  * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
  * @since 0.3.0
  */
-public interface BufferedList<E> extends List<E>, BufferController {
-
+public interface BufferedList<E> extends List<E>, Buffered {
 
 }

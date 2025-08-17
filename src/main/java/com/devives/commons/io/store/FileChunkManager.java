@@ -24,10 +24,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
-import java.util.Arrays;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 /**
  * Реализация менеджера чанков бинарных данных, хранимых в файлах на диске.
@@ -53,6 +50,28 @@ public final class FileChunkManager
             }
             if (!Files.isDirectory(directoryPath)) {
                 throw new IOException(String.format("Path '%s' is not a directory.", directoryPath.toAbsolutePath()));
+            }
+            if (openedFileMaxCount < 1) {
+                throw new IllegalArgumentException(String.format("The value of the 'openedFileMaxCount' argument must be greater than zero.", openedFileMaxCount));
+            }
+            chunkMap_ = new LimitedLinkedHashMap(openedFileMaxCount);
+        } catch (IOException e) {
+            throw ExceptionUtils.asUnchecked(e);
+        }
+    }
+
+    public FileChunkManager(int chunkMaxCapacity, List<FileChunkManager.FileChunkDescriptor> chunkDescList, Path directoryPath, int openedFileMaxCount) {
+        super(chunkMaxCapacity, chunkDescList);
+        directoryPath_ = Objects.requireNonNull(directoryPath, "The path to work directory can not be null.");
+        try {
+            if (!Files.exists(directoryPath)) {
+                throw new IOException(String.format("Directory '%s' is not exist.", directoryPath.toAbsolutePath()));
+            }
+            if (!Files.isDirectory(directoryPath)) {
+                throw new IOException(String.format("Path '%s' is not a directory.", directoryPath.toAbsolutePath()));
+            }
+            if (openedFileMaxCount < 1) {
+                throw new IllegalArgumentException(String.format("The value of the 'openedFileMaxCount' argument must be greater than zero.", openedFileMaxCount));
             }
             chunkMap_ = new LimitedLinkedHashMap(openedFileMaxCount);
         } catch (IOException e) {

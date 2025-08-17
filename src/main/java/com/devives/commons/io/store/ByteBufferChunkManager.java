@@ -18,6 +18,7 @@ package com.devives.commons.io.store;
 
 
 import java.nio.ByteBuffer;
+import java.util.List;
 import java.util.Objects;
 import java.util.function.Function;
 
@@ -36,12 +37,17 @@ public final class ByteBufferChunkManager extends AbstractChunkManager<ByteBuffe
         byteBufferFactory_ = Objects.requireNonNull(byteBufferFactory, "byteBufferFactory");
     }
 
+    public ByteBufferChunkManager(int chunkMaxCapacity, List<ByteBufferChunkDescriptor> chunkDescList, Function<Integer, ByteBuffer> byteBufferFactory) {
+        super(chunkMaxCapacity, chunkDescList);
+        byteBufferFactory_ = Objects.requireNonNull(byteBufferFactory, "byteBufferFactory");
+    }
+
     @Override
     protected ByteBufferChunkDescriptor newChunkDescriptor(int capacity) {
         return new ByteBufferChunkDescriptor(capacity, byteBufferFactory_);
     }
 
-    public final class ByteBufferChunkDescriptor extends AbstractChunkManager.AbstractChunkDescriptor {
+    public final class ByteBufferChunkDescriptor extends AbstractChunkManager.AbstractChunkDescriptor<ByteBufferChunk> {
 
         private final ByteBufferChunk chunk_;
 

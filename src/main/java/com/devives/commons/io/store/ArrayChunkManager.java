@@ -16,6 +16,8 @@
  */
 package com.devives.commons.io.store;
 
+import java.util.List;
+
 /**
  * Менеджер чанков, хранящих данные в массивах байт.
  * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
@@ -32,12 +34,22 @@ public final class ArrayChunkManager extends AbstractChunkManager<ArrayChunkMana
         super(chunkMaxCapacity);
     }
 
+    /**
+     * Создаёт экземпляр менеджера чанков.
+     *
+     * @param chunkMaxCapacity capacity, in bytes.
+     * @param chunkDescList    the list containing descriptors.
+     */
+    public ArrayChunkManager(int chunkMaxCapacity, List<ArrayChunkDescriptor> chunkDescList) {
+        super(chunkMaxCapacity, chunkDescList);
+    }
+
     @Override
     protected ArrayChunkDescriptor newChunkDescriptor(int capacity) {
         return new ArrayChunkDescriptor(capacity);
     }
 
-    public final class ArrayChunkDescriptor extends AbstractChunkManager.AbstractChunkDescriptor {
+    public final class ArrayChunkDescriptor extends AbstractChunkManager.AbstractChunkDescriptor<ArrayChunk> {
 
         private final ArrayChunk chunk_;
 

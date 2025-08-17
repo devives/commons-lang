@@ -19,6 +19,7 @@ package com.devives.commons.io.store;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Абстрактная реализация менеджера чанков бинарных данных.
@@ -31,11 +32,11 @@ import java.util.List;
  */
 public abstract class AbstractChunkManager<
         C extends AbstractChunkManager.AbstractChunk,
-        D extends AbstractChunkManager.AbstractChunkDescriptor>
+        D extends AbstractChunkManager.AbstractChunkDescriptor<C>>
         implements ChunkManager<C> {
 
-    private final List<D> chunkDescList_ = new ArrayList<>();
-    protected final int chunkMaxCapacity_;
+    private final List<D> chunkDescList_;
+    private final int chunkMaxCapacity_;
     protected long version_ = 0;
 
     /**
@@ -44,10 +45,21 @@ public abstract class AbstractChunkManager<
      * @param chunkMaxCapacity capacity, in bytes.
      */
     protected AbstractChunkManager(int chunkMaxCapacity) {
+        this(chunkMaxCapacity, new ArrayList<>());
+    }
+
+    /**
+     * Создаёт экземпляр менеджера чанков.
+     *
+     * @param chunkMaxCapacity capacity, in bytes.
+     * @param chunkDescList    the list containing descriptors.
+     */
+    protected AbstractChunkManager(int chunkMaxCapacity, List<D> chunkDescList) {
         if (chunkMaxCapacity <= 0) {
             throw new IllegalArgumentException("Chunk max capacity must be greater than zero.");
         }
         this.chunkMaxCapacity_ = chunkMaxCapacity;
+        this.chunkDescList_ = Objects.requireNonNull(chunkDescList, "chunkDescList");
     }
 
     @Override

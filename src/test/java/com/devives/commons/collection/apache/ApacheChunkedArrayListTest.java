@@ -14,14 +14,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.devives.commons.collection.store;
+package com.devives.commons.collection.apache;
 
-public interface Buffered {
+import com.devives.commons.collection.SerializedLists;
+import com.devives.commons.collection.store.serializer.ObjectBinarySerializer;
+import org.junit.jupiter.api.AfterEach;
 
-    /**
-     * Возвращает контроллер буфера.
-     *
-     * @return контроллер буфера.
-     */
-    BufferController getBufferController();
+import java.util.List;
+
+public class ApacheChunkedArrayListTest<E> extends ApacheAbstractListTest {
+
+    @Override
+    public List<E> makeObject() {
+        return SerializedLists.of(new ObjectBinarySerializer(128)).setArrayChunkedByteStore(128).build();
+    }
+
+    @AfterEach
+    void tearDown() {
+
+    }
+
 }

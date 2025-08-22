@@ -28,11 +28,32 @@ dependencies {
     testImplementation 'org.junit.jupiter:junit-jupiter'
     testImplementation 'org.junit.jupiter:junit-jupiter-api'
     testImplementation 'org.junit.platform:junit-platform-suite'
+    testImplementation 'com.google.guava:guava:33.0.0-jre'
+    testImplementation 'org.apache.commons:commons-pool2:2.12.0'
+    testImplementation 'org.apache.commons:commons-lang3:3.16.0'
+    // https://mvnrepository.com/artifact/org.apache.commons/commons-collections4
+    testImplementation("org.apache.commons:commons-collections4:4.5.0:tests")
+    // https://mvnrepository.com/artifact/commons-io/commons-io
+    testImplementation 'commons-io:commons-io:2.18.0'
+
 }
 
 java {
     withJavadocJar()
     withSourcesJar()
+}
+
+task testJar(type: Jar) {
+    archiveClassifier.set('tests')
+    from sourceSets.test.output
+}
+
+configurations {
+    testArtifacts
+}
+
+artifacts {
+    testArtifacts testJar
 }
 
 var manifest = manifest {
@@ -90,6 +111,7 @@ publishing {
             artifactId = archivesBaseName
 
             from components.java
+            artifact testJar
             pom {
                 packaging = "jar"
                 artifactId = archivesBaseName

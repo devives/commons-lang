@@ -14,14 +14,22 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.devives.commons.collection.store;
+package com.devives.commons.collection.apache;
 
-public interface Buffered {
+import com.devives.commons.lang.ExceptionUtils;
 
-    /**
-     * Возвращает контроллер буфера.
-     *
-     * @return контроллер буфера.
-     */
-    BufferController getBufferController();
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.logging.Logger;
+
+public abstract class ApacheAbstractListTest<E> extends org.apache.commons.collections4.list.AbstractListTest<E> {
+    public final Path testPath = Paths.get("src/test/java", getClass().getPackage().getName().split("\\.")).toAbsolutePath();
+    public final Path tempPath = Paths.get("build/test-temp/", getClass().getPackage().getName().split("\\.")).toAbsolutePath();
+    public final Logger logger = Logger.getLogger(getClass().getCanonicalName());
+
+    public ApacheAbstractListTest() {
+        ExceptionUtils.passChecked(() -> Files.createDirectories(tempPath));
+    }
+
 }

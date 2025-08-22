@@ -1,0 +1,50 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.devives.commons.collection.apache;
+
+import com.devives.commons.collection.BufferedList;
+import com.devives.commons.collection.BufferedLists;
+import com.devives.commons.collection.CloseableList;
+import com.devives.commons.collection.SerializedLists;
+import com.devives.commons.collection.store.serializer.ObjectBinarySerializer;
+import com.devives.commons.lang.ExceptionUtils;
+import org.junit.jupiter.api.AfterEach;
+
+import java.util.ArrayList;
+import java.util.List;
+
+public class ApacheBufferedListOfFileListTest<E> extends ApacheAbstractListTest {
+
+    private List<CloseableList> fileListList_ = new ArrayList<>();
+
+    @Override
+    public List<E> makeObject() {
+        return ExceptionUtils.passChecked(() -> {
+            CloseableList fileList = SerializedLists.of(new ObjectBinarySerializer(128)).setFileStorePath(tempPath).build();
+            fileListList_.add(fileList);
+            BufferedList<E> list = BufferedLists.of(fileList).build();
+            list.getBufferController().setBufferSize(2);
+            return list;
+        });
+    }
+
+    @AfterEach
+    void tearDown() {
+        fileListList_.forEach(itm -> ExceptionUtils.passChecked(() -> itm.close()));
+    }
+
+}

@@ -41,6 +41,7 @@ import java.util.function.Consumer;
  * @see Publisher
  * @see PublisherBuilder
  * @see Listeners
+ * @see Publishers
  * @since 0.2.0
  */
 public interface Publisher<I> {

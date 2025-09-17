@@ -19,17 +19,17 @@ package com.devives.commons.lifecycle;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
-abstract class LifeCycleBaseAbst extends StateObjAbst implements LifeCycle {
+abstract class AbstractLifeCycleBase extends StateObjAbst implements LifeCycle {
 
-    private final CopyOnWriteArrayList<EventListener<LifeCycle>> listeners_ = new CopyOnWriteArrayList<>();
+    private final CopyOnWriteArrayList<Listener<LifeCycle>> listeners_ = new CopyOnWriteArrayList<>();
 
     @Override
-    public void addLifeCycleListener(EventListener<LifeCycle> listener) {
+    public void addListener(Listener<LifeCycle> listener) {
         listeners_.add(Objects.requireNonNull(listener));
     }
 
     @Override
-    public void removeLifeCycleListener(EventListener<LifeCycle> listener) {
+    public void removeListener(Listener<LifeCycle> listener) {
         listeners_.remove(Objects.requireNonNull(listener));
     }
 
@@ -94,39 +94,64 @@ abstract class LifeCycleBaseAbst extends StateObjAbst implements LifeCycle {
 
     private void setStarting() {
         getStateHolder().set(States.STARTING);
-        for (EventListener<LifeCycle> listener : listeners_) {
+        onStarting();
+        for (Listener<LifeCycle> listener : listeners_) {
             listener.onStarting(this);
         }
     }
 
+    protected void onStarting() {
+
+    }
+
     private void setStarted() {
         getStateHolder().set(States.STARTED);
-        for (EventListener<LifeCycle> listener : listeners_) {
+        onStarted();
+        for (Listener<LifeCycle> listener : listeners_) {
             listener.onStarted(this);
         }
     }
 
+    protected void onStarted() {
+
+    }
+
     private void setStopping() {
         getStateHolder().set(States.STOPPING);
-        for (EventListener<LifeCycle> listener : listeners_) {
+        for (Listener<LifeCycle> listener : listeners_) {
             listener.onStopping(this);
         }
+        onStopping();
+    }
+
+    protected void onStopping() {
+
     }
 
     private void setStopped() {
         getStateHolder().set(States.STOPPED);
-        for (EventListener<LifeCycle> listener : listeners_) {
+        for (Listener<LifeCycle> listener : listeners_) {
             listener.onStopped(this);
         }
+        onStopped();
     }
+
+    protected void onStopped() {
+
+    }
+
 
     private void setFailed(Throwable th) {
         getStateHolder().set(States.FAILED);
-        for (EventListener<LifeCycle> listener : listeners_) {
+        onFailed(th);
+        for (Listener<LifeCycle> listener : listeners_) {
             listener.onFailure(this, th);
         }
     }
 
+    protected void onFailed(Throwable th) {
+
+    }
 
     protected static abstract class States {
         public static final State STOPPING = StateFactory.named("STOPPING");

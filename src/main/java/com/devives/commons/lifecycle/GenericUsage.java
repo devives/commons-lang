@@ -16,12 +16,28 @@
  */
 package com.devives.commons.lifecycle;
 
-public abstract class LifeCycleAbst extends LifeCycleBaseAbst {
+import com.devives.commons.lang.function.FailableProcedure;
 
-    @Override
-    protected StateHolder buildStateHolder() {
-        return new StateHolderImpl(States.STOPPED);
+/**
+ * Utility class with a reference to a captured instance.
+ * <p>
+ * Used in constructs like:
+ * <pre>{@code
+ * try (Usage<Item> itemUsage = manager.acquire()){
+ *     itemUsage.get().doWork();
+ * }
+ * }</pre>
+ *
+ * @param <T> The type of the instance to which a reference is obtained.
+ */
+class GenericUsage<T> extends UsageAbst<T> implements Usage<T> {
+    /**
+     * The constructor.
+     *
+     * @param instance          the instance being captured.
+     * @param releaseCallback the callback to decrease the use counter.
+     */
+    GenericUsage(T instance, FailableProcedure releaseCallback) {
+        super(instance, releaseCallback);
     }
-
-
 }

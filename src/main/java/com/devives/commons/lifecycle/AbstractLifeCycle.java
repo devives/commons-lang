@@ -16,30 +16,12 @@
  */
 package com.devives.commons.lifecycle;
 
-/**
- * Интерфейс счётчика использований объекта.
- */
-public interface UsageCounter {
+public abstract class AbstractLifeCycle extends AbstractLifeCycleBase {
 
-    /**
-     * Возвращает количество использований.
-     *
-     * @return текущее значение счётчика.
-     */
-    long getUsageCount();
+    @Override
+    protected StateHolder buildStateHolder() {
+        return new StateHolderImpl(States.STOPPED);
+    }
 
-    /**
-     * Выполняется увеличение счётчика использований данного объекта.
-     *
-     * @return новое значение счётчика.
-     */
-    long incUsageCount();
-
-    /**
-     * Выполняется уменьшение счётчика использований данного объекта.
-     *
-     * @return новое значение счётчика.
-     */
-    long decUsageCount();
 
 }

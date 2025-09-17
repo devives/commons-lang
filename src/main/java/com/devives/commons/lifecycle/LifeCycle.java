@@ -74,15 +74,15 @@ public interface LifeCycle {
      */
     void stop() throws Exception;
 
-    void addLifeCycleListener(LifeCycle.EventListener<LifeCycle> listener);
+    void addListener(Listener<LifeCycle> listener);
 
-    void removeLifeCycleListener(LifeCycle.EventListener<LifeCycle> listener);
+    void removeListener(Listener<LifeCycle> listener);
 
     /**
      * Listener.
      * A listener for Lifecycle events.
      */
-    interface EventListener<O extends LifeCycle> {
+    interface Listener<O extends LifeCycle> extends java.util.EventListener {
 
         default void onStarting(O object) {
 

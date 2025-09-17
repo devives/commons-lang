@@ -16,7 +16,6 @@
  */
 package com.devives.commons.lifecycle;
 
-import com.devives.commons.lang.function.FailableConsumer;
 import com.devives.commons.lang.function.FailableProcedure;
 
 /**
@@ -31,35 +30,30 @@ import com.devives.commons.lang.function.FailableProcedure;
  *
  * @param <T> The type of the instance to which a reference is obtained.
  */
-public interface Usage<T> extends AutoCloseable {
-    /**
-     * Returns a reference to the captured instance.
-     *
-     * @return the instance.
-     */
-    T get();
+final class GenericCountedUsage<T> extends UsageAbst<T> implements CountedUsage<T> {
+
+    private final long count_;
 
     /**
-     * Instantiate an new instance of {@link Usage}.
+     * The constructor.
      *
-     * @param instance an instance of used object
-     * @param releaseCallback release usage of object
-     * @return new instance of {@link Usage}
-     * @param <T> The type of the instance to which a reference is obtained.
+     * @param instance        the instance being captured.
+     * @param count           the current count of uses.
+     * @param releaseCallback the callback to decrease the use counter.
      */
-    static <T> Usage<T> of(T instance, FailableProcedure releaseCallback) {
-        return new GenericUsage<T>(instance, releaseCallback);
+    GenericCountedUsage(T instance, long count, FailableProcedure releaseCallback) {
+        super(instance, releaseCallback);
+        count_ = count;
     }
 
     /**
-     * Instantiate an new instance of {@link Usage}.
+     * Returns the count of uses of the object at the time of getting the reference.
      *
-     * @param instance an instance of used object
-     * @param releaseCallback release usage of object
-     * @return new instance of {@link Usage}
-     * @param <T> The type of the instance to which a reference is obtained.
+     * @return the count.
      */
-    static <T> Usage<T> of(T instance, FailableConsumer<T> releaseCallback) {
-        return new ManagedUsage<>(instance, releaseCallback);
+    public long getCount() {
+        return count_;
     }
+
+
 }

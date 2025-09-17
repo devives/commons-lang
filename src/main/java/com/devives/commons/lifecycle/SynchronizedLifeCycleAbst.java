@@ -16,7 +16,7 @@
  */
 package com.devives.commons.lifecycle;
 
-public abstract class SynchronizedLifeCycleAbst extends LifeCycleBaseAbst implements LifeCycle {
+public abstract class SynchronizedLifeCycleAbst extends AbstractLifeCycleBase implements LifeCycle {
 
     private final Object startStopLock_ = new Object();
 

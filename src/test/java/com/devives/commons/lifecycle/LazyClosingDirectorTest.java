@@ -42,7 +42,7 @@ public class LazyClosingDirectorTest {
     public void close_afterAutoRelease_callbackWasCalled() throws Exception {
         Ref<Boolean> calledRef = new Ref<>(false);
         SynchronizedLazyClosingDirector director = new SynchronizedLazyClosingDirector(() -> calledRef.set(true));
-        try (Usage usage = Usage.of(director)) {
+        try (Usage usage = CountedUsage.of(director)) {
             Assertions.assertFalse(calledRef.get());
             director.closeAsync();
             Assertions.assertFalse(calledRef.get());

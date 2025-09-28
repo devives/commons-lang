@@ -17,8 +17,9 @@
 package com.devives.commons.collection.store;
 
 /**
+ * Abstract implementation of {@link Store}.
  *
- * @param <E>
+ * @param <E> type of stored objects
  * @author Vladimir Ivanov {@code <ivvlev@devives.com>}
  * @since 0.3.0
  */

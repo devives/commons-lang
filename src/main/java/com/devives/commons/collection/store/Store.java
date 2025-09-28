@@ -91,6 +91,7 @@ public interface Store<E> {
      * Adds an element to the end.
      *
      * @param element Element.
+     * @return {@code true}, if element was added, else {@code false}
      * @throws NullPointerException if <tt>elements</tt> is <tt>null</tt>.
      */
     default boolean add(E element) {
@@ -129,6 +130,7 @@ public interface Store<E> {
     /**
      * Replaces an element at <tt>index</tt> position by <tt>element</tt>.
      *
+     * @param index   index of element
      * @param element Element.
      * @throws NullPointerException if <tt>elements</tt> is <tt>null</tt>.
      */

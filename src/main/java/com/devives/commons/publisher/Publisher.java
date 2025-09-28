@@ -23,8 +23,6 @@ import java.util.function.Consumer;
 
 /**
  * Defines a contract for publishing events to registered listeners of type {@code <I>}.
- * <p>
- *
  * <h3>Event Publication</h3>
  * Events are published by providing a {@link Consumer} that defines how each listener
  * should process the event. For example:

@@ -97,6 +97,8 @@ public final class SerializedLists {
         }
 
         /**
+         * Устанавливает в качестве хранилища данных {@link ByteBufferStore} с хранением данных в Java Heap Memory.
+         *
          * @return текущий экземпляр строителя.
          */
         public RamBuilder<E> setHeapByteStore() {
@@ -106,6 +108,9 @@ public final class SerializedLists {
         }
 
         /**
+         * Устанавливает в качестве хранилища данных {@link ByteBufferStore} с хранением данных в Java Heap Memory.
+         *
+         * @param initialCapacity начальный размер, в байтах.
          * @return текущий экземпляр строителя.
          */
         public RamBuilder<E> setHeapByteStore(int initialCapacity) {
@@ -115,6 +120,8 @@ public final class SerializedLists {
         }
 
         /**
+         * Устанавливает в качестве хранилища данных {@link ByteBufferStore} с хранением данных вне Java Heap Memory.
+         *
          * @return текущий экземпляр строителя.
          */
         public RamBuilder<E> setOffHeapByteStore() {
@@ -124,6 +131,9 @@ public final class SerializedLists {
         }
 
         /**
+         * Устанавливает в качестве хранилища данных {@link ByteBufferStore} с хранением данных вне Java Heap Memory.
+         *
+         * @param initialCapacity начальный размер, в байтах.
          * @return текущий экземпляр строителя.
          */
         public RamBuilder<E> setOffHeapByteStore(int initialCapacity) {
@@ -143,6 +153,9 @@ public final class SerializedLists {
         }
 
         /**
+         * Устанавливает в качестве хранилища данных {@link ChunkedByteStore} с хранением данных в Java Heap Memory.
+         *
+         * @param chunkMaxCapacity размер чанка, в байтах.
          * @return текущий экземпляр строителя.
          */
         public RamBuilder<E> setArrayChunkedByteStore(int chunkMaxCapacity) {
@@ -153,6 +166,9 @@ public final class SerializedLists {
         }
 
         /**
+         * Устанавливает в качестве хранилища данных {@link ChunkedByteStore} с хранением данных в Java Heap Memory.
+         *
+         * @param chunkMaxCapacity размер чанка, в байтах.
          * @return текущий экземпляр строителя.
          */
         public RamBuilder<E> setHeapChunkedByteStore(int chunkMaxCapacity) {
@@ -163,6 +179,9 @@ public final class SerializedLists {
         }
 
         /**
+         * Устанавливает в качестве хранилища данных {@link ChunkedByteStore} с хранением данных вне Java Heap Memory.
+         *
+         * @param chunkMaxCapacity размер чанка, в байтах.
          * @return текущий экземпляр строителя.
          */
         public RamBuilder<E> setOffHeapChunkedByteStore(int chunkMaxCapacity) {
@@ -173,6 +192,9 @@ public final class SerializedLists {
         }
 
         /**
+         * Устанавливает в качестве хранилища данных переданный {@link ChunkedByteStore}.
+         *
+         * @param chunkedByteStore экземпляр {@link ChunkedByteStore}.
          * @return текущий экземпляр строителя.
          */
         public RamBuilder<E> setChunkedByteStore(ChunkedByteStore chunkedByteStore) {
@@ -182,6 +204,10 @@ public final class SerializedLists {
         }
 
         /**
+         * Устанавливает в качестве хранилища данных переданный {@link ChunkedByteStore} с хранением в файле на диске.
+         * @param chunkMaxCapacity   максимальный размер чанка (файла).
+         * @param directoryPath      путь к каталогу, где будут создаваться файлы данных.
+         * @param activeFileMaxCount число активных файлов.
          * @return текущий экземпляр строителя.
          */
         public FileBuilder<E> setFileChunkedByteStore(int chunkMaxCapacity, Path directoryPath, int activeFileMaxCount) {

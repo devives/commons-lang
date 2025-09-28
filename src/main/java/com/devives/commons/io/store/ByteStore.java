@@ -51,6 +51,7 @@ public interface ByteStore {
      *
      * @param fromPosition position of the first byte to write: [{@code 0}..{@link #size()}].
      * @param byteBuffer   buffer from which data will be read.
+     * @return count of bytes written, which may be less than {@link ByteBuffer#remaining()} if the range is smaller than the buffer.
      */
     default int insert(long fromPosition, ByteBuffer byteBuffer) {
         return replaceRange(fromPosition, fromPosition, byteBuffer);

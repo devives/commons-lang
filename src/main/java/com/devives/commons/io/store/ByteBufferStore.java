@@ -73,7 +73,9 @@ public final class ByteBufferStore extends AbstractByteStore {
     /**
      * Creates a byte storage based on the specified array.
      *
-     * @param byteBuffer byte array
+     * @param byteBufferFactory ByteBuffer factory. It will be use when expanding of the buffer is required.
+     * @param byteBuffer        initial byte buffer.
+     * @param size              initial data size in buffer.
      */
     public ByteBufferStore(Function<Integer, ByteBuffer> byteBufferFactory, ByteBuffer byteBuffer, int size) {
         byteBufferFactory_ = Objects.requireNonNull(byteBufferFactory);

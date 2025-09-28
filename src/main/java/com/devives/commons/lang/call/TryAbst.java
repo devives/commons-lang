@@ -109,7 +109,8 @@ abstract class TryAbst<ONTRY, ONCATCH, CATCH extends TryAbst.Catch, FINALLY exte
     /**
      * Initializes the {@code TryAbst#onCatch} code block, which will be executed only if an exception occurs in the {@code TryAbst#onTry} block.
      *
-     * @param onCatch the <tt>catch</tt> code block, which accepts the exception thrown from the {@code TryAbst#onTry} block as an argument.
+     * @param onCatch      the <tt>catch</tt> code block, which accepts the exception thrown from the {@code TryAbst#onTry} block as an argument.
+     * @param catchFactory the factory of the <tt>catch</tt> code block decorator.
      * @return new instance of {@link TryRunnable.Catch}.
      */
     protected final CATCH onCatch(ONCATCH onCatch, Supplier<CATCH> catchFactory) {
@@ -120,7 +121,8 @@ abstract class TryAbst<ONTRY, ONCATCH, CATCH extends TryAbst.Catch, FINALLY exte
     /**
      * Initializes the {@code #onFinally} code block.
      *
-     * @param onFinally the finally code block.
+     * @param onFinally      the finally code block.
+     * @param finallyFactory factory of the finally block decorator.
      * @return new instance of {@link TryRunnable.Finally}.
      */
     protected final FINALLY doFinally(FailableRunnable onFinally, Supplier<FINALLY> finallyFactory) {
@@ -130,7 +132,7 @@ abstract class TryAbst<ONTRY, ONCATCH, CATCH extends TryAbst.Catch, FINALLY exte
 
     /**
      * Executes the {@link #onTry} code block.
-     *
+     * @param onTry the try code block.
      * @throws Exception the exception thrown from the {@link #onTry} block.
      */
     protected abstract void invokeTry(ONTRY onTry) throws Exception;
@@ -138,7 +140,8 @@ abstract class TryAbst<ONTRY, ONCATCH, CATCH extends TryAbst.Catch, FINALLY exte
     /**
      * Executes the {@link #onCatch} code block.
      *
-     * @param th the exception thrown from the {@link #onTry} block.
+     * @param onCatch the catch code block.
+     * @param th      the exception thrown from the {@link #onTry} block.
      * @throws Throwable the exception thrown from the {@link #onCatch} block.
      */
     protected abstract void invokeCatch(ONCATCH onCatch, Throwable th) throws Throwable;
@@ -146,6 +149,7 @@ abstract class TryAbst<ONTRY, ONCATCH, CATCH extends TryAbst.Catch, FINALLY exte
     /**
      * Executes the {@link #onFinally} code block.
      *
+     * @param onFinally the finally code block.
      * @throws Exception the exception thrown from the {@link #onFinally} block.
      */
     protected final void invokeFinally(FailableRunnable onFinally) throws Exception {

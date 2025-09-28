@@ -64,6 +64,7 @@ public final class Try {
      * }</pre>
      *
      * @param runnable  the runnable operation that may throw an exception. Must not be null.
+     * @return new {@link TryRunnable} instance.
      * @throws NullPointerException if the provided {@code runnable} is null.
      */
     public static TryRunnable runnable(FailableRunnable runnable) {
@@ -92,6 +93,7 @@ public final class Try {
      *
      * @param <R>       the type of the return value of the callable operation.
      * @param callable  the callable operation that may throw an exception. Must not be null.
+     * @return new {@link TryCallable} instance.
      * @throws NullPointerException if the provided {@code callable} is null.
      */
     public static <R> TryCallable<R> callable(FailableCallable<R> callable) {

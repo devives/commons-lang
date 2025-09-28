@@ -27,7 +27,7 @@ public interface Product {
      * Возвращает значение поля с указанным индексом.
      *
      * @param n индекс поля, начиная с "0".
-     * @return
+     * @return value with {@code n} index.
      */
     Object productElement(int n);
 

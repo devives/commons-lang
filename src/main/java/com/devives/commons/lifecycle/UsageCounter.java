@@ -26,20 +26,20 @@ public interface UsageCounter {
      *
      * @return текущее значение счётчика.
      */
-    long getUsageCount();
+    int getUsageCount();
 
     /**
      * Выполняется увеличение счётчика использований данного объекта.
      *
      * @return новое значение счётчика.
      */
-    long incUsageCount();
+    int incUsageCount();
 
     /**
      * Выполняется уменьшение счётчика использований данного объекта.
      *
      * @return новое значение счётчика.
      */
-    long decUsageCount();
+    int decUsageCount();
 
 }

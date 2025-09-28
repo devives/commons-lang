@@ -51,7 +51,7 @@ public class SynchronizedLazyClosingDirector implements LazyCloseableAsync {
     /**
      * Счётчик использований.
      */
-    private long usageCounter_ = 0;
+    private int usageCounter_ = 0;
 
     /**
      * @param closeDelegate Ссылка на метод объекта, делегирующего управление закрытием.
@@ -97,7 +97,7 @@ public class SynchronizedLazyClosingDirector implements LazyCloseableAsync {
      *
      * @return число использований
      */
-    public long getUsageCount() {
+    public int getUsageCount() {
         synchronized (lock_) {
             return usageCounter_;
         }
@@ -108,8 +108,8 @@ public class SynchronizedLazyClosingDirector implements LazyCloseableAsync {
      *
      * @return {@inheritDoc}
      */
-    public long incUsageCount() {
-        final long usages;
+    public int incUsageCount() {
+        final int usages;
         synchronized (lock_) {
             // Allow increment usages if `closeAsync()` was called but `usageCounter_ > 0`.
             if (closeTimeStamp_ == OPENED || usageCounter_ > 0) {
@@ -126,9 +126,9 @@ public class SynchronizedLazyClosingDirector implements LazyCloseableAsync {
      *
      * @return {@inheritDoc}
      */
-    public long decUsageCount() {
+    public int decUsageCount() {
         final boolean needClose;
-        final long usages;
+        final int usages;
         synchronized (lock_) {
             if (usageCounter_ == 0) {
                 throw new RuntimeException("Usage counter becomes below zero.");

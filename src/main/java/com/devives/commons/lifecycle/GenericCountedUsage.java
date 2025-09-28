@@ -32,7 +32,7 @@ import com.devives.commons.lang.function.FailableProcedure;
  */
 final class GenericCountedUsage<T> extends UsageAbst<T> implements CountedUsage<T> {
 
-    private final long count_;
+    private final int count_;
 
     /**
      * The constructor.
@@ -41,7 +41,7 @@ final class GenericCountedUsage<T> extends UsageAbst<T> implements CountedUsage<
      * @param count           the current count of uses.
      * @param releaseCallback the callback to decrease the use counter.
      */
-    GenericCountedUsage(T instance, long count, FailableProcedure releaseCallback) {
+    GenericCountedUsage(T instance, int count, FailableProcedure releaseCallback) {
         super(instance, releaseCallback);
         count_ = count;
     }
@@ -51,7 +51,7 @@ final class GenericCountedUsage<T> extends UsageAbst<T> implements CountedUsage<
      *
      * @return the count.
      */
-    public long getCount() {
+    public int getCount() {
         return count_;
     }
 

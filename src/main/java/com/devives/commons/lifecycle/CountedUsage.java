@@ -29,7 +29,7 @@ public interface CountedUsage<T> extends Usage<T> {
      *
      * @return the count.
      */
-    long getCount();
+    int getCount();
 
     /**
      * Increases the use counter of the object {@code instance} and creates a new instance of {@link CountedUsage}.

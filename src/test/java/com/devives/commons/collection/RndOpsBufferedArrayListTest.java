@@ -20,7 +20,7 @@ import org.junit.jupiter.api.BeforeEach;
 
 import java.util.ArrayList;
 
-public class BufferedArrayListTest extends RndOpsTestBase {
+public class RndOpsBufferedArrayListTest extends RndOpsTestBase {
 
     @BeforeEach
     public void beforeEach() {

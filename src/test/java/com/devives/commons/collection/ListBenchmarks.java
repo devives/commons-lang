@@ -18,7 +18,6 @@ package com.devives.commons.collection;
 
 import com.devives.commons.lang.ExceptionUtils;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 
 import java.util.ArrayList;
@@ -28,13 +27,13 @@ import java.util.List;
 /**
  * Сравнение реализаций интерфейса {@link List}.
  */
-@Disabled("For manual running.")
+//@Disabled("For manual running.")
 public class ListBenchmarks extends ListBenchmarksBase {
 
     @Nested
-    public class FileListTest extends Commons {
+    public class SerializedFileListTest extends Commons {
 
-        public FileListTest() {
+        public SerializedFileListTest() {
             list = ExceptionUtils.passChecked(() -> SerializedLists.ofLongs().setFileStorePath(tempPath).build());
         }
 
@@ -47,9 +46,9 @@ public class ListBenchmarks extends ListBenchmarksBase {
 
     @Nested
 
-    public class BufferedBiFileListTest extends Commons {
+    public class SerializedBiFileListTest extends Commons {
 
-        public BufferedBiFileListTest() {
+        public SerializedBiFileListTest() {
             list = ExceptionUtils.passChecked(() -> SerializedLists.ofLongs().setBiFileStorePath(tempPath).setBuffered().build());
         }
 
@@ -61,9 +60,9 @@ public class ListBenchmarks extends ListBenchmarksBase {
     }
 
     @Nested
-    public class BufferedPersistentArrayListTest extends Commons {
+    public class SerializedListTest extends Commons {
 
-        public BufferedPersistentArrayListTest() {
+        public SerializedListTest() {
             list = SerializedLists.ofLongs().build();
         }
 

@@ -22,7 +22,6 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
-import java.util.LinkedList;
 import java.util.List;
 
 import static com.devives.commons.collection.BufferedListUtils.*;
@@ -133,11 +132,6 @@ public class ListBenchmarksBase extends TempDirectoryTestBase {
                 addElements(list, 1_000_000);
             }
 
-            @Test
-            @Disabled
-            public void addRandom_200_000_BuffSize_Duration() throws Exception {
-                //todo
-            }
         }
 
         @Nested
@@ -149,20 +143,10 @@ public class ListBenchmarksBase extends TempDirectoryTestBase {
 
             @Test
             public void add_100_InToMiddleOf_200_000_Duration() throws Exception {
-                for (int i = 0; i < 100; i++) {
+                // вставка через одну запись
+                for (int i = 0; i < 200; i += 2) {
                     list.add(TEST_LIST_SIZE / 2, (long) i);
                 }
-                flush(list);
-            }
-
-            @Test
-            @Disabled
-            public void addAll_100_InToMiddleOf_1_000_000_Duration() throws Exception {
-                List<Long> items = new LinkedList<>();
-                for (int i = 0; i < 100; i++) {
-                    items.add((long) i);
-                }
-                list.addAll(TEST_LIST_SIZE / 2, items);
                 flush(list);
             }
         }

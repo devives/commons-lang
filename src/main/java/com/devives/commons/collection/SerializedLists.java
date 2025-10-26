@@ -243,14 +243,36 @@ public final class SerializedLists {
         }
 
         public BufferedRamBuilder<E> setBuffered() {
-            return setBufferByteStore(new ArrayByteStore());
+            return internalSetBufferByteStore(new ArrayByteStore(), null, null);
+        }
+
+        public BufferedRamBuilder<E> setBuffered(int bufferSize) {
+            return internalSetBufferByteStore(new ArrayByteStore(), bufferSize, null);
+        }
+
+        public BufferedRamBuilder<E> setBuffered(int bufferSize, int bufferMaxSize) {
+            return internalSetBufferByteStore(new ArrayByteStore(), bufferSize, bufferMaxSize);
         }
 
         public BufferedRamBuilder<E> setBufferByteStore(ByteStore bufferByteStore) {
+            return internalSetBufferByteStore(bufferByteStore, null, null);
+        }
+
+        public BufferedRamBuilder<E> setBufferByteStore(ByteStore bufferByteStore, int bufferSize) {
+            return internalSetBufferByteStore(bufferByteStore, bufferSize, null);
+        }
+
+        public BufferedRamBuilder<E> setBufferByteStore(ByteStore bufferByteStore, int bufferSize, int bufferMaxSize) {
+            return internalSetBufferByteStore(bufferByteStore, bufferSize, bufferMaxSize);
+        }
+
+        private BufferedRamBuilder<E> internalSetBufferByteStore(ByteStore bufferByteStore, Integer bufferSize, Integer bufferMaxSize) {
             Objects.requireNonNull(bufferByteStore, "bufferByteStore");
             BufferedRamBuilder<E> bufferedBuilder = new BufferedRamBuilder<>(binarySerializer_);
             bufferedBuilder.byteStore_ = byteStore_;
             bufferedBuilder.bufferByteStore_ = bufferByteStore;
+            bufferedBuilder.bufferSize_ = bufferSize;
+            bufferedBuilder.bufferMaxSize_ = bufferMaxSize;
             return bufferedBuilder;
         }
 
@@ -274,14 +296,36 @@ public final class SerializedLists {
         }
 
         public BufferedRamBuilder<E> setBuffered() {
-            return setBufferByteStore(new ArrayByteStore());
+            return internalSetBufferByteStore(new ArrayByteStore(), null, null);
+        }
+
+        public BufferedRamBuilder<E> setBuffered(int bufferSize) {
+            return internalSetBufferByteStore(new ArrayByteStore(), bufferSize, null);
+        }
+
+        public BufferedRamBuilder<E> setBuffered(int bufferSize, int bufferMaxSize) {
+            return internalSetBufferByteStore(new ArrayByteStore(), bufferSize, bufferMaxSize);
         }
 
         public BufferedRamBuilder<E> setBufferByteStore(ByteStore bufferByteStore) {
+            return internalSetBufferByteStore(bufferByteStore, null, null);
+        }
+
+        public BufferedRamBuilder<E> setBufferByteStore(ByteStore bufferByteStore, int bufferSize) {
+            return internalSetBufferByteStore(bufferByteStore, bufferSize, null);
+        }
+
+        public BufferedRamBuilder<E> setBufferByteStore(ByteStore bufferByteStore, int bufferSize, int bufferMaxSize) {
+            return internalSetBufferByteStore(bufferByteStore, bufferSize, bufferMaxSize);
+        }
+
+        private BufferedRamBuilder<E> internalSetBufferByteStore(ByteStore bufferByteStore, Integer bufferSize, Integer bufferMaxSize) {
             Objects.requireNonNull(bufferByteStore, "bufferByteStore");
             BufferedRamBuilder<E> bufferedBuilder = new BufferedRamBuilder<>(binarySerializer_);
             bufferedBuilder.byteStore_ = byteStore_;
             bufferedBuilder.bufferByteStore_ = bufferByteStore;
+            bufferedBuilder.bufferSize_ = bufferSize;
+            bufferedBuilder.bufferMaxSize_ = bufferMaxSize;
             return bufferedBuilder;
         }
 
@@ -305,6 +349,8 @@ public final class SerializedLists {
     public static final class BufferedRamBuilder<E> extends AbstractBuilder<E, BufferedRamBuilder<E>> {
 
         protected ByteStore bufferByteStore_;
+        protected Integer bufferSize_;
+        protected Integer bufferMaxSize_;
 
         /**
          * Конструктор строителя.
@@ -326,6 +372,9 @@ public final class SerializedLists {
             AlignedByteStore mainAlignedStore = new AlignedByteStore(mainByteStore, elementSize);
 
             BufferedSerializedStore<E> serializedStore = new BufferedSerializedStore<E>(mainAlignedStore, bufferSerializedStore);
+            Optional.ofNullable(bufferSize_).ifPresent(serializedStore.getBufferController()::setBufferSize);
+            Optional.ofNullable(bufferMaxSize_).ifPresent(serializedStore.getBufferController()::setBufferMaxSize);
+
             return new BufferedStoreAsListAdapter<>(serializedStore);
         }
     }
@@ -337,10 +386,30 @@ public final class SerializedLists {
         }
 
         public BufferedFileBuilder<E> setBuffered() {
-            return setBufferByteStore(new ArrayByteStore());
+            return internalSetBufferByteStore(new ArrayByteStore(), null, null);
+        }
+
+        public BufferedFileBuilder<E> setBuffered(int bufferSize) {
+            return internalSetBufferByteStore(new ArrayByteStore(), bufferSize, null);
+        }
+
+        public BufferedFileBuilder<E> setBuffered(int bufferSize, int bufferMaxSize) {
+            return internalSetBufferByteStore(new ArrayByteStore(), bufferSize, bufferMaxSize);
         }
 
         public BufferedFileBuilder<E> setBufferByteStore(ByteStore bufferByteStore) {
+            return internalSetBufferByteStore(bufferByteStore, null, null);
+        }
+
+        public BufferedFileBuilder<E> setBufferByteStore(ByteStore bufferByteStore, int bufferSize) {
+            return internalSetBufferByteStore(bufferByteStore, bufferSize, null);
+        }
+
+        public BufferedFileBuilder<E> setBufferByteStore(ByteStore bufferByteStore, int bufferSize, int bufferMaxSize) {
+            return internalSetBufferByteStore(bufferByteStore, bufferSize, bufferMaxSize);
+        }
+
+        private BufferedFileBuilder<E> internalSetBufferByteStore(ByteStore bufferByteStore, Integer bufferSize, Integer bufferMaxSize) {
             Objects.requireNonNull(bufferByteStore, "bufferByteStore");
             BufferedFileBuilder<E> bufferedBuilder = new BufferedFileBuilder<>(binarySerializer_);
             bufferedBuilder.bufferByteStore_ = bufferByteStore;
@@ -348,6 +417,8 @@ public final class SerializedLists {
             bufferedBuilder.file1_ = file1_;
             bufferedBuilder.file2_ = file2_;
             bufferedBuilder.openOptions_ = openOptions_;
+            bufferedBuilder.bufferSize_ = bufferSize;
+            bufferedBuilder.bufferMaxSize_ = bufferMaxSize;
             return bufferedBuilder;
         }
 
@@ -369,6 +440,8 @@ public final class SerializedLists {
     public static final class BufferedFileBuilder<E> extends AbstractFileBuilder<E, BufferedFileBuilder<E>> {
 
         protected ByteStore bufferByteStore_;
+        protected Integer bufferSize_;
+        protected Integer bufferMaxSize_;
 
         public BufferedFileBuilder(BinarySerializer<E> binarySerializer) {
             super(binarySerializer);
@@ -388,6 +461,9 @@ public final class SerializedLists {
             Closeable closeable = getCloseable(mainByteStore);
 
             BufferedSerializedStore<E> serializedStore = new BufferedSerializedStore(mainAlignedStore, bufferSerializedStore);
+            Optional.ofNullable(bufferSize_).ifPresent(serializedStore.getBufferController()::setBufferSize);
+            Optional.ofNullable(bufferMaxSize_).ifPresent(serializedStore.getBufferController()::setBufferMaxSize);
+
             return new CloseableBufferedListWrapper<>(new BufferedStoreAsListAdapter<>(serializedStore), closeable);
         }
 

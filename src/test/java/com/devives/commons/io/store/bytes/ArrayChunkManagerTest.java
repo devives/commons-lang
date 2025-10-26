@@ -64,8 +64,7 @@ public class ArrayChunkManagerTest {
     public void test_0() throws Exception {
         ArrayChunkManager chunkManager = new ArrayChunkManager(16);
         ChunkedByteStore chunkedByteStore = new ChunkedByteStore(chunkManager);
-        BufferedList<Long> list = SerializedLists.ofLongs().setChunkedByteStore(chunkedByteStore).setBuffered().build();
-        list.getBufferController().setBufferSize(6);
+        BufferedList<Long> list = SerializedLists.ofLongs().setChunkedByteStore(chunkedByteStore).setBuffered(6).build();
         list.addAll(Arrays.asList(0L, 1L, 2L, 3L, 4L, 5L));
         list.getBufferController().flushBuffer();
         list.remove(3L);

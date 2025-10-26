@@ -22,8 +22,11 @@ public class RndOpsBufferedArrayChunkedListTest extends RndOpsTestBase {
 
     @BeforeEach
     public void beforeEach() {
-        BufferedList bufferedList = SerializedLists.ofLongs().setArrayChunkedByteStore(32 * 1024).setBuffered().build();
-        bufferedList.getBufferController().setBufferSize(32 * 1024 / 8);
+        BufferedList bufferedList = SerializedLists
+                .ofLongs()
+                .setArrayChunkedByteStore(32 * 1024)
+                .setBuffered(32 * 1024 / 8)
+                .build();
         list = bufferedList;
     }
 

@@ -57,7 +57,7 @@ public final class Try {
      * Try.runnable(() -> {
      *   // Main code block that may throw an exception.
      * }).onCatch((th) -> {
-     *   // Handle errors.
+     *   // Handle errors and optionally rethrow exception.
      * }).doFinally(() -> {
      *   // Perform cleanup or finalization tasks.
      * }).run();
@@ -68,7 +68,7 @@ public final class Try {
      * @throws NullPointerException if the provided {@code runnable} is null.
      */
     public static TryRunnable runnable(FailableRunnable runnable) {
-        return new TryRunnable(runnable);
+        return new TryRunnableScope(runnable);
     }
 
     /**
@@ -84,7 +84,7 @@ public final class Try {
      *   // Main code block that may throw an exception.
      *   return 1L;
      * }).onCatch((th) -> {
-     *   // Handle errors and optionally return a fallback value.
+     *   // Handle errors and optionally rethrow exception or return a fallback value.
      *   return 2L;
      * }).doFinally(() -> {
      *   // Perform cleanup or finalization tasks.
@@ -97,6 +97,6 @@ public final class Try {
      * @throws NullPointerException if the provided {@code callable} is null.
      */
     public static <R> TryCallable<R> callable(FailableCallable<R> callable) {
-        return new TryCallable<>(callable);
+        return new TryCallableScope<R>(callable);
     }
 }

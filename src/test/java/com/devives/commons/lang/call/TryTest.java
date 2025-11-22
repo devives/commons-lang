@@ -162,7 +162,32 @@ public class TryTest {
         });
         Assertions.assertEquals(testObject, try_.doFinally(() -> {
         }).call());
-        Field field = try_.getClass().getDeclaredField("result");
+        Field field = try_.getClass().getDeclaredField("onTry");
+        field.setAccessible(true);
+        Assertions.assertNull(field.get(try_));
+        field = try_.getClass().getDeclaredField("onCatch");
+        field.setAccessible(true);
+        Assertions.assertNull(field.get(try_));
+        field = try_.getClass().getDeclaredField("onFinally");
+        field.setAccessible(true);
+        Assertions.assertNull(field.get(try_));
+    }
+
+    @Test
+    public void runnable_NoMemoryLeak() throws Exception {
+        final Object testObject = new Object();
+        TryRunnable try_ = Try.runnable(() -> {
+
+        });
+        try_.doFinally(() -> {
+        }).run();
+        Field field = try_.getClass().getDeclaredField("onTry");
+        field.setAccessible(true);
+        Assertions.assertNull(field.get(try_));
+        field = try_.getClass().getDeclaredField("onCatch");
+        field.setAccessible(true);
+        Assertions.assertNull(field.get(try_));
+        field = try_.getClass().getDeclaredField("onFinally");
         field.setAccessible(true);
         Assertions.assertNull(field.get(try_));
     }

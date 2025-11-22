@@ -20,7 +20,7 @@ import com.devives.commons.lang.function.FailableRunnable;
 import com.devives.commons.lang.function.ThrowableProcedure1;
 
 /**
- * This class implements cascading exception handling in the <tt>try-catch-finally</tt> construct for methods that do not
+ * This interface declare cascading exception handling in the <tt>try-catch-finally</tt> construct for methods that do not
  * return a result.
  * <p>
  * Example usage:
@@ -44,60 +44,45 @@ import com.devives.commons.lang.function.ThrowableProcedure1;
  * }
  * }</pre>
  * <p>
- * Methods of this class are not synchronized and do not assume calls from multiple threads.
+ * Methods of the implementations are not synchronized and do not assume calls from multiple threads.
  *
  * @see Try#runnable(FailableRunnable)
  *
  * @since 0.2.0
  */
-public final class TryRunnable extends TryAbst<
-        FailableRunnable,
-        ThrowableProcedure1<Throwable, Throwable>,
-        TryRunnable.Catch,
-        TryRunnable.Finally> {
-
+public interface TryRunnable {
     /**
-     * Constructor for an instance of {@link TryRunnable}.
-     *
-     * @param runnable the <tt>try</tt> code block.
+     * Interface declare methods witch are available after defining {@code try-catch} code blocks.
      */
-    TryRunnable(FailableRunnable runnable) {
-        super(runnable);
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    public final class Catch extends TryAbst.Catch {
+    interface Catch<R> {
 
         /**
-         * {@inheritDoc}
+         * Initializes the {@code finally} code block.
+         *
+         * @param onFinally the finally code block.
+         * @return builder instance.
          */
-        @Override
-        public Finally doFinally(FailableRunnable onFinally) {
-            return TryRunnable.this.doFinally(onFinally);
-        }
+        Finally doFinally(FailableRunnable onFinally);
 
         /**
-         * Executes the <tt>try-catch</tt> construct.
+         * Executes the {@code try-catch} construct.
          * <p>
          * The method can be called one time.
          */
-        public void run() {
-            TryRunnable.this.invokeTryCatchFinally();
-        }
+        void run();
     }
 
+    /**
+     * Interface declare methods witch are available after defining {@code finally} code block.
+     */
+    interface Finally {
 
-    public final class Finally extends TryAbst.Finally {
         /**
          * Executes the <tt>try-catch-finally</tt> construct.
          * <p>
          * The method can be called one time.
          */
-        public void run() {
-            TryRunnable.this.invokeTryCatchFinally();
-        }
+        void run();
     }
 
     /**
@@ -108,9 +93,7 @@ public final class TryRunnable extends TryAbst<
      * @param onCatch the <tt>catch</tt> code block, which accepts the exception thrown from the {@code TryAbst#onTry} block as an argument.
      * @return a new instance of {@link TryRunnable.Catch}.
      */
-    public Catch onCatch(ThrowableProcedure1<Throwable, Throwable> onCatch) {
-        return super.onCatch(onCatch, Catch::new);
-    }
+    Catch onCatch(ThrowableProcedure1<Throwable, Throwable> onCatch);
 
     /**
      * Initializes the {@code TryAbst#onFinally} code block.
@@ -120,23 +103,6 @@ public final class TryRunnable extends TryAbst<
      * @param onFinally the <tt>finally</tt> code block.
      * @return a new instance of {@link TryRunnable.Finally}.
      */
-    public Finally doFinally(FailableRunnable onFinally) {
-        return super.doFinally(onFinally, Finally::new);
-    }
+    Finally doFinally(FailableRunnable onFinally);
 
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void invokeTry(FailableRunnable onTry) throws Exception {
-        onTry.run();
-    }
-
-    /**
-     * {@inheritDoc}
-     */
-    @Override
-    protected void invokeCatch(ThrowableProcedure1<Throwable, Throwable> onCatch, Throwable th) throws Throwable {
-        onCatch.accept(th);
-    }
 }

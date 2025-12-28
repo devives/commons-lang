@@ -18,8 +18,6 @@ package com.devives.commons.lifecycle;
 
 public abstract class SynchronizedLifeCycleAbst extends AbstractLifeCycleBase implements LifeCycle {
 
-    private final Object startStopLock_ = new Object();
-
     @Override
     protected StateHolder buildStateHolder() {
         return new SynchronizedStateHolderImpl(States.STOPPED);
@@ -32,16 +30,12 @@ public abstract class SynchronizedLifeCycleAbst extends AbstractLifeCycleBase im
 
     @Override
     public void start() throws Exception {
-        synchronized (startStopLock_) {
-            super.start();
-        }
+        getStateHolder().performAtomicWork(super::start);
     }
 
     @Override
     public void stop() throws Exception {
-        synchronized (startStopLock_) {
-            super.stop();
-        }
+        getStateHolder().performAtomicWork(super::stop);
     }
 
 }

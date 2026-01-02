@@ -18,6 +18,8 @@ package com.devives.commons;
 
 import com.devives.commons.util.DurationMeter;
 
+import java.text.NumberFormat;
+import java.util.Locale;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.logging.Logger;
 
@@ -80,14 +82,15 @@ public abstract class Task implements Runnable {
 
 
     public static void printStatistic(Task task) {
+        NumberFormat ruFormatter = NumberFormat.getInstance(new Locale("ru", "RU"));
         Logger logger = Logger.getLogger(task.getClass().getCanonicalName());
         logger.info(System.lineSeparator() +
                 "Task name = " + task.getClass().getSimpleName() + System.lineSeparator() +
-                "Run duration = " + task.getRunDurationMeter().durationMills() + " ms" + System.lineSeparator() +
-                "Work duration = " + task.getWorkDurationMeter().durationMills() + " ms" + System.lineSeparator() +
-                "Iteration count = " + task.getIterationCounter() + System.lineSeparator() +
-                "Success count = " + task.getSuccessCount() + System.lineSeparator() +
-                "Failure count = " + task.getFailureCount());
+                "Run duration = " + ruFormatter.format(task.getRunDurationMeter().durationMills()) + " ms" + System.lineSeparator() +
+                "Work duration = " + ruFormatter.format(task.getWorkDurationMeter().durationMills()) + " ms" + System.lineSeparator() +
+                "Iteration count = " + ruFormatter.format(task.getIterationCounter()) + System.lineSeparator() +
+                "Success count = " + ruFormatter.format(task.getSuccessCount()) + System.lineSeparator() +
+                "Failure count = " + ruFormatter.format(task.getFailureCount()));
     }
 
 }

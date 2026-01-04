@@ -16,6 +16,8 @@
  */
 package com.devives.commons.lang;
 
+import java.util.Optional;
+
 /**
  * Interface which provide the ability to retrieve the delegate instance when the instance
  * in question is in fact a proxy class.
@@ -38,13 +40,13 @@ public interface Wrapper {
      * wrapper and does not implement the interface, then an <code>Exception</code> is thrown.
      *
      * @param <T>   the type of the class modeled by this Class object
-     * @param iface A Class defining an interface that the result must implement.
+     * @param clazz A Class defining an interface that the result must implement.
      * @return an object that implements the interface. May be a proxy for the actual implementing object.
      * @throws Exception If no object found that implements the interface
      * @since 1.1.0
      */
-    default <T> T unwrap(Class<T> iface) throws Exception {
-        throw new Exception("The instance is not wrapping `" + iface.getCanonicalName() + "`.");
+    default <T> T unwrap(Class<T> clazz) throws Exception {
+        throw new Exception("The instance is not a wrapper of a `" + clazz.getCanonicalName() + "`.");
     }
 
     /**
@@ -56,10 +58,30 @@ public interface Wrapper {
      * callers can use this method to avoid expensive <code>unwrap</code> calls that may fail. If this method
      * returns true then calling <code>unwrap</code> with the same argument should succeed.
      *
-     * @param iface a Class defining an interface.
+     * @param clazz a Class defining an interface.
      * @return true if this implements the interface or directly or indirectly wraps an object that does.
      * @since 1.1.0
      */
-    boolean isWrapperFor(Class<?> iface);
+    boolean isWrapperFor(Class<?> clazz);
+
+    /**
+     *
+     * @param instance checking instance
+     * @param iface    required class
+     * @param <T>      type of required class
+     * @return the instance of required class or {@link Optional#empty()}
+     */
+    static <T> Optional<T> tryUnwrap(Object instance, Class<T> iface) {
+        try {
+            if (instance instanceof Wrapper) {
+                if (((Wrapper) instance).isWrapperFor(iface)) {
+                    return Optional.of(((Wrapper) instance).unwrap(iface));
+                }
+            }
+            return Optional.empty();
+        } catch (Exception e) {
+            throw ExceptionUtils.asUnchecked(e);
+        }
+    }
 
 }

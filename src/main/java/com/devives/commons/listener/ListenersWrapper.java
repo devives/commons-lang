@@ -44,11 +44,12 @@ abstract class ListenersWrapper<I> implements Listeners<I>, Wrapper {
      * {@inheritDoc}
      */
     @Override
-    public boolean isWrapperFor(Class<?> iface) {
-        if (iface.isInstance(this)) return true;
-        if (iface.isInstance(listeners_)) return true;
+    public boolean isWrapperFor(Class<?> clazz) {
+        if (clazz.isInstance(this)) return true;
         if (listeners_ instanceof Wrapper) {
-            return ((Wrapper) listeners_).isWrapperFor(iface);
+            return ((Wrapper) listeners_).isWrapperFor(clazz);
+        } else {
+            if (clazz.isInstance(listeners_)) return true;
         }
         return false;
     }
@@ -57,12 +58,13 @@ abstract class ListenersWrapper<I> implements Listeners<I>, Wrapper {
      * {@inheritDoc}
      */
     @Override
-    public <T> T unwrap(Class<T> iface) throws Exception {
-        if (iface.isInstance(this)) return (T) this;
-        if (iface.isInstance(listeners_)) return (T) listeners_;
+    public <T> T unwrap(Class<T> clazz) throws Exception {
+        if (clazz.isInstance(this)) return (T) this;
         if (listeners_ instanceof Wrapper) {
-            return ((Wrapper) listeners_).unwrap(iface);
+            return ((Wrapper) listeners_).unwrap(clazz);
+        } else {
+            if (clazz.isInstance(listeners_)) return (T) listeners_;
         }
-        return Wrapper.super.unwrap(iface);
+        return Wrapper.super.unwrap(clazz);
     }
 }

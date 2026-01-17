@@ -70,7 +70,7 @@ public class SynchronizedCloseableObjTest {
             Thread.sleep(delay_);
             testCloseableObj_.close();
             Assertions.assertTrue(testCloseableObj_.isClosed());
-            getSuccessCounter().incrementAndGet();
+            long n = getSuccessCounter().incrementAndGet();
             cancel();
         }
     }

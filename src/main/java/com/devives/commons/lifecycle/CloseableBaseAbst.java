@@ -19,51 +19,39 @@ package com.devives.commons.lifecycle;
 /**
  * The class contains common code for all implementations of the CloseableObj.
  */
-public abstract class CloseableBaseAbst extends StateObjAbst {
+public abstract class CloseableBaseAbst extends Stateful implements CloseableStates {
 
-    /**
-     * Indicates whether the resource is open.
-     *
-     * @return <tt>true</tt> if the resource is open else <tt>false</tt>.
-     */
+    public CloseableBaseAbst(StateHolder stateHolder) {
+        super(stateHolder);
+    }
+
+    @Override
     public boolean isOpening() {
-        return getStateHolder().get() == States.OPENING;
+        return getStateHolder().isExpected(OPENING);
     }
 
-    /**
-     * Indicates whether the resource is open.
-     *
-     * @return <tt>true</tt> if the resource is open else <tt>false</tt>.
-     */
+    @Override
     public boolean isOpened() {
-        return getStateHolder().get() == States.OPENED;
+        return getStateHolder().isExpected(OPENED);
     }
 
-    /**
-     * Indicates whether the resource is closing.
-     *
-     * @return <tt>true</tt> if the resource is closing else <tt>false</tt>.
-     */
+    @Override
     public boolean isClosing() {
-        return getStateHolder().get() == States.CLOSING;
+        return getStateHolder().isExpected(CLOSING);
     }
 
-    /**
-     * Indicates whether the resource has been closed.
-     *
-     * @return <tt>true</tt> if the resource is closed else <tt>false</tt>.
-     */
+    @Override
     public boolean isClosed() {
-        return getStateHolder().get() == States.CLOSED;
+        return getStateHolder().isExpected(CLOSED);
     }
 
     /**
-     * Checks whether the current state is equivalent to {@link States#OPENED}.
+     * Checks whether the current state is equivalent to {@link CloseableStates#OPENED}.
      *
      * @throws InvalidStateException if object not opened.
      */
     protected void validateOpened() throws InvalidStateException {
-        getStateHolder().validate(States.OPENED);
+        getStateHolder().validate(OPENED);
     }
 
     /**
@@ -82,18 +70,22 @@ public abstract class CloseableBaseAbst extends StateObjAbst {
      * Perform closing an object.
      * <p>
      * The purpose of the method's existence is the ability to extend the logic of closing an object like:
-     * <pre>{@code
-     *  protected void doClose() throws Exception {
-     *      beforeClose();
-     *      onClose();
-     *      afterClose();
-     *  }
-     * }</pre>
      *
      * @throws Exception if something went wrong.
      */
     protected void doClose() throws Exception {
+        beforeClose();
         onClose();
+        afterClose();
+    }
+
+    /**
+     * Calling before {@link #onClose()}
+     *
+     * @throws Exception if something went wrong.
+     */
+    protected void beforeClose() throws Exception {
+
     }
 
     /**
@@ -106,10 +98,14 @@ public abstract class CloseableBaseAbst extends StateObjAbst {
      */
     protected abstract void onClose() throws Exception;
 
-    protected static abstract class States {
-        public static final State OPENING = StateFactory.named("OPENING");
-        public static final State OPENED = StateFactory.named("OPENED");
-        public static final State CLOSING = StateFactory.named("CLOSING");
-        public static final State CLOSED = StateFactory.named("CLOSED");
+    /**
+     * Calling after {@link #onClose()}
+     *
+     * @throws Exception if something went wrong.
+     */
+    protected void afterClose() throws Exception {
+
     }
+
+
 }

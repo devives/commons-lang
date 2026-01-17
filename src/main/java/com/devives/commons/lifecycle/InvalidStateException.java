@@ -16,9 +16,9 @@
  */
 package com.devives.commons.lifecycle;
 
-public class InvalidStateException extends RuntimeException {
+public class InvalidStateException extends IllegalStateException {
 
-    private static final long serialVersionUID = 8784034630208018351L;
+    private static final long serialVersionUID = 1L;
 
     public InvalidStateException() {
     }

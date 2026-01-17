@@ -25,7 +25,7 @@ import java.util.Objects;
  */
 public class NamedState implements State, Serializable {
 
-    private static final long serialVersionUID = 2200298129012612677L;
+    private static final long serialVersionUID = 1L;
     private final String name;
 
     protected NamedState(String name) {

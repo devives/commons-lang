@@ -22,7 +22,7 @@ import com.devives.commons.lang.function.FailableProcedure;
 /**
  * Concurrent state holder.
  */
-public interface SynchronizedStateHolder extends StateHolder {
+public interface SynchronizedStateHolder<STATE> extends StateHolder<STATE> {
 
     /**
      * Execute an anonymous method in {@code synchronized} code block.

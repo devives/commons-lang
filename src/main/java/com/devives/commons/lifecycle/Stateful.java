@@ -16,30 +16,31 @@
  */
 package com.devives.commons.lifecycle;
 
-import org.junit.jupiter.api.Assertions;
-import org.junit.jupiter.api.Test;
+import java.io.Serializable;
+import java.util.Objects;
 
-public class TwoPhaseInitObjectTest {
+/**
+ * Base class of stateful objects.
+ */
+public class Stateful implements Serializable {
+    private static final long serialVersionUID = 1L;
+    private final StateHolder stateHolder_;
 
-    @Test
-    public void new_isInOpeningState() throws Exception {
-        TwoPhaseInitObjectImpl object = new TwoPhaseInitObjectImpl();
-        Assertions.assertTrue(object.isOpening());
+    /**
+     *
+     * @param stateHolder контейнер состояния объекта.
+     */
+    public Stateful(StateHolder stateHolder) {
+        stateHolder_ = Objects.requireNonNull(stateHolder, "stateHolder");
     }
 
-    @Test
-    public void init_isInOpenedState() throws Exception {
-        TwoPhaseInitObjectImpl object = new TwoPhaseInitObjectImpl();
-        object.init();
-        Assertions.assertTrue(object.isOpened());
-    }
-
-    private final static class TwoPhaseInitObjectImpl extends TwoPhaseInitObjectAbst {
-
-        @Override
-        protected void onClose() throws Exception {
-
-        }
+    /**
+     * Return state holder instance.
+     *
+     * @return State holder instance.
+     */
+    protected StateHolder getStateHolder() {
+        return stateHolder_;
     }
 
 }

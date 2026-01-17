@@ -16,43 +16,86 @@
  */
 package com.devives.commons.lifecycle;
 
+import com.devives.commons.lang.Validate;
+
+import java.io.Serializable;
 import java.util.Objects;
-import java.util.function.Supplier;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
-public class StateHolderImpl implements StateHolder {
-    protected State state;
 
-    public StateHolderImpl(State initialState) {
-        this.state = Objects.requireNonNull(initialState, "initialState");
+public class StateHolderImpl<STATE> implements StateHolder<STATE>, Serializable {
+    private static final long serialVersionUID = 1L;
+    private STATE state_;
+
+    public StateHolderImpl(STATE initialState) {
+        this.state_ = Objects.requireNonNull(initialState, "initialState");
     }
 
-    public State get() {
-        return state;
+    public STATE get() {
+        return state_;
     }
 
     @Override
-    public boolean trySet(State expected, State state) {
-        final boolean result = this.state == Objects.requireNonNull(expected, "expected");
+    public boolean trySet(STATE expected, STATE value) {
+        final boolean result = isExpected(expected);
         if (result) {
-            this.state = Objects.requireNonNull(state, "state");
+            this.state_ = value;
         }
         return result;
     }
 
-    public void set(State state) {
-        this.state = Objects.requireNonNull(state, "state");
+    @Override
+    public boolean trySet(STATE[] expected, STATE value) {
+        final boolean result = isExpected(expected);
+        if (result) {
+            this.state_ = value;
+        }
+        return result;
+    }
+
+    public void set(STATE value) {
+        this.state_ = Objects.requireNonNull(value, "value");
     }
 
     @Override
-    public void validate(State expected) {
-        validate(expected, () -> new InvalidStateException("State '" + state + "' not equal expected '" + expected + "'"));
+    public boolean isExpected(STATE... expected) {
+        Validate.notEmpty(expected);
+        for (STATE expectedState : expected) {
+            Objects.requireNonNull(expectedState, "The 'null' value in the array of expected states.");
+            if (state_.equals(expectedState)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @Override
-    public <E extends Exception> void validate(State expected, Supplier<E> exceptionSupplier) throws E {
-        if (!Objects.equals(state, Objects.requireNonNull(expected, "expected"))) {
-            throw exceptionSupplier.get();
+    public void validate(STATE... expected) {
+        Validate.notEmpty(expected);
+        boolean success = isExpected(expected);
+        if (!success) {
+            String states = Stream.of(expected).map(Objects::toString).collect(Collectors.joining(" or "));
+            throw new InvalidStateException("State '" + state_ + "' not equal expected: '" + states + "'");
         }
     }
 
+    @Override
+    public <E extends InvalidStateException> void validate(STATE expected, Function<STATE, E> exceptionSupplier) throws E {
+        Objects.requireNonNull(expected, "expected");
+        boolean success = isExpected(expected);
+        if (!success) {
+            throw exceptionSupplier.apply(this.state_);
+        }
+    }
+
+    @Override
+    public <E extends InvalidStateException> void validate(STATE[] expected, Function<STATE, E> exceptionSupplier) throws E {
+        Validate.notEmpty(expected);
+        boolean success = isExpected(expected);
+        if (!success) {
+            throw exceptionSupplier.apply(this.state_);
+        }
+    }
 }

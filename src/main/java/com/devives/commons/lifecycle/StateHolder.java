@@ -16,19 +16,19 @@
  */
 package com.devives.commons.lifecycle;
 
-import java.util.function.Supplier;
+import java.util.function.Function;
 
 /**
  * State holder interface. Implementations can be thread-safe or thread-unsafe.
  */
-public interface StateHolder {
+public interface StateHolder<STATE> {
 
     /**
      * Return object state.
      *
      * @return state.
      */
-    State get();
+    STATE get();
 
     /**
      * Try set the objet state.
@@ -39,22 +39,41 @@ public interface StateHolder {
      * @param value    new state.
      * @return {@code true}, if value was set, else {@code false}.
      */
-    boolean trySet(State expected, State value);
+    boolean trySet(STATE expected, STATE value);
+
+    /**
+     * Try set the objet state.
+     * <p>
+     * If current state is equal {@code expected}, {@code value} will be set.
+     *
+     * @param expected expected states.
+     * @param value    new state.
+     * @return {@code true}, if value was set, else {@code false}.
+     */
+    boolean trySet(STATE[] expected, STATE value);
 
     /**
      * Set the objet state.
      *
-     * @param state state.
+     * @param value state.
      */
-    void set(State state);
+    void set(STATE value);
+
+    /**
+     *
+     * @param expected expected states.
+     * @return true, if one of states is set, else false.
+     */
+    boolean isExpected(STATE... expected);
 
     /**
      * Checks whether the current state is equivalent to the expected state.
      *
      * @param expected Expected state.
-     * @throws InvalidStateException if the current state is equivalent to the expected state.
+     * @throws InvalidStateException if the current state is equivalent to the one of expected states.
+     * @throws IllegalArgumentException expected array length is empty.
      */
-    void validate(State expected);
+    void validate(STATE... expected);
 
     /**
      * Checks whether the current state is equivalent to the expected state.
@@ -62,8 +81,18 @@ public interface StateHolder {
      * @param expected          Expected state.
      * @param exceptionSupplier Exception instance supplier.
      * @param <E>               Type of exception.
-     * @throws E if the current state is equivalent to the expected state.
+     * @throws InvalidStateException if the current state is equivalent to the expected state.
      */
-    <E extends Exception> void validate(State expected, Supplier<E> exceptionSupplier) throws E;
+    <E extends InvalidStateException> void validate(STATE expected, Function<STATE, E> exceptionSupplier) throws E;
+
+    /**
+     * Checks whether the current state is equivalent to the expected state.
+     *
+     * @param expected          Expected state.
+     * @param exceptionSupplier Exception instance supplier.
+     * @param <E>               Type of exception.
+     * @throws InvalidStateException if the current state is equivalent to the expected state.
+     */
+    <E extends InvalidStateException> void validate(STATE[] expected, Function<STATE, E> exceptionSupplier) throws E;
 
 }

@@ -55,7 +55,7 @@ public interface LifeCycle {
     /**
      * Starts the component.
      *
-     * @throws Exception If the component fails to start
+     * @throws Exception If the component fails to start.
      * @see #isStarted()
      * @see #stop()
      * @see #isFailed()
@@ -67,7 +67,7 @@ public interface LifeCycle {
      * The component may wait for current activities to complete
      * normally, but it can be interrupted.
      *
-     * @throws Exception If the component fails to stop
+     * @throws Exception If the component fails to stop.
      * @see #isStopped()
      * @see #start()
      * @see #isFailed()
@@ -103,6 +103,14 @@ public interface LifeCycle {
         default void onStopped(O object) {
 
         }
+    }
+
+    class States {
+        public static final State STOPPING = StateFactory.named("STOPPING");
+        public static final State STOPPED = StateFactory.named("STOPPED");
+        public static final State STARTED = StateFactory.named("STARTED");
+        public static final State STARTING = StateFactory.named("STARTING");
+        public static final State FAILED = StateFactory.named("FAILED");
     }
 
 }

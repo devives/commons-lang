@@ -16,17 +16,22 @@
  */
 package com.devives.commons.lifecycle;
 
-public abstract class SynchronizedTwoPhaseInitObjectAbst extends SynchronizedCloseableAbst {
+import com.devives.commons.publisher.Publisher;
+import com.devives.commons.publisher.Publishers;
 
-    @Override
-    protected StateHolder buildStateHolder() {
-        StateHolder stateHolder = super.buildStateHolder();
-        stateHolder.set(States.OPENING);
-        return stateHolder;
+public abstract class LifeCycleAbst extends LifeCycleBaseAbst {
+
+    public LifeCycleAbst() {
+        this(States.STOPPED);
     }
 
-    protected void init() {
-        getStateHolder().set(States.OPENED);
+    public LifeCycleAbst(State initialState) {
+        this(new StateHolderImpl(initialState),
+                Publishers.<Listener<LifeCycle>>builder().setIndependentDelivery().build());
+    }
+
+    public LifeCycleAbst(StateHolder stateHolder, Publisher<Listener<LifeCycle>> publisher) {
+        super(stateHolder, publisher);
     }
 
 }

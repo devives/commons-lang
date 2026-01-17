@@ -19,36 +19,51 @@ package com.devives.commons.lifecycle;
 import com.devives.commons.lang.function.FailableFunction;
 import com.devives.commons.lang.function.FailableProcedure;
 
-import java.util.function.Supplier;
+import java.util.function.Function;
 
-public class SynchronizedStateHolderImpl extends StateHolderImpl implements SynchronizedStateHolder {
+public class SynchronizedStateHolderImpl<STATE> extends StateHolderImpl<STATE> implements SynchronizedStateHolder<STATE> {
 
-    public SynchronizedStateHolderImpl(State initialState) {
+    public SynchronizedStateHolderImpl(STATE initialState) {
         super(initialState);
     }
 
     @Override
-    public synchronized State get() {
+    public synchronized STATE get() {
         return super.get();
     }
 
     @Override
-    public synchronized void set(State state) {
-        super.set(state);
+    public synchronized void set(STATE value) {
+        super.set(value);
     }
 
     @Override
-    public synchronized boolean trySet(State expected, State state) {
-        return super.trySet(expected, state);
+    public synchronized boolean trySet(STATE expected, STATE value) {
+        return super.trySet(expected, value);
     }
 
     @Override
-    public synchronized void validate(State expected) {
+    public synchronized boolean trySet(STATE[] expected, STATE value) {
+        return super.trySet(expected, value);
+    }
+
+    @Override
+    public synchronized boolean isExpected(STATE... expected) {
+        return super.isExpected(expected);
+    }
+
+    @Override
+    public synchronized void validate(STATE... expected) {
         super.validate(expected);
     }
 
     @Override
-    public synchronized <E extends Exception> void validate(State expected, Supplier<E> exceptionSupplier) throws E {
+    public synchronized <E extends InvalidStateException> void validate(STATE expected, Function<STATE, E> exceptionSupplier) throws E {
+        super.validate(expected, exceptionSupplier);
+    }
+
+    @Override
+    public synchronized <E extends InvalidStateException> void validate(STATE[] expected, Function<STATE, E> exceptionSupplier) throws E {
         super.validate(expected, exceptionSupplier);
     }
 

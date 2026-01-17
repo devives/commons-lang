@@ -16,11 +16,22 @@
  */
 package com.devives.commons.lifecycle;
 
-public abstract class SynchronizedLifeCycleAbst extends AbstractLifeCycleBase implements LifeCycle {
+import com.devives.commons.publisher.Publisher;
+import com.devives.commons.publisher.Publishers;
 
-    @Override
-    protected StateHolder buildStateHolder() {
-        return new SynchronizedStateHolderImpl(States.STOPPED);
+public abstract class SynchronizedLifeCycleAbst extends LifeCycleBaseAbst implements LifeCycle {
+
+    public SynchronizedLifeCycleAbst() {
+        this(States.STOPPED);
+    }
+
+    public SynchronizedLifeCycleAbst(State initialState) {
+        this(new SynchronizedStateHolderImpl(initialState),
+                Publishers.<Listener<LifeCycle>>builder().listeners(builder -> builder.setSynchronized()).setIndependentDelivery().build());
+    }
+
+    public SynchronizedLifeCycleAbst(StateHolder stateHolder, Publisher<Listener<LifeCycle>> publisher) {
+        super(stateHolder, publisher);
     }
 
     @Override

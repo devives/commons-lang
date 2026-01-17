@@ -16,32 +16,38 @@
  */
 package com.devives.commons.lifecycle;
 
-import java.util.Objects;
-
-/**
- * Base abstract class of stateful objects.
- */
-public abstract class StateObjAbst {
-    private final StateHolder stateHolder_;
+public interface CloseableStates {
 
     /**
-     * Return state holder instance.
+     * Indicates whether the resource is open.
      *
-     * @return State holder instance.
+     * @return <tt>true</tt> if the resource is open else <tt>false</tt>.
      */
-    protected StateHolder getStateHolder() {
-        return stateHolder_;
-    }
-
-    protected StateObjAbst() {
-        stateHolder_ = Objects.requireNonNull(buildStateHolder(), "Method `buildStateHolder()` return `null`.");
-    }
+    boolean isOpening();
 
     /**
-     * Строит контейнер состояния объекта.
+     * Indicates whether the resource is open.
      *
-     * @return new {@link StateHolder} instance.
+     * @return <tt>true</tt> if the resource is open else <tt>false</tt>.
      */
-    protected abstract StateHolder buildStateHolder();
+    boolean isOpened();
 
+    /**
+     * Indicates whether the resource is closing.
+     *
+     * @return <tt>true</tt> if the resource is closing else <tt>false</tt>.
+     */
+    boolean isClosing();
+
+    /**
+     * Indicates whether the resource has been closed.
+     *
+     * @return <tt>true</tt> if the resource is closed else <tt>false</tt>.
+     */
+    boolean isClosed();
+
+    State OPENING = StateFactory.named("OPENING");
+    State OPENED = StateFactory.named("OPENED");
+    State CLOSING = StateFactory.named("CLOSING");
+    State CLOSED = StateFactory.named("CLOSED");
 }

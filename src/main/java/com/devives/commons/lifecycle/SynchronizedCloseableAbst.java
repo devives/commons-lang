@@ -23,7 +23,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * An abstract, thread-safe, implementation of a closable resource.
  */
-public abstract class SynchronizedCloseableAbst extends CloseableBaseAbst implements Closeable {
+public abstract class SynchronizedCloseableAbst extends CloseableBaseAbst {
 
     /**
      * Sharing future across threads.
@@ -32,9 +32,12 @@ public abstract class SynchronizedCloseableAbst extends CloseableBaseAbst implem
      */
     private CompletableFuture<Void> closeFuture_;
 
-    @Override
-    protected StateHolder buildStateHolder() {
-        return new SynchronizedStateHolderImpl(States.OPENED);
+    public SynchronizedCloseableAbst() {
+        this(OPENED);
+    }
+
+    public SynchronizedCloseableAbst(State initialState) {
+        super(new SynchronizedStateHolderImpl(initialState));
     }
 
     @Override
@@ -52,11 +55,10 @@ public abstract class SynchronizedCloseableAbst extends CloseableBaseAbst implem
      * @throws Exception when resource closing failed.
      */
     public final void close() throws Exception {
-        final SynchronizedStateHolder stateHolder = getStateHolder();
+        final SynchronizedStateHolder<State> stateHolder = getStateHolder();
         final Tuple2<Boolean, CompletableFuture<Void>> tuple2 = stateHolder.performAtomicWork(() -> {
-            final State state = stateHolder.get();
-            if (state != States.CLOSING && state != States.CLOSED && canBeClosed()) {
-                stateHolder.set(States.CLOSING);
+            if (!stateHolder.isExpected(CLOSING, CLOSED) && canBeClosed()) {
+                stateHolder.set(CLOSING);
                 closeFuture_ = new CompletableFuture<>();
                 return Tuple2.of(true, closeFuture_);
             } else {
@@ -71,18 +73,19 @@ public abstract class SynchronizedCloseableAbst extends CloseableBaseAbst implem
                 try {
                     doClose();
                 } finally {
-                    stateHolder.set(States.CLOSED);
+                    stateHolder.set(CLOSED);
                 }
-                closeFuture.complete(null);
             } catch (Throwable e) {
                 closeFuture.completeExceptionally(e);
             }
+            closeFuture.complete(null);
         }
+        // Future#get вызывается для выброса исключения, если #doClose() завершилось с ошибкой, в каждом потоке вызвавшем #close().
         closeFuture.get();
     }
 
     @Override
-    protected final void doClose() throws Exception {
+    protected final synchronized void doClose() throws Exception {
         super.doClose();
     }
 

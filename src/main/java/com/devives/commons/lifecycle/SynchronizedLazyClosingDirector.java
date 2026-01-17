@@ -28,7 +28,7 @@ import java.util.concurrent.Future;
  * <p>
  * Принимает в качестве аргумента конструктора, ссылку на метод объекта, делегирующего управление своим закрытием.
  */
-public class SynchronizedLazyClosingDirector implements LazyCloseableAsync {
+public class SynchronizedLazyClosingDirector implements UsageCounter {
 
     private final static long OPENED = 0;
     /**

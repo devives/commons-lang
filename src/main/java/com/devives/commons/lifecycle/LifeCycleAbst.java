@@ -19,7 +19,8 @@ package com.devives.commons.lifecycle;
 import com.devives.commons.publisher.Publisher;
 import com.devives.commons.publisher.Publishers;
 
-public abstract class LifeCycleAbst extends LifeCycleBaseAbst {
+public abstract class LifeCycleAbst<SELF extends LifeCycle, LISTENER extends LifeCycle.Listener<SELF>>
+        extends LifeCycleBaseAbst<SELF, LISTENER> {
 
     public LifeCycleAbst() {
         this(States.STOPPED);
@@ -27,10 +28,10 @@ public abstract class LifeCycleAbst extends LifeCycleBaseAbst {
 
     public LifeCycleAbst(State initialState) {
         this(new StateHolderImpl(initialState),
-                Publishers.<Listener<LifeCycle>>builder().setIndependentDelivery().build());
+                Publishers.<LISTENER>builder().setIndependentDelivery().build());
     }
 
-    public LifeCycleAbst(StateHolder stateHolder, Publisher<Listener<LifeCycle>> publisher) {
+    public LifeCycleAbst(StateHolder stateHolder, Publisher<LISTENER> publisher) {
         super(stateHolder, publisher);
     }
 

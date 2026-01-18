@@ -19,7 +19,7 @@ package com.devives.commons.lifecycle;
 /**
  * Interface of an object with a life cycle.
  */
-public interface LifeCycle {
+public interface LifeCycle<SELF extends LifeCycle, LISTENER extends LifeCycle.Listener<SELF>> {
 
     /**
      * @return true if the component is starting.
@@ -74,15 +74,15 @@ public interface LifeCycle {
      */
     void stop() throws Exception;
 
-    void addListener(Listener<LifeCycle> listener);
+    void addListener(LISTENER listener);
 
-    void removeListener(Listener<LifeCycle> listener);
+    void removeListener(LISTENER listener);
 
     /**
      * Listener.
      * A listener for Lifecycle events.
      */
-    interface Listener<O extends LifeCycle> extends java.util.EventListener {
+    interface Listener<O> extends java.util.EventListener {
 
         default void onStarting(O object) {
 

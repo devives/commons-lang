@@ -22,22 +22,28 @@ import com.devives.commons.publisher.Publisher;
 
 import java.util.Objects;
 
-abstract class LifeCycleBaseAbst extends Stateful implements LifeCycle {
+abstract class LifeCycleBaseAbst<SELF extends LifeCycle, LISTENER extends LifeCycle.Listener<SELF>>
+        extends Stateful
+        implements LifeCycle<SELF, LISTENER> {
 
-    private final Publisher<Listener<LifeCycle>> publisher_;
+    private final Publisher<LISTENER> publisher_;
 
-    protected LifeCycleBaseAbst(StateHolder stateHolder, Publisher<Listener<LifeCycle>> publisher) {
+    protected LifeCycleBaseAbst(StateHolder stateHolder, Publisher<LISTENER> publisher) {
         super(stateHolder);
         publisher_ = Objects.requireNonNull(publisher);
     }
 
+    protected Publisher<LISTENER> getPublisher() {
+        return publisher_;
+    }
+
     @Override
-    public void addListener(Listener<LifeCycle> listener) {
+    public void addListener(LISTENER listener) {
         publisher_.getListeners().add(Objects.requireNonNull(listener));
     }
 
     @Override
-    public void removeListener(Listener<LifeCycle> listener) {
+    public void removeListener(LISTENER listener) {
         publisher_.getListeners().remove(Objects.requireNonNull(listener));
     }
 
@@ -97,7 +103,7 @@ abstract class LifeCycleBaseAbst extends Stateful implements LifeCycle {
     private void beginStart() {
         getStateHolder().set(States.STARTING);
         onStarting();
-        publisher_.publish(listener -> listener.onStarting(this));
+        publisher_.publish(listener -> listener.onStarting((SELF) this));
     }
 
     private void doStart() throws Exception {
@@ -107,7 +113,7 @@ abstract class LifeCycleBaseAbst extends Stateful implements LifeCycle {
     private void endStart() {
         getStateHolder().set(States.STARTED);
         onStarted();
-        publisher_.publish(listener -> listener.onStarted(this));
+        publisher_.publish(listener -> listener.onStarted((SELF) this));
     }
 
     protected void onStarting() {
@@ -123,7 +129,7 @@ abstract class LifeCycleBaseAbst extends Stateful implements LifeCycle {
     private void beginStop() {
         getStateHolder().set(States.STOPPING);
         onStopping();
-        publisher_.publish(listener -> listener.onStopping(this));
+        publisher_.publish(listener -> listener.onStopping((SELF) this));
     }
 
     private void doStop() throws Exception {
@@ -133,7 +139,7 @@ abstract class LifeCycleBaseAbst extends Stateful implements LifeCycle {
     private void endStop() {
         getStateHolder().set(States.STOPPED);
         onStopped();
-        publisher_.publish(listener -> listener.onStopped(this));
+        publisher_.publish(listener -> listener.onStopped((SELF) this));
     }
 
     protected void onStopping() {
@@ -150,7 +156,7 @@ abstract class LifeCycleBaseAbst extends Stateful implements LifeCycle {
         getStateHolder().set(States.FAILED);
         ExceptionUtils.collectAndThrow(
                 () -> onFailed(th),
-                () -> publisher_.publish(listener -> listener.onFailure(this, th))
+                () -> publisher_.publish(listener -> listener.onFailure((SELF) this, th))
         );
     }
 

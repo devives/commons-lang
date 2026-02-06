@@ -19,6 +19,7 @@ package com.devives.commons.lang.reflection;
 import com.devives.commons.lang.ExceptionUtils;
 
 import java.lang.reflect.*;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -187,23 +188,28 @@ public final class ProxyBuilder<T> {
         public Object invoke(Object proxy, Method method, Object[] args) throws Throwable {
             try {
                 return getStubMethod(method).invoke(args);
+            } catch (NoSuchMethodException e) {
+                throw new UndeclaredThrowableException(e, e.toString());
             } catch (InvocationTargetException e) {
-                if (e.getCause() instanceof RuntimeException) {
-                    throw e.getCause();
-                } else if (e.getCause() instanceof Exception) {
-                    throw new UndeclaredThrowableException(e.getCause());
+                final Throwable cause = e.getCause() != null ? e.getCause() : e;
+                if (cause instanceof RuntimeException) {
+                    throw cause;
+                } else if (Arrays.stream(method.getExceptionTypes())
+                        .filter(eClazz -> eClazz.isInstance(cause))
+                        .findFirst().isPresent()) {
+                    throw cause;
                 } else {
-                    throw e.getCause();
+                    throw new UndeclaredThrowableException(cause, cause.getMessage());
                 }
             } catch (Throwable e) {
                 // If we don't wrap the marked exception in RuntimeException,
                 // java.lang.reflect.Proxy will wrap it in UndeclaredThrowableException,
                 // which will hide the original "user-readable" message.
-                throw new UndeclaredThrowableException(e);
+                throw new UndeclaredThrowableException(e, e.getMessage());
             }
         }
 
-        private StubMethod getStubMethod(Method method) {
+        private StubMethod getStubMethod(Method method) throws NoSuchMethodException {
             return methodMap_.computeIfAbsent(method, key -> {
                 try {
                     if (method.getDeclaringClass().equals(Object.class) && method.getName().equals("equals")) {

@@ -19,6 +19,8 @@ package com.devives.commons.lang.reflection;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.lang.reflect.UndeclaredThrowableException;
+import java.sql.SQLException;
 import java.util.concurrent.ConcurrentHashMap;
 
 
@@ -46,6 +48,14 @@ public class ProxyBuilderTest {
                 public void close() {
 
                 }
+
+                public void procWithCheckedException() throws Exception {
+                    throw new SQLException();
+                }
+
+                public void procWithoutCheckedException() throws Exception {
+                    throw new SQLException();
+                }
             }).build();
 
 
@@ -59,7 +69,17 @@ public class ProxyBuilderTest {
                 () -> Assertions.assertNotNull(testObject.getClass()),
                 () -> Assertions.assertNotNull(testObject.hashCode()),
                 () -> Assertions.assertNotNull(testObject.toString()),
-                () -> Assertions.assertFalse(testObject.equals(1L))
+                () -> Assertions.assertFalse(testObject.equals(1L)),
+                () -> Assertions.assertThrows(SQLException.class, testObject::procWithCheckedException),
+                () -> Assertions.assertThrows(UndeclaredThrowableException.class, testObject::procWithoutCheckedException),
+                () -> Assertions.assertThrows(UndeclaredThrowableException.class, () -> {
+                    try {
+                        testObject.notImplementedMethod();
+                    } catch (Exception e) {
+                        Assertions.assertEquals("java.lang.NoSuchMethodException: com.devives.commons.lang.reflection.ProxyBuilderTest$1.notImplementedMethod()", e.getMessage());
+                        throw e;
+                    }
+                })
         );
     }
 
@@ -174,6 +194,12 @@ public class ProxyBuilderTest {
         void nonImplementedMethod();
 
         int intFunction1();
+
+        void procWithCheckedException() throws Exception;
+
+        void procWithoutCheckedException();
+
+        void notImplementedMethod();
     }
 
     public interface TestInterface2 extends TestInterface1 {

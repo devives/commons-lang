@@ -20,7 +20,7 @@ import com.devives.commons.lang.function.FailableCallable;
 import com.devives.commons.lang.function.FailableRunnable;
 
 /**
- * Entry point for creating <tt>try-catch-finally</tt> constructs with cascading exception handling.
+ * Entry point for creating <code>try-catch-finally</code> constructs with cascading exception handling.
  * <p>
  * Provides factory methods for:
  * <ul>
@@ -48,7 +48,7 @@ public final class Try {
     /**
      * Factory method to initialize a {@link TryRunnable} construct for operations that do not return a value.
      * <p>
-     * This method creates a new instance of {@link TryRunnable}, which allows defining a <tt>try-catch-finally</tt>
+     * This method creates a new instance of {@link TryRunnable}, which allows defining a <code>try-catch-finally</code>
      * structure for a given runnable operation. It provides a fluent API to handle exceptions and finalize
      * operations in a controlled manner.
      * <p>
@@ -74,7 +74,7 @@ public final class Try {
     /**
      * Factory method to initialize a {@link TryCallable} construct for operations that return a value.
      * <p>
-     * This method creates a new instance of {@link TryCallable}, which allows defining a <tt>try-catch-finally</tt>
+     * This method creates a new instance of {@link TryCallable}, which allows defining a <code>try-catch-finally</code>
      * structure for a given callable operation. It provides a fluent API to handle exceptions and finalize
      * operations in a controlled manner.
      * <p>

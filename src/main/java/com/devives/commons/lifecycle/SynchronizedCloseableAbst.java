@@ -47,7 +47,7 @@ public abstract class SynchronizedCloseableAbst extends CloseableBaseAbst {
 
     /**
      * Release object's resources.
-     * <h3>Notes</h3>
+     * <p><strong>Notes.</strong></p>
      * Closing of object can be cancelled by results of calling {@link #canBeClosed()} method.
      * <p>
      * If two or more threads call {@code #close()}, all of them will wait end of object closing in the first thread.

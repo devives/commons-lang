@@ -23,14 +23,14 @@ import java.util.function.Consumer;
 
 /**
  * Defines a contract for publishing events to registered listeners of type {@code <I>}.
- * <h3>Event Publication</h3>
+ * <p><strong>Event publication.</strong></p>
  * Events are published by providing a {@link Consumer} that defines how each listener
  * should process the event. For example:
  * <pre>{@code
  * publisher.publish(listener -> listener.onEvent(event));
  * }</pre>
  *
- * <h3>Thread Safety</h3>
+ * <p><strong>Thread safety.</strong></p>
  * Implementations should be thread-safe for both listener management and event publication,
  * unless explicitly documented otherwise.
  *

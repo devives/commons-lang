@@ -25,7 +25,7 @@ import com.devives.commons.lang.function.ThrowableFunction1;
 import java.util.Objects;
 
 /**
- * This class implements cascading exception handling in the <tt>try-catch-finally</tt> construct for methods that return a result.
+ * This class implements cascading exception handling in the <code>try-catch-finally</code> construct for methods that return a result.
  * <p>
  * Methods of this class are not synchronized and do not assume calls from multiple threads.
  *
@@ -51,7 +51,7 @@ final class TryCallableScope<R> implements TryCallable<R>, TryCallable.Catch<R>,
     /**
      * Constructor for an instance of {@link TryCallableScope}.
      *
-     * @param callable the <tt>try</tt> code block.
+     * @param callable the <code>try</code> code block.
      */
     TryCallableScope(FailableCallable<R> callable) {
         this.onTry = Objects.requireNonNull(callable, "callable");
@@ -109,7 +109,7 @@ final class TryCallableScope<R> implements TryCallable<R>, TryCallable.Catch<R>,
      *   <li>Executes the finally block regardless of the results of executing {@link #onTry} and {@link #onCatch}.
      * </ol>
      * <p>
-     * This method ensures handling of the exception chain arising in each block of the <tt>try-catch-finally</tt> construct by
+     * This method ensures handling of the exception chain arising in each block of the <code>try-catch-finally</code> construct by
      * adding suppressed exceptions to {@link Exception#addSuppressed(Throwable)}.
      *
      * @throws RuntimeException at the repeat Try invocation.

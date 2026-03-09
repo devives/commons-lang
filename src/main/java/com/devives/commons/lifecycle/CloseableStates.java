@@ -21,28 +21,28 @@ public interface CloseableStates {
     /**
      * Indicates whether the resource is open.
      *
-     * @return <tt>true</tt> if the resource is open else <tt>false</tt>.
+     * @return <code>true</code> if the resource is open else <code>false</code>.
      */
     boolean isOpening();
 
     /**
      * Indicates whether the resource is open.
      *
-     * @return <tt>true</tt> if the resource is open else <tt>false</tt>.
+     * @return <code>true</code> if the resource is open else <code>false</code>.
      */
     boolean isOpened();
 
     /**
      * Indicates whether the resource is closing.
      *
-     * @return <tt>true</tt> if the resource is closing else <tt>false</tt>.
+     * @return <code>true</code> if the resource is closing else <code>false</code>.
      */
     boolean isClosing();
 
     /**
      * Indicates whether the resource has been closed.
      *
-     * @return <tt>true</tt> if the resource is closed else <tt>false</tt>.
+     * @return <code>true</code> if the resource is closed else <code>false</code>.
      */
     boolean isClosed();
 

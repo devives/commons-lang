@@ -104,7 +104,7 @@ final class TryRunnableScope implements TryRunnable, TryRunnable.Catch, TryRunna
      *   <li>Executes the finally block regardless of the results of executing {@link #onTry} and {@link #onCatch}.
      * </ol>
      * <p>
-     * This method ensures handling of the exception chain arising in each block of the <tt>try-catch-finally</tt> construct by
+     * This method ensures handling of the exception chain arising in each block of the <code>try-catch-finally</code> construct by
      * adding suppressed exceptions to {@link Exception#addSuppressed(Throwable)}.
      *
      * @throws RuntimeException at the repeat Try invocation.

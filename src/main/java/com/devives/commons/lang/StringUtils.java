@@ -182,7 +182,7 @@ public final class StringUtils {
     }
 
     /**
-     * Remove <tt>quoteChar</tt> from begin and end of the string.
+     * Remove <code>quoteChar</code> from begin and end of the string.
      *
      * @param value     quoted string
      * @param quoteChar quote char
@@ -199,7 +199,7 @@ public final class StringUtils {
     }
 
     /**
-     * Append <tt>quoteChar</tt> to begin and end of the string.
+     * Append <code>quoteChar</code> to begin and end of the string.
      *
      * @param value     string
      * @param quoteChar quote char
@@ -228,7 +228,7 @@ public final class StringUtils {
      *
      * @param first          first sting
      * @param second         second string
-     * @param nullsAreEquals flag indicates whether the values <tt>null</tt> are equals or not.
+     * @param nullsAreEquals flag indicates whether the values <code>null</code> are equals or not.
      * @return {@code true} if are equal else {@code false}.
      */
     public static boolean equalsIgnoreCase(String first, String second, boolean nullsAreEquals) {

@@ -22,7 +22,7 @@ import com.devives.commons.lang.function.FailableRunnable;
 import com.devives.commons.lang.function.ThrowableFunction1;
 
 /**
- * This interface declare cascading exception handling in the <tt>try-catch-finally</tt> construct for methods that return a result.
+ * This interface declare cascading exception handling in the <code>try-catch-finally</code> construct for methods that return a result.
  * <p>
  * Example usage:
  * <pre>{@code
@@ -90,7 +90,7 @@ public interface TryCallable<R> {
     interface Finally<R> {
 
         /**
-         * Executes the <tt>try-catch-finally</tt> construct.
+         * Executes the <code>try-catch-finally</code> construct.
          * <p>
          * The method can be called one time.
          *
@@ -104,7 +104,7 @@ public interface TryCallable<R> {
      * <p>
      * The method can be called one time.
      *
-     * @param onCatch the <tt>catch</tt> code block, which accepts the exception thrown from the {@code TryAbst#onTry} block as an argument.
+     * @param onCatch the <code>catch</code> code block, which accepts the exception thrown from the {@code TryAbst#onTry} block as an argument.
      * @return a new instance of {@link TryRunnable.Catch}.
      */
     Catch<R> onCatch(ThrowableFunction1<Throwable, R, Throwable> onCatch);
@@ -114,7 +114,7 @@ public interface TryCallable<R> {
      * <p>
      * The method can be called one time.
      *
-     * @param onFinally the <tt>finally</tt> code block.
+     * @param onFinally the <code>finally</code> code block.
      * @return a new instance of {@link TryRunnable.Finally}.
      */
     Finally<R> doFinally(FailableRunnable onFinally);

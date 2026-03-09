@@ -113,7 +113,7 @@ public final class ExceptionUtils {
      * @param suppressClasses types of suppressed exceptions.
      * @param <R>       result type of the anonymous method.
      * @param <E>       type of suppressed exceptions.
-     * @return result of the anonymous method or <tt>failResult</tt> if an exception was suppressed.
+     * @return result of the anonymous method or <code>failResult</code> if an exception was suppressed.
      */
     @SafeVarargs
     static public <R, E extends Throwable> R suppressExceptionOfClass(FailableFunction<R> func, R failResult, Class<E>... suppressClasses) {
@@ -278,7 +278,7 @@ public final class ExceptionUtils {
     }
 
     /**
-     * The method processes exceptions thrown from each anonymous method in the <tt>procs</tt> collection, forming
+     * The method processes exceptions thrown from each anonymous method in the <code>procs</code> collection, forming
      * a collection of exceptions.
      * <pre>{@code
      *   ExceptionUtils.collect(obj1::someProc, obj2::someProc).ifPresent(ExceptionUtils::throwCollected);
@@ -303,7 +303,7 @@ public final class ExceptionUtils {
     }
 
     /**
-     * The method processes exceptions thrown from each anonymous method in the <tt>procs</tt> collection, forming
+     * The method processes exceptions thrown from each anonymous method in the <code>procs</code> collection, forming
      * a collection of exceptions. If one exception was thrown during the execution of anonymous methods, it will be thrown
      * from the current method. If several exceptions were thrown, an aggregated exception will be thrown from the method.
      *

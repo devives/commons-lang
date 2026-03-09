@@ -35,6 +35,7 @@ public class Validate {
      * @param bound   граница.
      * @param message the {@link String#format(String, Object...)} exception message if invalid, not null
      * @param values  the optional values for the formatted exception message, null array not recommended
+     * @return the validated value.
      * @throws IllegalArgumentException if value is lower than or equal bound.
      */
     public static int greater(int value, int bound, String message, Object... values) {
@@ -49,6 +50,7 @@ public class Validate {
      *
      * @param value значение.
      * @param bound граница.
+     * @return the validated value.
      * @throws IllegalArgumentException if value is lower than or equal bound.
      */
     public static int greater(int value, int bound) {
@@ -65,6 +67,7 @@ public class Validate {
      * @param bound   граница.
      * @param message the {@link String#format(String, Object...)} exception message if invalid, not null
      * @param values  the optional values for the formatted exception message, null array not recommended
+     * @return the validated value.
      * @throws IllegalArgumentException if value is lower than or equal bound.
      */
     public static long greater(final long value, final long bound, final String message, final Object... values) {
@@ -79,6 +82,7 @@ public class Validate {
      *
      * @param value значение.
      * @param bound граница.
+     * @return the validated value.
      * @throws IllegalArgumentException if value is lower than bound.
      */
     public static int greaterOrEqual(final int value, final int bound) {
@@ -95,6 +99,7 @@ public class Validate {
      * @param bound граница.
      * @param message the {@link String#format(String, Object...)} exception message if invalid, not null
      * @param values  the optional values for the formatted exception message, null array not recommended
+     * @return the validated value.
      * @throws IllegalArgumentException if value is lower than bound.
      */
     public static int greaterOrEqual(final int value, final int bound, final String message, final Object... values) {
@@ -109,6 +114,7 @@ public class Validate {
      *
      * @param value value.
      * @param bound bound.
+     * @return the validated value.
      * @throws IllegalArgumentException if value is lower than bound.
      */
     public static long greaterOrEqual(final long value, final long bound) {
@@ -125,6 +131,7 @@ public class Validate {
      * @param bound   bound.
      * @param message the {@link String#format(String, Object...)} exception message if invalid, not null
      * @param values  the optional values for the formatted exception message, null array not recommended
+     * @return the validated value.
      * @throws IllegalArgumentException if value is lower than bound.
      */
     public static long greaterOrEqual(final long value, final long bound, final String message, final Object... values) {

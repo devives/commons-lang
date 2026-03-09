@@ -27,7 +27,7 @@ public class ListenersStoreTest {
     @Test
     public void add_ExpectedSize() throws Exception {
         Listeners<Integer> listeners = new ListenersStore<>(new ArrayList<>());
-        Integer o = new Integer(0);
+        Integer o = Integer.valueOf(0);
         listeners.add(o);
         listeners.add(o);
         Assertions.assertEquals(2, listeners.size());

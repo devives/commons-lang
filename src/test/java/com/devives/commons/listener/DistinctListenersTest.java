@@ -26,7 +26,7 @@ public class DistinctListenersTest {
     @Test
     public void new_Duplicates_DuplicateExceptionThrown() throws Exception {
         Listeners<Integer> listeners = new ListenersBuilder().build();
-        Integer o = new Integer(0);
+        Integer o = Integer.valueOf(0);
         listeners.add(o);
         listeners.add(o);
         Assertions.assertThrows(DuplicateRegistrationException.class, () -> {
@@ -37,7 +37,7 @@ public class DistinctListenersTest {
     @Test
     public void add_Duplicates_DuplicateExceptionThrown() throws Exception {
         Listeners<Integer> listeners = new DistinctListeners(new ListenersStore<>(new ArrayList<>()));
-        Integer o = new Integer(0);
+        Integer o = Integer.valueOf(0);
         listeners.add(o);
         Assertions.assertThrows(DuplicateRegistrationException.class, () -> {
             listeners.add(o);
@@ -47,7 +47,7 @@ public class DistinctListenersTest {
     @Test
     public void addFirst_Duplicates_DuplicateExceptionThrown() throws Exception {
         Listeners<Integer> listeners = new DistinctListeners(new ListenersStore<>(new ArrayList<>()));
-        Integer o = new Integer(0);
+        Integer o = Integer.valueOf(0);
         listeners.add(o);
         Assertions.assertThrows(DuplicateRegistrationException.class, () -> {
             listeners.addFirst(o);
@@ -57,7 +57,7 @@ public class DistinctListenersTest {
     @Test
     public void addAfter_Duplicates_DuplicateExceptionThrown() throws Exception {
         Listeners<Integer> listeners = new DistinctListeners(new ListenersStore<>(new ArrayList<>()));
-        Integer o = new Integer(0);
+        Integer o = Integer.valueOf(0);
         listeners.add(o);
         Assertions.assertThrows(DuplicateRegistrationException.class, () -> {
             listeners.addAfter(o, o);
@@ -67,7 +67,7 @@ public class DistinctListenersTest {
     @Test
     public void addBefore_Duplicates_DuplicateExceptionThrown() throws Exception {
         Listeners<Integer> listeners = new DistinctListeners(new ListenersStore<>(new ArrayList<>()));
-        Integer o = new Integer(0);
+        Integer o = Integer.valueOf(0);
         listeners.add(o);
         Assertions.assertThrows(DuplicateRegistrationException.class, () -> {
             listeners.addBefore(o, o);

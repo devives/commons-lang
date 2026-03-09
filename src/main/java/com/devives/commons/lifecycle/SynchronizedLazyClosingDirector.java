@@ -143,9 +143,9 @@ public class SynchronizedLazyClosingDirector implements UsageCounter {
     }
 
     /**
-     * {@inheritDoc}
+     * Marks the object for lazy closing and returns a stage that completes when closing finishes.
      *
-     * @return {@inheritDoc}
+     * @return completion stage for the lazy close operation.
      */
     public synchronized CompletionStage<Void> closeAsync() {
         boolean needClose = false;

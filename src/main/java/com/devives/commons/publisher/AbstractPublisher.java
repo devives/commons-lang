@@ -43,7 +43,9 @@ public abstract class AbstractPublisher<I> {
     }
 
     /**
-     * {@inheritDoc}
+     * Returns the collection of registered listeners.
+     *
+     * @return the listeners collection.
      */
     public final Listeners<I> getListeners() {
         return listeners_;

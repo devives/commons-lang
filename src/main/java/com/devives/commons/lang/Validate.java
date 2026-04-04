@@ -27,6 +27,8 @@ public class Validate {
     public static final String DEFAULT_NOT_EMPTY_ARRAY_MESSAGE = "The validated array is empty";
     public static final String DEFAULT_GREATER_MESSAGE = "The %s value must be greater than %s. Actual value: %s";
     public static final String DEFAULT_GREATER_OR_EQUAL_MESSAGE = "The %s value must be greater than or equal %s. Actual value: %s";
+    public static final String DEFAULT_LOWER_MESSAGE = "The %s value must be lower than %s. Actual value: %s";
+    public static final String DEFAULT_LOWER_OR_EQUAL_MESSAGE = "The %s value must be lower than or equal %s. Actual value: %s";
 
     /**
      * Validate that the specified primitive value is greater than specified bound; otherwise, throws an exception.
@@ -72,6 +74,70 @@ public class Validate {
      */
     public static long greater(final long value, final long bound, final String message, final Object... values) {
         if (value <= bound) {
+            throw new IllegalArgumentException(getMessage(message, values));
+        }
+        return value;
+    }
+
+    /**
+     * Validate that the specified primitive value is greater than specified bound; otherwise, throws an exception.
+     *
+     * @param value value.
+     * @param bound bound.
+     * @return the validated value.
+     * @throws IllegalArgumentException if value is lower than or equal bound.
+     */
+    public static float greater(final float value, final float bound) {
+        if (!(value > bound)) {
+            throw new IllegalArgumentException(getMessage(DEFAULT_GREATER_MESSAGE, "", bound, value));
+        }
+        return value;
+    }
+
+    /**
+     * Validate that the specified primitive value is greater than specified bound; otherwise, throws an exception.
+     *
+     * @param value   value.
+     * @param bound   bound.
+     * @param message the {@link String#format(String, Object...)} exception message if invalid, not null
+     * @param values  the optional values for the formatted exception message, null array not recommended
+     * @return the validated value.
+     * @throws IllegalArgumentException if value is lower than or equal bound.
+     */
+    public static float greater(final float value, final float bound, final String message, final Object... values) {
+        if (!(value > bound)) {
+            throw new IllegalArgumentException(getMessage(message, values));
+        }
+        return value;
+    }
+
+    /**
+     * Validate that the specified primitive value is greater than specified bound; otherwise, throws an exception.
+     *
+     * @param value value.
+     * @param bound bound.
+     * @return the validated value.
+     * @throws IllegalArgumentException if value is lower than or equal bound.
+     */
+    public static double greater(final double value, final double bound) {
+        if (!(value > bound)) {
+            throw new IllegalArgumentException(getMessage(DEFAULT_GREATER_MESSAGE, "", bound, value));
+        }
+        return value;
+    }
+
+    /**
+     * Validate that the specified primitive value is greater than specified bound; otherwise, throws an exception.
+     *
+     * @param value   value.
+     * @param bound   bound.
+     * @param message the {@link String#format(String, Object...)} exception message if invalid, not null
+     * @param values  the optional values for the formatted exception message, null array not recommended
+     * @return the validated value.
+     * @throws IllegalArgumentException if value is lower than or equal bound.
+     */
+    public static double greater(final double value, final double bound, final String message, final Object... values) {
+        if (!(value > bound)) {
             throw new IllegalArgumentException(getMessage(message, values));
         }
         return value;
@@ -142,6 +208,326 @@ public class Validate {
     }
 
     /**
+     * Validate that the specified primitive value is greater than or equal specified bound; otherwise, throws an exception.
+     *
+     * @param value value.
+     * @param bound bound.
+     * @return the validated value.
+     * @throws IllegalArgumentException if value is lower than bound.
+     */
+    public static float greaterOrEqual(final float value, final float bound) {
+        if (!(value >= bound)) {
+            throw new IllegalArgumentException(getMessage(DEFAULT_GREATER_OR_EQUAL_MESSAGE, "", bound, value));
+        }
+        return value;
+    }
+
+    /**
+     * Validate that the specified primitive value is greater than or equal specified bound; otherwise, throws an exception.
+     *
+     * @param value   value.
+     * @param bound   bound.
+     * @param message the {@link String#format(String, Object...)} exception message if invalid, not null
+     * @param values  the optional values for the formatted exception message, null array not recommended
+     * @return the validated value.
+     * @throws IllegalArgumentException if value is lower than bound.
+     */
+    public static float greaterOrEqual(final float value, final float bound, final String message, final Object... values) {
+        if (!(value >= bound)) {
+            throw new IllegalArgumentException(getMessage(message, values));
+        }
+        return value;
+    }
+
+    /**
+     * Validate that the specified primitive value is greater than or equal specified bound; otherwise, throws an exception.
+     *
+     * @param value value.
+     * @param bound bound.
+     * @return the validated value.
+     * @throws IllegalArgumentException if value is lower than bound.
+     */
+    public static double greaterOrEqual(final double value, final double bound) {
+        if (!(value >= bound)) {
+            throw new IllegalArgumentException(getMessage(DEFAULT_GREATER_OR_EQUAL_MESSAGE, "", bound, value));
+        }
+        return value;
+    }
+
+    /**
+     * Validate that the specified primitive value is greater than or equal specified bound; otherwise, throws an exception.
+     *
+     * @param value   value.
+     * @param bound   bound.
+     * @param message the {@link String#format(String, Object...)} exception message if invalid, not null
+     * @param values  the optional values for the formatted exception message, null array not recommended
+     * @return the validated value.
+     * @throws IllegalArgumentException if value is lower than bound.
+     */
+    public static double greaterOrEqual(final double value, final double bound, final String message, final Object... values) {
+        if (!(value >= bound)) {
+            throw new IllegalArgumentException(getMessage(message, values));
+        }
+        return value;
+    }
+
+    /**
+     * Validate that the specified primitive value is lower than specified bound; otherwise, throws an exception.
+     *
+     * @param value value.
+     * @param bound bound.
+     * @return the validated value.
+     * @throws IllegalArgumentException if value is greater than or equal bound.
+     */
+    public static int lower(final int value, final int bound) {
+        if (value >= bound) {
+            throw new IllegalArgumentException(getMessage(DEFAULT_LOWER_MESSAGE, "", bound, value));
+        }
+        return value;
+    }
+
+    /**
+     * Validate that the specified primitive value is lower than specified bound; otherwise, throws an exception.
+     *
+     * @param value   value.
+     * @param bound   bound.
+     * @param message the {@link String#format(String, Object...)} exception message if invalid, not null
+     * @param values  the optional values for the formatted exception message, null array not recommended
+     * @return the validated value.
+     * @throws IllegalArgumentException if value is greater than or equal bound.
+     */
+    public static int lower(final int value, final int bound, final String message, final Object... values) {
+        if (value >= bound) {
+            throw new IllegalArgumentException(getMessage(message, values));
+        }
+        return value;
+    }
+
+    /**
+     * Validate that the specified primitive value is lower than specified bound; otherwise, throws an exception.
+     *
+     * @param value value.
+     * @param bound bound.
+     * @return the validated value.
+     * @throws IllegalArgumentException if value is greater than or equal bound.
+     */
+    public static long lower(final long value, final long bound) {
+        if (value >= bound) {
+            throw new IllegalArgumentException(getMessage(DEFAULT_LOWER_MESSAGE, "", bound, value));
+        }
+        return value;
+    }
+
+    /**
+     * Validate that the specified primitive value is lower than specified bound; otherwise, throws an exception.
+     *
+     * @param value   value.
+     * @param bound   bound.
+     * @param message the {@link String#format(String, Object...)} exception message if invalid, not null
+     * @param values  the optional values for the formatted exception message, null array not recommended
+     * @return the validated value.
+     * @throws IllegalArgumentException if value is greater than or equal bound.
+     */
+    public static long lower(final long value, final long bound, final String message, final Object... values) {
+        if (value >= bound) {
+            throw new IllegalArgumentException(getMessage(message, values));
+        }
+        return value;
+    }
+
+    /**
+     * Validate that the specified primitive value is lower than specified bound; otherwise, throws an exception.
+     *
+     * @param value value.
+     * @param bound bound.
+     * @return the validated value.
+     * @throws IllegalArgumentException if value is greater than or equal bound.
+     */
+    public static float lower(final float value, final float bound) {
+        if (!(value < bound)) {
+            throw new IllegalArgumentException(getMessage(DEFAULT_LOWER_MESSAGE, "", bound, value));
+        }
+        return value;
+    }
+
+    /**
+     * Validate that the specified primitive value is lower than specified bound; otherwise, throws an exception.
+     *
+     * @param value   value.
+     * @param bound   bound.
+     * @param message the {@link String#format(String, Object...)} exception message if invalid, not null
+     * @param values  the optional values for the formatted exception message, null array not recommended
+     * @return the validated value.
+     * @throws IllegalArgumentException if value is greater than or equal bound.
+     */
+    public static float lower(final float value, final float bound, final String message, final Object... values) {
+        if (!(value < bound)) {
+            throw new IllegalArgumentException(getMessage(message, values));
+        }
+        return value;
+    }
+
+    /**
+     * Validate that the specified primitive value is lower than specified bound; otherwise, throws an exception.
+     *
+     * @param value value.
+     * @param bound bound.
+     * @return the validated value.
+     * @throws IllegalArgumentException if value is greater than or equal bound.
+     */
+    public static double lower(final double value, final double bound) {
+        if (!(value < bound)) {
+            throw new IllegalArgumentException(getMessage(DEFAULT_LOWER_MESSAGE, "", bound, value));
+        }
+        return value;
+    }
+
+    /**
+     * Validate that the specified primitive value is lower than specified bound; otherwise, throws an exception.
+     *
+     * @param value   value.
+     * @param bound   bound.
+     * @param message the {@link String#format(String, Object...)} exception message if invalid, not null
+     * @param values  the optional values for the formatted exception message, null array not recommended
+     * @return the validated value.
+     * @throws IllegalArgumentException if value is greater than or equal bound.
+     */
+    public static double lower(final double value, final double bound, final String message, final Object... values) {
+        if (!(value < bound)) {
+            throw new IllegalArgumentException(getMessage(message, values));
+        }
+        return value;
+    }
+
+    /**
+     * Validate that the specified primitive value is lower than or equal specified bound; otherwise, throws an exception.
+     *
+     * @param value value.
+     * @param bound bound.
+     * @return the validated value.
+     * @throws IllegalArgumentException if value is greater than bound.
+     */
+    public static int lowerOrEqual(final int value, final int bound) {
+        if (value > bound) {
+            throw new IllegalArgumentException(getMessage(DEFAULT_LOWER_OR_EQUAL_MESSAGE, "", bound, value));
+        }
+        return value;
+    }
+
+    /**
+     * Validate that the specified primitive value is lower than or equal specified bound; otherwise, throws an exception.
+     *
+     * @param value   value.
+     * @param bound   bound.
+     * @param message the {@link String#format(String, Object...)} exception message if invalid, not null
+     * @param values  the optional values for the formatted exception message, null array not recommended
+     * @return the validated value.
+     * @throws IllegalArgumentException if value is greater than bound.
+     */
+    public static int lowerOrEqual(final int value, final int bound, final String message, final Object... values) {
+        if (value > bound) {
+            throw new IllegalArgumentException(getMessage(message, values));
+        }
+        return value;
+    }
+
+    /**
+     * Validate that the specified primitive value is lower than or equal specified bound; otherwise, throws an exception.
+     *
+     * @param value value.
+     * @param bound bound.
+     * @return the validated value.
+     * @throws IllegalArgumentException if value is greater than bound.
+     */
+    public static long lowerOrEqual(final long value, final long bound) {
+        if (value > bound) {
+            throw new IllegalArgumentException(getMessage(DEFAULT_LOWER_OR_EQUAL_MESSAGE, "", bound, value));
+        }
+        return value;
+    }
+
+    /**
+     * Validate that the specified primitive value is lower than or equal specified bound; otherwise, throws an exception.
+     *
+     * @param value   value.
+     * @param bound   bound.
+     * @param message the {@link String#format(String, Object...)} exception message if invalid, not null
+     * @param values  the optional values for the formatted exception message, null array not recommended
+     * @return the validated value.
+     * @throws IllegalArgumentException if value is greater than bound.
+     */
+    public static long lowerOrEqual(final long value, final long bound, final String message, final Object... values) {
+        if (value > bound) {
+            throw new IllegalArgumentException(getMessage(message, values));
+        }
+        return value;
+    }
+
+    /**
+     * Validate that the specified primitive value is lower than or equal specified bound; otherwise, throws an exception.
+     *
+     * @param value value.
+     * @param bound bound.
+     * @return the validated value.
+     * @throws IllegalArgumentException if value is greater than bound.
+     */
+    public static float lowerOrEqual(final float value, final float bound) {
+        if (!(value <= bound)) {
+            throw new IllegalArgumentException(getMessage(DEFAULT_LOWER_OR_EQUAL_MESSAGE, "", bound, value));
+        }
+        return value;
+    }
+
+    /**
+     * Validate that the specified primitive value is lower than or equal specified bound; otherwise, throws an exception.
+     *
+     * @param value   value.
+     * @param bound   bound.
+     * @param message the {@link String#format(String, Object...)} exception message if invalid, not null
+     * @param values  the optional values for the formatted exception message, null array not recommended
+     * @return the validated value.
+     * @throws IllegalArgumentException if value is greater than bound.
+     */
+    public static float lowerOrEqual(final float value, final float bound, final String message, final Object... values) {
+        if (!(value <= bound)) {
+            throw new IllegalArgumentException(getMessage(message, values));
+        }
+        return value;
+    }
+
+    /**
+     * Validate that the specified primitive value is lower than or equal specified bound; otherwise, throws an exception.
+     *
+     * @param value value.
+     * @param bound bound.
+     * @return the validated value.
+     * @throws IllegalArgumentException if value is greater than bound.
+     */
+    public static double lowerOrEqual(final double value, final double bound) {
+        if (!(value <= bound)) {
+            throw new IllegalArgumentException(getMessage(DEFAULT_LOWER_OR_EQUAL_MESSAGE, "", bound, value));
+        }
+        return value;
+    }
+
+    /**
+     * Validate that the specified primitive value is lower than or equal specified bound; otherwise, throws an exception.
+     *
+     * @param value   value.
+     * @param bound   bound.
+     * @param message the {@link String#format(String, Object...)} exception message if invalid, not null
+     * @param values  the optional values for the formatted exception message, null array not recommended
+     * @return the validated value.
+     * @throws IllegalArgumentException if value is greater than bound.
+     */
+    public static double lowerOrEqual(final double value, final double bound, final String message, final Object... values) {
+        if (!(value <= bound)) {
+            throw new IllegalArgumentException(getMessage(message, values));
+        }
+        return value;
+    }
+
+    /**
      * <p>Validate that the specified argument array is neither {@code null}
      * nor a length of zero (no elements); otherwise throwing an exception.
      *
@@ -203,22 +589,27 @@ public class Validate {
         return Objects.requireNonNull(object, toSupplier(message, values));
     }
 
+    /**
+     * Creates a lazy message supplier for APIs like {@link Objects#requireNonNull(Object, Supplier)}.
+     * The message is formatted only when the supplier is evaluated.
+     *
+     * @param message the {@link String#format(String, Object...)} message template, not null
+     * @param values  the optional values for the formatted message
+     * @return supplier returning either the formatted or original message
+     */
     private static Supplier<String> toSupplier(final String message, final Object... values) {
         return () -> getMessage(message, values);
     }
 
 
     /**
-     * Gets the message using {@link String#format(String, Object...) String.format(message, values)}
-     * if the values are not empty, otherwise return the message unformatted.
-     * This method exists to allow validation methods declaring a String message and varargs parameters
-     * to be used without any message parameters when the message contains special characters,
-     * e.g. {@code Validate.isTrue(false, "%Failed%")}.
+     * Returns an exception message for validation failures.
+     * If formatting arguments are provided, applies {@link String#format(String, Object...)};
+     * otherwise returns the original message unchanged so literals like {@code "%Failed%"} remain valid.
      *
-     * @param message the {@link String#format(String, Object...)} exception message if invalid, not null
-     * @param values  the optional values for the formatted message
-     * @return formatted message using {@link String#format(String, Object...) String.format(message, values)}
-     * if the values are not empty, otherwise return the unformatted message.
+     * @param message the message template or plain message, not null
+     * @param values  the optional formatting arguments
+     * @return the formatted message if {@code values} is non-empty, otherwise {@code message}
      */
     private static String getMessage(final String message, final Object... values) {
         return values.length == 0 ? message : String.format(message, values);

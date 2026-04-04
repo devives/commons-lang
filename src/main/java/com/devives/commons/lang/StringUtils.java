@@ -44,8 +44,20 @@ public final class StringUtils {
      *
      * @param value строка
      * @return true, если строка НЕ {@code null} и НЕ пустая, иначе false.
+     * @deprecated use {@link #isNotEmpty(String)}
      */
+    @Deprecated
     public static boolean nonEmpty(String value) {
+        return value != null && !value.isEmpty();
+    }
+
+    /**
+     * Проверяет строку на равенство Null и пустой строке
+     *
+     * @param value строка
+     * @return true, если строка НЕ {@code null} и НЕ пустая, иначе false.
+     */
+    public static boolean isNotEmpty(String value) {
         return value != null && !value.isEmpty();
     }
 
@@ -66,6 +78,16 @@ public final class StringUtils {
      * @return true, если последовательность НЕ {@code null} и НЕ пустая, иначе false.
      */
     public static boolean notEmpty(CharSequence cs) {
+        return !isEmpty(cs);
+    }
+
+    /**
+     * Проверяет последовательность на НЕ равенство Null и пустой последовательности
+     *
+     * @param cs последовательность символов
+     * @return true, если последовательность НЕ {@code null} и НЕ пустая, иначе false.
+     */
+    public static boolean isNotEmpty(CharSequence cs) {
         return !isEmpty(cs);
     }
 

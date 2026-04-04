@@ -14,9 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.devives.commons.lifecycle;
+package com.devives.commons.lang;
 
 import com.devives.commons.lang.function.FailableProcedure;
+import com.devives.commons.util.usage.UsageCounter;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;

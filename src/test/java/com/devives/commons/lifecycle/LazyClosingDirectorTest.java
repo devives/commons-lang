@@ -17,6 +17,9 @@
 package com.devives.commons.lifecycle;
 
 import com.devives.commons.lang.Ref;
+import com.devives.commons.lang.SynchronizedLazyClosingDirector;
+import com.devives.commons.util.usage.OrdinalUsage;
+import com.devives.commons.util.usage.Usage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -42,7 +45,7 @@ public class LazyClosingDirectorTest {
     public void close_afterAutoRelease_callbackWasCalled() throws Exception {
         Ref<Boolean> calledRef = new Ref<>(false);
         SynchronizedLazyClosingDirector director = new SynchronizedLazyClosingDirector(() -> calledRef.set(true));
-        try (Usage usage = CountedUsage.of(director)) {
+        try (Usage usage = OrdinalUsage.of(director)) {
             Assertions.assertFalse(calledRef.get());
             director.closeAsync();
             Assertions.assertFalse(calledRef.get());

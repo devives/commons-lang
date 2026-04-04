@@ -14,23 +14,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.devives.commons.lifecycle;
+package com.devives.commons.state;
 
-/**
- * Static state factory.
- */
-public class StateFactory {
+public class InvalidStateException extends IllegalStateException {
 
-    private StateFactory() {
+    private static final long serialVersionUID = 1L;
+
+    public InvalidStateException() {
     }
 
-    /**
-     * Creates a new instance of {@link NamedState}.
-     *
-     * @param name name of state.
-     * @return new {@link NamedState} instance/
-     */
-    public static NamedState named(String name) {
-        return new NamedState(name);
+    public InvalidStateException(String message) {
+        super(message);
     }
+
 }

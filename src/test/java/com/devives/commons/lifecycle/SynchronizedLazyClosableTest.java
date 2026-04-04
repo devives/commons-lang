@@ -16,6 +16,9 @@
  */
 package com.devives.commons.lifecycle;
 
+import com.devives.commons.lang.SynchronizedLazyCloseableAbst;
+import com.devives.commons.util.usage.OrdinalUsage;
+import com.devives.commons.util.usage.Usage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -37,7 +40,7 @@ public class SynchronizedLazyClosableTest {
     @Test
     public void isClosed_afterIncUsageCount_False() throws Exception {
         SynchronizedLazyCloseableImpl lazyCloseable = new SynchronizedLazyCloseableImpl();
-        try (Usage usage = CountedUsage.of(lazyCloseable)) {
+        try (Usage usage = OrdinalUsage.of(lazyCloseable)) {
             lazyCloseable.closeAsync();
             Assertions.assertFalse(lazyCloseable.isClosed());
         }
@@ -46,7 +49,7 @@ public class SynchronizedLazyClosableTest {
     @Test
     public void isClosed_afterDecUsageCount_True() throws Exception {
         SynchronizedLazyCloseableImpl lazyCloseable = new SynchronizedLazyCloseableImpl();
-        try (Usage usage = CountedUsage.of(lazyCloseable)) {
+        try (Usage usage = OrdinalUsage.of(lazyCloseable)) {
             lazyCloseable.closeAsync();
         }
         Assertions.assertTrue(lazyCloseable.isClosed());

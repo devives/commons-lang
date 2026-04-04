@@ -14,46 +14,45 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.devives.commons.lifecycle;
+package com.devives.commons.util.usage;
 
-import com.devives.commons.lang.function.FailableProcedure;
+import com.devives.commons.lang.function.FailableConsumer;
+
+import java.util.Objects;
 
 /**
- * Utility class with a reference to a captured instance.
- * <p>
- * Used in constructs like:
- * <pre>{@code
- * try (Usage<Item> itemUsage = manager.acquire()){
- *     itemUsage.get().doWork();
- * }
- * }</pre>
+ * Basic implementation of {@link Usage}.
  *
  * @param <T> The type of the instance to which a reference is obtained.
  */
-final class GenericCountedUsage<T> extends UsageAbst<T> implements CountedUsage<T> {
+final class ManagedUsage<T> implements Usage<T> {
 
-    private final int count_;
+    private final T instance_;
+    private final FailableConsumer<T> releaseCallback_;
 
     /**
      * The constructor.
      *
      * @param instance        the instance being captured.
-     * @param count           the current count of uses.
      * @param releaseCallback the callback to decrease the use counter.
      */
-    GenericCountedUsage(T instance, int count, FailableProcedure releaseCallback) {
-        super(instance, releaseCallback);
-        count_ = count;
+    ManagedUsage(T instance, FailableConsumer<T> releaseCallback) {
+        instance_ = Objects.requireNonNull(instance);
+        releaseCallback_ = Objects.requireNonNull(releaseCallback);
     }
 
     /**
-     * Returns the count of uses of the object at the time of getting the reference.
+     * Returns a reference to the captured instance.
      *
-     * @return the count.
+     * @return the instance.
      */
-    public int getCount() {
-        return count_;
+    public T get() {
+        return instance_;
     }
 
+    @Override
+    public void close() throws Exception {
+        releaseCallback_.accept(instance_);
+    }
 
 }

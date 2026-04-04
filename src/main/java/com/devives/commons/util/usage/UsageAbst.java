@@ -14,29 +14,29 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.devives.commons.lifecycle;
+package com.devives.commons.util.usage;
 
-import com.devives.commons.lang.function.FailableConsumer;
+import com.devives.commons.lang.function.FailableProcedure;
 
 import java.util.Objects;
 
 /**
- * Basic implementation of {@link Usage}.
+ * Abstract implementation of {@link Usage}.
  *
  * @param <T> The type of the instance to which a reference is obtained.
  */
-final class ManagedUsage<T> implements Usage<T> {
+abstract class UsageAbst<T> implements Usage<T> {
 
     private final T instance_;
-    private final FailableConsumer<T> releaseCallback_;
+    private final FailableProcedure releaseCallback_;
 
     /**
      * The constructor.
      *
-     * @param instance        the instance being captured.
+     * @param instance          the instance being captured.
      * @param releaseCallback the callback to decrease the use counter.
      */
-    ManagedUsage(T instance, FailableConsumer<T> releaseCallback) {
+    UsageAbst(T instance, FailableProcedure releaseCallback) {
         instance_ = Objects.requireNonNull(instance);
         releaseCallback_ = Objects.requireNonNull(releaseCallback);
     }
@@ -52,7 +52,7 @@ final class ManagedUsage<T> implements Usage<T> {
 
     @Override
     public void close() throws Exception {
-        releaseCallback_.accept(instance_);
+        releaseCallback_.accept();
     }
 
 }

@@ -14,25 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.devives.commons.lifecycle;
+package com.devives.commons.state;
 
-import com.devives.commons.publisher.Publisher;
-import com.devives.commons.publisher.Publishers;
 
-public abstract class LifeCycleAbst<SELF extends LifeCycle, LISTENER extends LifeCycle.Listener<SELF>>
-        extends LifeCycleBaseAbst<SELF, LISTENER> {
-
-    public LifeCycleAbst() {
-        this(States.STOPPED);
-    }
-
-    public LifeCycleAbst(State initialState) {
-        this(new StateHolderImpl(initialState),
-                Publishers.<LISTENER>builder().setIndependentDelivery().build());
-    }
-
-    public LifeCycleAbst(StateHolder stateHolder, Publisher<LISTENER> publisher) {
-        super(stateHolder, publisher);
-    }
-
+/**
+ * State of object.
+ */
+public interface State {
 }

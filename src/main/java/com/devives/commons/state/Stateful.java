@@ -14,42 +14,33 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.devives.commons.lifecycle;
-
+package com.devives.commons.state;
 
 import java.io.Serializable;
 import java.util.Objects;
 
 /**
- * Named implementation of object {@link State}.
+ * Base class of stateful objects.
  */
-public class NamedState implements State, Serializable {
-
+public class Stateful implements Serializable {
     private static final long serialVersionUID = 1L;
-    private final String name;
+    private final StateHolder stateHolder_;
 
-    protected NamedState(String name) {
-        this.name = Objects.requireNonNull(name);
+    /**
+     *
+     * @param stateHolder контейнер состояния объекта.
+     */
+    public Stateful(StateHolder stateHolder) {
+        stateHolder_ = Objects.requireNonNull(stateHolder, "stateHolder");
     }
 
-    public String getName() {
-        return name;
+    /**
+     * Return state holder instance.
+     *
+     * @return State holder instance.
+     */
+    protected StateHolder getStateHolder() {
+        return stateHolder_;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        return super.equals(o);
-    }
-
-    @Override
-    public int hashCode() {
-        return super.hashCode();
-    }
-
-    @Override
-    public String toString() {
-        return "NamedState{" +
-                "name='" + name + '\'' +
-                '}';
-    }
 }

@@ -14,7 +14,11 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.devives.commons.lifecycle;
+package com.devives.commons.lang;
+
+import com.devives.commons.state.InvalidStateException;
+import com.devives.commons.state.StateHolder;
+import com.devives.commons.state.Stateful;
 
 /**
  * The class contains common code for all implementations of the CloseableObj.

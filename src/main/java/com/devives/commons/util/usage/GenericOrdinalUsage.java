@@ -14,45 +14,51 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.devives.commons.lifecycle;
+package com.devives.commons.util.usage;
 
 import com.devives.commons.lang.function.FailableProcedure;
 
-import java.util.Objects;
-
 /**
- * Abstract implementation of {@link Usage}.
+ * Utility class with a reference to a captured instance.
+ * <p>
+ * Used in constructs like:
+ * <pre>{@code
+ * try (Usage<Item> itemUsage = manager.acquire()){
+ *     itemUsage.get().doWork();
+ * }
+ * }</pre>
  *
  * @param <T> The type of the instance to which a reference is obtained.
  */
-abstract class UsageAbst<T> implements Usage<T> {
+final class GenericOrdinalUsage<T> extends UsageAbst<T> implements OrdinalUsage<T> {
 
-    private final T instance_;
-    private final FailableProcedure releaseCallback_;
+    private final int acquisitionNumber_;
 
     /**
      * The constructor.
      *
      * @param instance          the instance being captured.
-     * @param releaseCallback the callback to decrease the use counter.
+     * @param acquisitionNumber the acquisition ordinal observed at acquire time.
+     * @param releaseCallback   the callback to decrease the use counter.
      */
-    UsageAbst(T instance, FailableProcedure releaseCallback) {
-        instance_ = Objects.requireNonNull(instance);
-        releaseCallback_ = Objects.requireNonNull(releaseCallback);
-    }
-
-    /**
-     * Returns a reference to the captured instance.
-     *
-     * @return the instance.
-     */
-    public T get() {
-        return instance_;
+    GenericOrdinalUsage(T instance, int acquisitionNumber, FailableProcedure releaseCallback) {
+        super(instance, releaseCallback);
+        acquisitionNumber_ = acquisitionNumber;
     }
 
     @Override
-    public void close() throws Exception {
-        releaseCallback_.accept();
+    public boolean isFirstAcquisition() {
+        return acquisitionNumber_ == 1;
     }
+
+    /**
+     * Returns the acquisition ordinal observed when this usage was acquired.
+     *
+     * @return the acquisition ordinal observed at acquire time.
+     */
+    public int getAcquisitionOrdinal() {
+        return acquisitionNumber_;
+    }
+
 
 }

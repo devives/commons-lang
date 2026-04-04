@@ -14,8 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.devives.commons.lifecycle;
+package com.devives.commons.util.usage;
 
+import com.devives.commons.lang.function.FailableConsumer;
 import com.devives.commons.lang.function.FailableProcedure;
 
 /**
@@ -30,14 +31,35 @@ import com.devives.commons.lang.function.FailableProcedure;
  *
  * @param <T> The type of the instance to which a reference is obtained.
  */
-class GenericUsage<T> extends UsageAbst<T> implements Usage<T> {
+public interface Usage<T> extends AutoCloseable {
     /**
-     * The constructor.
+     * Returns a reference to the captured instance.
      *
-     * @param instance          the instance being captured.
-     * @param releaseCallback the callback to decrease the use counter.
+     * @return the instance.
      */
-    GenericUsage(T instance, FailableProcedure releaseCallback) {
-        super(instance, releaseCallback);
+    T get();
+
+    /**
+     * Instantiate an new instance of {@link Usage}.
+     *
+     * @param instance an instance of used object
+     * @param releaseCallback release usage of object
+     * @return new instance of {@link Usage}
+     * @param <T> The type of the instance to which a reference is obtained.
+     */
+    static <T> Usage<T> of(T instance, FailableProcedure releaseCallback) {
+        return new GenericUsage<T>(instance, releaseCallback);
+    }
+
+    /**
+     * Instantiate an new instance of {@link Usage}.
+     *
+     * @param instance an instance of used object
+     * @param releaseCallback release usage of object
+     * @return new instance of {@link Usage}
+     * @param <T> The type of the instance to which a reference is obtained.
+     */
+    static <T> Usage<T> of(T instance, FailableConsumer<T> releaseCallback) {
+        return new ManagedUsage<>(instance, releaseCallback);
     }
 }

@@ -14,29 +14,38 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.devives.commons.lifecycle;
+package com.devives.commons.lang;
 
-/**
- * An abstract, thread-unsafe, implementation of a closable resource.
- */
-public abstract class CloseableAbst extends CloseableBaseAbst {
 
-    public CloseableAbst() {
-        this(OPENED);
+import com.devives.commons.state.StateHolder;
+import com.devives.commons.state.StateHolderImpl;
+import com.devives.commons.util.usage.UsageCounter;
+
+import java.util.concurrent.CompletionStage;
+
+public abstract class SynchronizedLazyCloseableAbst extends CloseableBaseAbst implements UsageCounter {
+
+    protected final SynchronizedLazyClosingDirector lazyClosingDirector_ = new SynchronizedLazyClosingDirector(this::lazyClose);
+
+    public SynchronizedLazyCloseableAbst() {
+        super(new StateHolderImpl(OPENED));
     }
 
-    public CloseableAbst(State initialState) {
-        super(new StateHolderImpl<State>(initialState));
+    @Override
+    public int incUsageCount() {
+        return lazyClosingDirector_.incUsageCount();
     }
 
-    /**
-     * Release object's resources.
-     * <p>
-     * Closing of object can be cancelled by results of calling {@link #canBeClosed()} method.
-     *
-     * @throws Exception when resource closing failed.
-     */
-    public final void close() throws Exception {
+    @Override
+    public int decUsageCount() {
+        return lazyClosingDirector_.decUsageCount();
+    }
+
+    public CompletionStage<Void> closeAsync() {
+        return lazyClosingDirector_.closeAsync();
+    }
+
+    private void lazyClose() throws Exception {
         final StateHolder stateHolder = getStateHolder();
         if (!stateHolder.isExpected(CLOSING, CLOSED) && canBeClosed()) {
             stateHolder.set(CLOSING);
@@ -52,5 +61,4 @@ public abstract class CloseableAbst extends CloseableBaseAbst {
     protected final void doClose() throws Exception {
         super.doClose();
     }
-
 }

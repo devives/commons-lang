@@ -18,6 +18,7 @@ package com.devives.commons.lifecycle;
 
 import com.devives.commons.Task;
 import com.devives.commons.lang.ExceptionUtils;
+import com.devives.commons.lang.SynchronizedCloseableAbst;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

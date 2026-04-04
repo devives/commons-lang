@@ -14,9 +14,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.devives.commons.lifecycle;
+package com.devives.commons.lang;
 
 import com.devives.commons.lang.tuple.Tuple2;
+import com.devives.commons.state.State;
+import com.devives.commons.state.SynchronizedStateHolder;
+import com.devives.commons.state.SynchronizedStateHolderImpl;
 
 import java.util.concurrent.CompletableFuture;
 

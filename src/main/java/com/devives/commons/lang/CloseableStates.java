@@ -14,7 +14,10 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.devives.commons.lifecycle;
+package com.devives.commons.lang;
+
+import com.devives.commons.state.State;
+import com.devives.commons.state.StateFactory;
 
 public interface CloseableStates {
 

@@ -94,7 +94,7 @@ public interface Listeners<I> {
      *
      * @return new instance of builder.
      */
-    static ListenersBuilder builder() {
-        return new ListenersBuilder();
+    static <I> ListenersBuilder<I> builder() {
+        return new ListenersBuilder<I>();
     }
 }

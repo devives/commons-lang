@@ -153,13 +153,12 @@ public class ConcurrentTaskReducer<K, R> {
      * A decorator method is created for the provided callable and owns an instance of
      * {@link ConcurrentTaskReducer}.
      *
-     * @param keyFormatter task key formatter.
      * @param callable callable method (task) to execute.
      * @param <R> callable result type.
      * @return new method instance with a limit on the number of concurrent executions.
      */
-    public static <R> ReducedCallable<R> forCallable(
-            Function<String> keyFormatter,
+    public static <K, R> ReducedCallable<R> forCallable(
+            Function<K> keyFormatter,
             ThrowableFunction<R, Exception> callable) {
         return new ReducedCallableImpl<>(keyFormatter, callable);
     }
@@ -173,11 +172,12 @@ public class ConcurrentTaskReducer<K, R> {
      * @param keyFormatter task key formatter.
      * @param callable callable method (task) to execute.
      * @param <A1> callable argument type.
-     * @param <R> callable result type.
+     * @param <K>  mutex type.
+     * @param <R>  callable result type.
      * @return new method instance with a limit on the number of concurrent executions.
      */
-    public static <A1, R> ReducedCallable1<A1, R> forCallable(
-            Function1<A1, String> keyFormatter,
+    public static <K, A1, R> ReducedCallable1<A1, R> forCallable(
+            Function1<A1, K> keyFormatter,
             ThrowableFunction1<A1, R, Exception> callable) {
         return new ReducedCallable1Impl<>(keyFormatter, callable);
     }
@@ -195,8 +195,8 @@ public class ConcurrentTaskReducer<K, R> {
      * @param <R> callable result type.
      * @return new method instance with a limit on the number of concurrent executions.
      */
-    public static <A1, A2, R> ReducedCallable2<A1, A2, R> forCallable(
-            Function2<A1, A2, String> keyFormatter,
+    public static <A1, A2, K, R> ReducedCallable2<A1, A2, R> forCallable(
+            Function2<A1, A2, K> keyFormatter,
             ThrowableFunction2<A1, A2, R, Exception> callable) {
         return new ReducedCallable2Impl<>(keyFormatter, callable);
     }
@@ -212,65 +212,65 @@ public class ConcurrentTaskReducer<K, R> {
         }
     }
 
-    private static final class ReducedCallableImpl<R> extends AbstractReducedCallable<String, R, Function<String>, ThrowableFunction<R, Exception>> implements ReducedCallable<R> {
+    private static final class ReducedCallableImpl<K, R> extends AbstractReducedCallable<K, R, Function<K>, ThrowableFunction<R, Exception>> implements ReducedCallable<R> {
 
-        public ReducedCallableImpl(Function<String> keyFormatter,
+        public ReducedCallableImpl(Function<K> keyFormatter,
                                    ThrowableFunction<R, Exception> callable) {
             super(keyFormatter, callable);
         }
 
         @Override
         public R apply() {
-            final String key = Objects.requireNonNull(keyFormatter_.apply(), "Key formatter must return non `null` value.");
+            final K key = Objects.requireNonNull(keyFormatter_.apply(), "Key formatter must return non `null` value.");
             return taskReducer_.call(key, callable_::apply);
         }
 
         @Override
         public R apply(int timeout, TimeUnit unit) throws TimeoutException {
-            final String key = Objects.requireNonNull(keyFormatter_.apply(), "Key formatter must return non `null` value.");
+            final K key = Objects.requireNonNull(keyFormatter_.apply(), "Key formatter must return non `null` value.");
             return taskReducer_.call(key, callable_::apply, timeout, unit);
         }
     }
 
-    private static final class ReducedCallable1Impl<A1, R>
-            extends AbstractReducedCallable<String, R, Function1<A1, String>, ThrowableFunction1<A1, R, Exception>>
+    private static final class ReducedCallable1Impl<A1, K, R>
+            extends AbstractReducedCallable<K, R, Function1<A1, K>, ThrowableFunction1<A1, R, Exception>>
             implements ReducedCallable1<A1, R> {
 
-        public ReducedCallable1Impl(Function1<A1, String> keyFormatter,
+        public ReducedCallable1Impl(Function1<A1, K> keyFormatter,
                                     ThrowableFunction1<A1, R, Exception> callable) {
             super(keyFormatter, callable);
         }
 
         @Override
         public R apply(A1 arg1) {
-            final String key = Objects.requireNonNull(keyFormatter_.apply(arg1), "Key formatter must return non `null` value.");
+            final K key = Objects.requireNonNull(keyFormatter_.apply(arg1), "Key formatter must return non `null` value.");
             return taskReducer_.call(key, () -> callable_.apply(arg1));
         }
 
         @Override
         public R apply(A1 arg1, int timeout, TimeUnit unit) throws TimeoutException {
-            final String key = Objects.requireNonNull(keyFormatter_.apply(arg1), "Key formatter must return non `null` value.");
+            final K key = Objects.requireNonNull(keyFormatter_.apply(arg1), "Key formatter must return non `null` value.");
             return taskReducer_.call(key, () -> callable_.apply(arg1), timeout, unit);
         }
     }
 
-    private static final class ReducedCallable2Impl<A1, A2, R>
-            extends AbstractReducedCallable<String, R, Function2<A1, A2, String>, ThrowableFunction2<A1, A2, R, Exception>>
+    private static final class ReducedCallable2Impl<A1, A2, K, R>
+            extends AbstractReducedCallable<K, R, Function2<A1, A2, K>, ThrowableFunction2<A1, A2, R, Exception>>
             implements ReducedCallable2<A1, A2, R> {
 
-        public ReducedCallable2Impl(Function2<A1, A2, String> keyFormatter, ThrowableFunction2<A1, A2, R, Exception> a1A2RExceptionFunction12) {
+        public ReducedCallable2Impl(Function2<A1, A2, K> keyFormatter, ThrowableFunction2<A1, A2, R, Exception> a1A2RExceptionFunction12) {
             super(keyFormatter, a1A2RExceptionFunction12);
         }
 
         @Override
         public R apply(A1 arg1, A2 arg2) {
-            final String key = Objects.requireNonNull(keyFormatter_.apply(arg1, arg2), "Key formatter must return non `null` value.");
+            final K key = Objects.requireNonNull(keyFormatter_.apply(arg1, arg2), "Key formatter must return non `null` value.");
             return taskReducer_.call(key, () -> callable_.apply(arg1, arg2));
         }
 
         @Override
         public R apply(A1 arg1, A2 arg2, int timeout, TimeUnit unit) throws TimeoutException {
-            final String key = Objects.requireNonNull(keyFormatter_.apply(arg1, arg2), "Key formatter must return non `null` value.");
+            final K key = Objects.requireNonNull(keyFormatter_.apply(arg1, arg2), "Key formatter must return non `null` value.");
             return taskReducer_.call(key, () -> callable_.apply(arg1, arg2), timeout, unit);
         }
     }

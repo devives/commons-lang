@@ -19,6 +19,7 @@ package com.devives.commons.lang;
 import com.devives.commons.lang.function.FailableProcedure;
 import com.devives.commons.util.usage.UsageCounter;
 
+import java.io.Serializable;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
@@ -29,9 +30,9 @@ import java.util.concurrent.Future;
  * <p>
  * Принимает в качестве аргумента конструктора, ссылку на метод объекта, делегирующего управление своим закрытием.
  */
-public class SynchronizedLazyClosingDirector implements UsageCounter {
-
-    private final static long OPENED = 0;
+public class SynchronizedLazyClosingDirector implements UsageCounter, Serializable {
+    private static final long serialVersionUID = 1L;
+    private static final long OPENED = 0;
     /**
      * Фьючерс закрытия объекта.
      */

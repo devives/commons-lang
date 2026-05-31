@@ -22,59 +22,81 @@ import com.devives.commons.lang.function.FailableProcedure;
 import java.util.function.Function;
 
 public class SynchronizedStateHolderImpl<STATE> extends StateHolderImpl<STATE> implements SynchronizedStateHolder<STATE> {
+    private static final long serialVersionUID = 1L;
 
     public SynchronizedStateHolderImpl(STATE initialState) {
         super(initialState);
     }
+    private final Object mutex = new Object();
 
     @Override
-    public synchronized STATE get() {
-        return super.get();
+    public STATE get() {
+        synchronized (mutex) {
+            return super.get();
+        }
     }
 
     @Override
-    public synchronized void set(STATE value) {
-        super.set(value);
+    public void set(STATE value) {
+        synchronized (mutex) {
+            super.set(value);
+        }
     }
 
     @Override
-    public synchronized boolean trySet(STATE expected, STATE value) {
-        return super.trySet(expected, value);
+    public boolean trySet(STATE expected, STATE value) {
+        synchronized (mutex) {
+            return super.trySet(expected, value);
+        }
     }
 
     @Override
-    public synchronized boolean trySet(STATE[] expected, STATE value) {
-        return super.trySet(expected, value);
+    public boolean trySet(STATE[] expected, STATE value) {
+        synchronized (mutex) {
+            return super.trySet(expected, value);
+        }
     }
 
     @Override
-    public synchronized boolean isExpected(STATE... expected) {
-        return super.isExpected(expected);
+    public boolean isExpected(STATE... expected) {
+        synchronized (mutex) {
+            return super.isExpected(expected);
+        }
     }
 
     @Override
-    public synchronized void validate(STATE... expected) {
-        super.validate(expected);
+    public void validate(STATE... expected) {
+        synchronized (mutex) {
+            super.validate(expected);
+        }
     }
 
     @Override
-    public synchronized <E extends InvalidStateException> void validate(STATE expected, Function<STATE, E> exceptionSupplier) throws E {
-        super.validate(expected, exceptionSupplier);
+    public <E extends InvalidStateException> void validate(STATE expected, Function<STATE, E> exceptionSupplier) throws E {
+        synchronized (mutex) {
+            super.validate(expected, exceptionSupplier);
+        }
     }
 
     @Override
-    public synchronized <E extends InvalidStateException> void validate(STATE[] expected, Function<STATE, E> exceptionSupplier) throws E {
-        super.validate(expected, exceptionSupplier);
+    public <E extends InvalidStateException> void validate(STATE[] expected, Function<STATE, E> exceptionSupplier) throws E {
+        synchronized (mutex) {
+            super.validate(expected, exceptionSupplier);
+        }
     }
 
     @Override
-    public synchronized final void performAtomicWork(FailableProcedure procedure) throws Exception {
-        procedure.accept();
+    public final void performAtomicWork(FailableProcedure procedure) throws Exception {
+        synchronized (mutex) {
+            procedure.accept();
+        }
     }
 
     @Override
-    public synchronized final <R> R performAtomicWork(FailableFunction<R> function) throws Exception {
-        return function.apply();
+    public final <R> R performAtomicWork(FailableFunction<R> function) throws Exception {
+        synchronized (mutex) {
+            return function.apply();
+        }
     }
 
 }

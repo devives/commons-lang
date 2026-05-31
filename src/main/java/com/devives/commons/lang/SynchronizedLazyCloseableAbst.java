@@ -17,6 +17,7 @@
 package com.devives.commons.lang;
 
 
+import com.devives.commons.state.State;
 import com.devives.commons.state.StateHolder;
 import com.devives.commons.state.StateHolderImpl;
 import com.devives.commons.util.usage.UsageCounter;
@@ -24,7 +25,7 @@ import com.devives.commons.util.usage.UsageCounter;
 import java.util.concurrent.CompletionStage;
 
 public abstract class SynchronizedLazyCloseableAbst extends CloseableBaseAbst implements UsageCounter {
-
+    private static final long serialVersionUID = 1L;
     protected final SynchronizedLazyClosingDirector lazyClosingDirector_ = new SynchronizedLazyClosingDirector(this::lazyClose);
 
     public SynchronizedLazyCloseableAbst() {

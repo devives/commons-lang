@@ -27,6 +27,7 @@ import java.util.concurrent.CompletableFuture;
  * An abstract, thread-safe, implementation of a closable resource.
  */
 public abstract class SynchronizedCloseableAbst extends CloseableBaseAbst {
+    private static final long serialVersionUID = 1L;
 
     /**
      * Sharing future across threads.

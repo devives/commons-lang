@@ -25,6 +25,7 @@ import com.devives.commons.state.Stateful;
  * The class contains common code for all implementations of the CloseableObj.
  */
 public abstract class CloseableBaseAbst extends Stateful<State> implements CloseableStates {
+    private static final long serialVersionUID = 1L;
 
     public CloseableBaseAbst(StateHolder<State> stateHolder) {
         super(stateHolder);

@@ -24,6 +24,7 @@ import com.devives.commons.state.StateHolderImpl;
  * An abstract, thread-unsafe, implementation of a closable resource.
  */
 public abstract class CloseableAbst extends CloseableBaseAbst {
+    private static final long serialVersionUID = 1L;
 
     public CloseableAbst() {
         this(OPENED);

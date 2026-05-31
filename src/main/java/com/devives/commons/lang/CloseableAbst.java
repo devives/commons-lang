@@ -41,7 +41,7 @@ public abstract class CloseableAbst extends CloseableBaseAbst {
      * @throws Exception when resource closing failed.
      */
     public final void close() throws Exception {
-        final StateHolder stateHolder = getStateHolder();
+        final StateHolder<State> stateHolder = getStateHolder();
         if (!stateHolder.isExpected(CLOSING, CLOSED) && canBeClosed()) {
             stateHolder.set(CLOSING);
             try {

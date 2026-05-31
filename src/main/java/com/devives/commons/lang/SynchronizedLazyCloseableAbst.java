@@ -28,7 +28,7 @@ public abstract class SynchronizedLazyCloseableAbst extends CloseableBaseAbst im
     protected final SynchronizedLazyClosingDirector lazyClosingDirector_ = new SynchronizedLazyClosingDirector(this::lazyClose);
 
     public SynchronizedLazyCloseableAbst() {
-        super(new StateHolderImpl(OPENED));
+        super(new StateHolderImpl<>(OPENED));
     }
 
     @Override
@@ -46,7 +46,7 @@ public abstract class SynchronizedLazyCloseableAbst extends CloseableBaseAbst im
     }
 
     private void lazyClose() throws Exception {
-        final StateHolder stateHolder = getStateHolder();
+        final StateHolder<State> stateHolder = getStateHolder();
         if (!stateHolder.isExpected(CLOSING, CLOSED) && canBeClosed()) {
             stateHolder.set(CLOSING);
             try {

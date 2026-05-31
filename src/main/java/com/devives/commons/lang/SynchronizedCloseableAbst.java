@@ -40,12 +40,12 @@ public abstract class SynchronizedCloseableAbst extends CloseableBaseAbst {
     }
 
     public SynchronizedCloseableAbst(State initialState) {
-        super(new SynchronizedStateHolderImpl(initialState));
+        super(new SynchronizedStateHolderImpl<>(initialState));
     }
 
     @Override
-    protected SynchronizedStateHolder getStateHolder() {
-        return (SynchronizedStateHolder) super.getStateHolder();
+    protected SynchronizedStateHolder<State> getStateHolder() {
+        return (SynchronizedStateHolder<State>) super.getStateHolder();
     }
 
     /**

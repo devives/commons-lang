@@ -17,15 +17,16 @@
 package com.devives.commons.lang;
 
 import com.devives.commons.state.InvalidStateException;
+import com.devives.commons.state.State;
 import com.devives.commons.state.StateHolder;
 import com.devives.commons.state.Stateful;
 
 /**
  * The class contains common code for all implementations of the CloseableObj.
  */
-public abstract class CloseableBaseAbst extends Stateful implements CloseableStates {
+public abstract class CloseableBaseAbst extends Stateful<State> implements CloseableStates {
 
-    public CloseableBaseAbst(StateHolder stateHolder) {
+    public CloseableBaseAbst(StateHolder<State> stateHolder) {
         super(stateHolder);
     }
 

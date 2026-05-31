@@ -22,15 +22,15 @@ import java.util.Objects;
 /**
  * Base class of stateful objects.
  */
-public class Stateful implements Serializable {
+public class Stateful<STATE> implements Serializable {
     private static final long serialVersionUID = 1L;
-    private final StateHolder stateHolder_;
+    private final StateHolder<STATE> stateHolder_;
 
     /**
      *
      * @param stateHolder контейнер состояния объекта.
      */
-    public Stateful(StateHolder stateHolder) {
+    public Stateful(StateHolder<STATE> stateHolder) {
         stateHolder_ = Objects.requireNonNull(stateHolder, "stateHolder");
     }
 
@@ -39,7 +39,7 @@ public class Stateful implements Serializable {
      *
      * @return State holder instance.
      */
-    protected StateHolder getStateHolder() {
+    protected StateHolder<STATE> getStateHolder() {
         return stateHolder_;
     }
 

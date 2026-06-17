@@ -1,0 +1,154 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one or more
+ * contributor license agreements.  See the NOTICE file distributed with
+ * this work for additional information regarding copyright ownership.
+ * The ASF licenses this file to You under the Apache License, Version 2.0
+ * (the "License"); you may not use this file except in compliance with
+ * the License.  You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+package com.devives.commons.lang;
+
+import com.devives.commons.lang.function.FailableProcedure;
+import com.devives.commons.util.usage.UsageCounter;
+
+import java.io.Serializable;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Future;
+
+/**
+ * Базовый класс для директоров отложенного закрытия объекта.
+ * <p>
+ * Принимает в качестве аргумента конструктора, ссылку на метод объекта, делегирующего управление своим закрытием.
+ */
+public abstract class LazyClosingDirectorBase implements UsageCounter, Serializable {
+    private static final long serialVersionUID = 1L;
+    protected static final long OPENED = 0;
+    /**
+     * Фьючерс закрытия объекта.
+     */
+    protected transient final CompletableFuture<Void> lazyCloseFuture_ = new CompletableFuture<>();
+    /**
+     * Этот метод будет вызван при выполнении условия: счётчик использований равен "0" и вызван метод {@link #closeAsync()}.
+     */
+    protected final FailableProcedure closeDelegate_;
+    /**
+     * Флаг указывает что объект находится в состоянии отложенного закрытия. Как только будут закрыты все ссылки
+     * на объект, он будет закрыт.
+     */
+    protected long closeTimeStamp_ = OPENED;
+    /**
+     * Счётчик использований.
+     */
+    protected int usageCounter_ = 0;
+
+    /**
+     * @param closeDelegate Ссылка на метод объекта, делегирующего управление закрытием.
+     */
+    protected LazyClosingDirectorBase(FailableProcedure closeDelegate) {
+        closeDelegate_ = Objects.requireNonNull(closeDelegate, "closeDelegate");
+    }
+
+    /**
+     * Возвращает фьючерс, указывающий на факт закрытия объекта.
+     *
+     * @return Фьючерс
+     */
+    public Future<Void> getLazyCloseFuture() {
+        return lazyCloseFuture_;
+    }
+
+    /**
+     * Возвращает время начала отложенного закрытия.
+     *
+     * @return {@code -1}, если объект не помечен к закрытию, иначе число миллисекунд.
+     */
+    public long getLazyCloseTimeMills() {
+        return closeTimeStamp_;
+    }
+
+    /**
+     * Возвращает значение флага, указывающего на необходимость закрытия объекта после уменьшения числа
+     * использований до "0".
+     *
+     * @return true, если объект предназначен к закрытию, иначе false.
+     */
+    public boolean isLazyClose() {
+        return closeTimeStamp_ != OPENED;
+    }
+
+    /**
+     * Возвращает число использований.
+     *
+     * @return число использований
+     */
+    public int getUsageCount() {
+        return usageCounter_;
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return {@inheritDoc}
+     */
+    public int incUsageCount() {
+        // Allow increment usages if `closeAsync()` was called but `usageCounter_ > 0`.
+        if (closeTimeStamp_ == OPENED || usageCounter_ > 0) {
+            return ++usageCounter_;
+        } else {
+            throw new RuntimeException("Can't acquire closed object.");
+        }
+    }
+
+    /**
+     * {@inheritDoc}
+     *
+     * @return {@inheritDoc}
+     */
+    public int decUsageCount() {
+        if (usageCounter_ == 0) {
+            throw new RuntimeException("Usage counter becomes below zero.");
+        }
+        final int usages = --usageCounter_;
+        if (usageCounter_ == 0 && closeTimeStamp_ != OPENED) {
+            this.doLazyClose();
+        }
+        return usages;
+    }
+
+    /**
+     * Marks the object for lazy closing and returns a stage that completes when closing finishes.
+     *
+     * @return completion stage for the lazy close operation.
+     */
+    public CompletionStage<Void> closeAsync() {
+        boolean needClose = false;
+        if (closeTimeStamp_ == OPENED) {
+            closeTimeStamp_ = System.currentTimeMillis();
+            needClose = usageCounter_ == 0;
+        }
+        if (needClose) {
+            this.doLazyClose();
+        }
+        return lazyCloseFuture_;
+    }
+
+    protected void doLazyClose() {
+        try {
+            closeDelegate_.accept();
+            lazyCloseFuture_.complete(null);
+        } catch (Throwable e) {
+            lazyCloseFuture_.completeExceptionally(e);
+        }
+    }
+
+}

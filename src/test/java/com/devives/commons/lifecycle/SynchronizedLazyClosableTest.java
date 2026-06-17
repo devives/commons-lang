@@ -16,7 +16,7 @@
  */
 package com.devives.commons.lifecycle;
 
-import com.devives.commons.lang.SynchronizedLazyCloseableAbst;
+import com.devives.commons.lang.AbstractSynchronizedLazyCloseable;
 import com.devives.commons.util.usage.OrdinalUsage;
 import com.devives.commons.util.usage.Usage;
 import org.junit.jupiter.api.Assertions;
@@ -40,7 +40,7 @@ public class SynchronizedLazyClosableTest {
     @Test
     public void isClosed_afterIncUsageCount_False() throws Exception {
         SynchronizedLazyCloseableImpl lazyCloseable = new SynchronizedLazyCloseableImpl();
-        try (Usage usage = OrdinalUsage.of(lazyCloseable)) {
+        try (Usage<?> usage = OrdinalUsage.of(lazyCloseable)) {
             lazyCloseable.closeAsync();
             Assertions.assertFalse(lazyCloseable.isClosed());
         }
@@ -49,13 +49,21 @@ public class SynchronizedLazyClosableTest {
     @Test
     public void isClosed_afterDecUsageCount_True() throws Exception {
         SynchronizedLazyCloseableImpl lazyCloseable = new SynchronizedLazyCloseableImpl();
-        try (Usage usage = OrdinalUsage.of(lazyCloseable)) {
+        try (Usage<?> usage = OrdinalUsage.of(lazyCloseable)) {
             lazyCloseable.closeAsync();
         }
         Assertions.assertTrue(lazyCloseable.isClosed());
     }
 
-    private static class SynchronizedLazyCloseableImpl extends SynchronizedLazyCloseableAbst {
+    private static class SynchronizedLazyCloseableImpl extends AbstractSynchronizedLazyCloseable {
+
+        private int someValue = 1;
+
+        public int someFunction() {
+            return getStateHolder().performAtomicWork(() -> someValue);
+
+        }
+
 
         @Override
         protected void onClose() throws Exception {

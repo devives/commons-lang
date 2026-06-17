@@ -17,49 +17,26 @@
 package com.devives.commons.lang;
 
 import com.devives.commons.lang.function.FailableProcedure;
-import com.devives.commons.util.usage.UsageCounter;
 
-import java.io.Serializable;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
-import java.util.concurrent.Future;
 
 /**
  * Класс реализует функциональность подсчёта использований и отложенного закрытия объекта.
  * <p>
  * Принимает в качестве аргумента конструктора, ссылку на метод объекта, делегирующего управление своим закрытием.
  */
-public class SynchronizedLazyClosingDirector implements UsageCounter, Serializable {
+public final class SynchronizedLazyClosingDirector extends LazyClosingDirectorBase {
     private static final long serialVersionUID = 1L;
-    private static final long OPENED = 0;
-    /**
-     * Фьючерс закрытия объекта.
-     */
-    private final CompletableFuture<Void> lazyCloseFuture_ = new CompletableFuture<>();
-    /**
-     * Этот метод будет вызван при выполнении условия: счётчик использований равен "0" и вызван метод {@link #closeAsync()}.
-     */
-    private final FailableProcedure closeDelegate_;
     /**
      * Синхронизирует доступ к полям {@link #closeTimeStamp_} и {@link #usageCounter_}.
      */
     private final Object lock_ = new Object();
-    /**
-     * Флаг указывает что объект находится в состоянии отложенного закрытия. Как только будут закрыты все ссылки
-     * на объект, он будет закрыт.
-     */
-    private long closeTimeStamp_ = OPENED;
-    /**
-     * Счётчик использований.
-     */
-    private int usageCounter_ = 0;
 
     /**
      * @param closeDelegate Ссылка на метод объекта, делегирующего управление закрытием.
      */
     public SynchronizedLazyClosingDirector(FailableProcedure closeDelegate) {
-        closeDelegate_ = Objects.requireNonNull(closeDelegate, "closeDelegate");
+        super(closeDelegate);
     }
 
     /**
@@ -83,15 +60,6 @@ public class SynchronizedLazyClosingDirector implements UsageCounter, Serializab
         synchronized (lock_) {
             return closeTimeStamp_ != OPENED;
         }
-    }
-
-    /**
-     * Возвращает фьючерс, указывающий на факт закрытия объекта.
-     *
-     * @return Фьючерс
-     */
-    public Future<Void> getLazyCloseFuture() {
-        return lazyCloseFuture_;
     }
 
     /**
@@ -161,15 +129,6 @@ public class SynchronizedLazyClosingDirector implements UsageCounter, Serializab
             this.doLazyClose();
         }
         return lazyCloseFuture_;
-    }
-
-    private void doLazyClose() {
-        try {
-            closeDelegate_.accept();
-            lazyCloseFuture_.complete(null);
-        } catch (Throwable e) {
-            lazyCloseFuture_.completeExceptionally(e);
-        }
     }
 
 }

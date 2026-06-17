@@ -16,6 +16,7 @@
  */
 package com.devives.commons.state;
 
+import com.devives.commons.lang.ExceptionUtils;
 import com.devives.commons.lang.function.FailableFunction;
 import com.devives.commons.lang.function.FailableProcedure;
 
@@ -86,16 +87,16 @@ public class SynchronizedStateHolderImpl<STATE> extends StateHolderImpl<STATE> i
     }
 
     @Override
-    public final void performAtomicWork(FailableProcedure procedure) throws Exception {
+    public final void performAtomicWork(FailableProcedure procedure) {
         synchronized (mutex) {
-            procedure.accept();
+            ExceptionUtils.passChecked(procedure);
         }
     }
 
     @Override
-    public final <R> R performAtomicWork(FailableFunction<R> function) throws Exception {
+    public final <R> R performAtomicWork(FailableFunction<R> function) {
         synchronized (mutex) {
-            return function.apply();
+            return ExceptionUtils.passChecked(function);
         }
     }
 

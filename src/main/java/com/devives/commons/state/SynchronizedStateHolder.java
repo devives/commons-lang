@@ -28,9 +28,8 @@ public interface SynchronizedStateHolder<STATE> extends StateHolder<STATE> {
      * Execute an anonymous method in {@code synchronized} code block.
      *
      * @param procedure anonymous method
-     * @throws Exception thrown from anonymous method.
      */
-    void performAtomicWork(FailableProcedure procedure) throws Exception;
+    void performAtomicWork(FailableProcedure procedure);
 
     /**
      * Execute an anonymous method in {@code synchronized} code block.
@@ -38,7 +37,6 @@ public interface SynchronizedStateHolder<STATE> extends StateHolder<STATE> {
      * @param function anonymous method.
      * @param <R>      type of anonymous method result.
      * @return result of anonymous method.
-     * @throws Exception thrown from anonymous method.
      */
-    <R> R performAtomicWork(FailableFunction<R> function) throws Exception;
+    <R> R performAtomicWork(FailableFunction<R> function);
 }

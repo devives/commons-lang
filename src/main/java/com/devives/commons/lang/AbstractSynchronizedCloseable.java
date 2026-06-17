@@ -26,7 +26,7 @@ import java.util.concurrent.CompletableFuture;
 /**
  * An abstract, thread-safe, implementation of a closable resource.
  */
-public abstract class SynchronizedCloseableAbst extends CloseableBaseAbst {
+public abstract class AbstractSynchronizedCloseable extends CloseableBase {
     private static final long serialVersionUID = 1L;
 
     /**
@@ -36,11 +36,11 @@ public abstract class SynchronizedCloseableAbst extends CloseableBaseAbst {
      */
     private CompletableFuture<Void> closeFuture_;
 
-    public SynchronizedCloseableAbst() {
+    public AbstractSynchronizedCloseable() {
         this(OPENED);
     }
 
-    public SynchronizedCloseableAbst(State initialState) {
+    public AbstractSynchronizedCloseable(State initialState) {
         super(new SynchronizedStateHolderImpl<>(initialState));
     }
 

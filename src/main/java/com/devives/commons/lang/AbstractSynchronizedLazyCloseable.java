@@ -19,17 +19,18 @@ package com.devives.commons.lang;
 
 import com.devives.commons.state.State;
 import com.devives.commons.state.StateHolder;
-import com.devives.commons.state.StateHolderImpl;
+import com.devives.commons.state.SynchronizedStateHolder;
+import com.devives.commons.state.SynchronizedStateHolderImpl;
 import com.devives.commons.util.usage.UsageCounter;
 
 import java.util.concurrent.CompletionStage;
 
-public abstract class SynchronizedLazyCloseableAbst extends CloseableBaseAbst implements UsageCounter {
+public abstract class AbstractSynchronizedLazyCloseable extends CloseableBase implements UsageCounter {
     private static final long serialVersionUID = 1L;
     protected final SynchronizedLazyClosingDirector lazyClosingDirector_ = new SynchronizedLazyClosingDirector(this::lazyClose);
 
-    public SynchronizedLazyCloseableAbst() {
-        super(new StateHolderImpl<>(OPENED));
+    public AbstractSynchronizedLazyCloseable() {
+        super(new SynchronizedStateHolderImpl<>(OPENED));
     }
 
     @Override
@@ -42,8 +43,13 @@ public abstract class SynchronizedLazyCloseableAbst extends CloseableBaseAbst im
         return lazyClosingDirector_.decUsageCount();
     }
 
-    public CompletionStage<Void> closeAsync() {
+    public final CompletionStage<Void> closeAsync() {
         return lazyClosingDirector_.closeAsync();
+    }
+
+    @Override
+    protected SynchronizedStateHolder<State> getStateHolder() {
+        return (SynchronizedStateHolder<State>) super.getStateHolder();
     }
 
     private void lazyClose() throws Exception {

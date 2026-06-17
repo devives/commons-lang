@@ -17,8 +17,8 @@
 package com.devives.commons.lifecycle;
 
 import com.devives.commons.Task;
+import com.devives.commons.lang.AbstractSynchronizedCloseable;
 import com.devives.commons.lang.ExceptionUtils;
-import com.devives.commons.lang.SynchronizedCloseableAbst;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -76,7 +76,7 @@ public class SynchronizedCloseableObjTest {
         }
     }
 
-    private static class TestCloseableObj extends SynchronizedCloseableAbst {
+    private static class TestCloseableObj extends AbstractSynchronizedCloseable {
 
         private final AtomicLong callCounter_ = new AtomicLong();
 

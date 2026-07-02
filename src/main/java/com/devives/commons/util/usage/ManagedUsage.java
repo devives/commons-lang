@@ -19,6 +19,7 @@ package com.devives.commons.util.usage;
 import com.devives.commons.lang.function.FailableConsumer;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Basic implementation of {@link Usage}.
@@ -29,6 +30,7 @@ final class ManagedUsage<T> implements Usage<T> {
 
     private final T instance_;
     private final FailableConsumer<T> releaseCallback_;
+    private final AtomicBoolean closed_ = new AtomicBoolean(false);
 
     /**
      * The constructor.
@@ -41,18 +43,24 @@ final class ManagedUsage<T> implements Usage<T> {
         releaseCallback_ = Objects.requireNonNull(releaseCallback);
     }
 
-    /**
-     * Returns a reference to the captured instance.
-     *
-     * @return the instance.
-     */
     public T get() {
         return instance_;
     }
 
+    public boolean isClosed() {
+        return closed_.get();
+    }
+
     @Override
     public void close() throws Exception {
-        releaseCallback_.accept(instance_);
+        if (closed_.compareAndSet(false, true)) {
+            try {
+                releaseCallback_.accept(instance_);
+            } catch (Throwable e) {
+                closed_.set(false);
+                throw e;
+            }
+        }
     }
 
 }

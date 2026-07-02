@@ -19,16 +19,18 @@ package com.devives.commons.util.usage;
 import com.devives.commons.lang.function.FailableProcedure;
 
 import java.util.Objects;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Abstract implementation of {@link Usage}.
  *
  * @param <T> The type of the instance to which a reference is obtained.
  */
-abstract class UsageAbst<T> implements Usage<T> {
+abstract class UsageAbst<T> {
 
     private final T instance_;
     private final FailableProcedure releaseCallback_;
+    protected final AtomicBoolean closed_ = new AtomicBoolean(false);
 
     /**
      * The constructor.
@@ -41,18 +43,23 @@ abstract class UsageAbst<T> implements Usage<T> {
         releaseCallback_ = Objects.requireNonNull(releaseCallback);
     }
 
-    /**
-     * Returns a reference to the captured instance.
-     *
-     * @return the instance.
-     */
     public T get() {
         return instance_;
     }
 
-    @Override
+    public boolean isClosed() {
+        return closed_.get();
+    }
+
     public void close() throws Exception {
-        releaseCallback_.accept();
+        if (closed_.compareAndSet(false, true)) {
+            try {
+                releaseCallback_.accept();
+            } catch (Throwable e) {
+                closed_.set(false);
+                throw e;
+            }
+        }
     }
 
 }

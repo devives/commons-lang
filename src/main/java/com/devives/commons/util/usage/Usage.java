@@ -40,6 +40,13 @@ public interface Usage<T> extends AutoCloseable {
     T get();
 
     /**
+     * Signals that method {@link #close()} was called.
+     *
+     * @return true, if closed, overwise false.
+     */
+    boolean isClosed();
+
+    /**
      * Instantiate an new instance of {@link Usage}.
      *
      * @param instance an instance of used object

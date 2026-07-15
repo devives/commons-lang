@@ -34,7 +34,15 @@ public abstract class AbstractSynchronizedCloseable extends CloseableBase {
      * <p>
      * Read/Write is synchronized.
      */
-    private CompletableFuture<Void> closeFuture_;
+    private transient CompletableFuture<Void> closeFuture_;
+
+    /**
+     * The thread currently performing the close.
+     * <p>
+     * Used to detect a recursive {@code #close()} call within the closing thread and avoid
+     * self-deadlock on {@link #closeFuture_}. It is cleared outside the mutex, hence {@code volatile}.
+     */
+    private transient volatile Thread closingThread_;
 
     public AbstractSynchronizedCloseable() {
         this(OPENED);
@@ -63,11 +71,16 @@ public abstract class AbstractSynchronizedCloseable extends CloseableBase {
         final Tuple2<Boolean, CompletableFuture<Void>> tuple2 = stateHolder.performAtomicWork(() -> {
             if (!stateHolder.isExpected(CLOSING, CLOSED) && canBeClosed()) {
                 stateHolder.set(CLOSING);
-                closeFuture_ = new CompletableFuture<>();
-                return Tuple2.of(true, closeFuture_);
+                CompletableFuture<Void> closeFuture = new CompletableFuture<>();
+                closingThread_ = Thread.currentThread();
+                closeFuture_ = closeFuture;
+                return Tuple2.of(true, closeFuture);
+            } else if (closingThread_ == Thread.currentThread()) {
+                // Recursive close() within the closing thread: the outer frame will finish the close.
+                return Tuple2.of(false, CompletableFuture.completedFuture(null));
             } else {
-                CompletableFuture<Void> closeFuture = closeFuture_ != null ? closeFuture_ : CompletableFuture.completedFuture(null);
-                return Tuple2.of(false, closeFuture);
+                CompletableFuture<Void> closeFuture = closeFuture_;
+                return Tuple2.of(false, closeFuture != null ? closeFuture : CompletableFuture.completedFuture(null));
             }
         });
         final boolean performClose = tuple2._1;
@@ -78,6 +91,7 @@ public abstract class AbstractSynchronizedCloseable extends CloseableBase {
                     doClose();
                 } finally {
                     stateHolder.set(CLOSED);
+                    closingThread_ = null;
                 }
             } catch (Throwable e) {
                 closeFuture.completeExceptionally(e);

@@ -21,6 +21,7 @@ import com.devives.commons.lang.AbstractSynchronizedCloseable;
 import com.devives.commons.lang.ExceptionUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,6 +56,39 @@ public class SynchronizedCloseableObjTest {
             taskList.forEach(Task::printStatistic);
         }
         Assertions.assertEquals(1, testCloseableObj.getCallCount());
+    }
+
+    /**
+     * A recursive {@code close()} call within the closing thread must not deadlock and must
+     * perform the actual close exactly once.
+     */
+    @Test
+    @Timeout(5)
+    public void recursiveClose_doesNotDeadlock() throws Exception {
+        RecursiveCloseableObj obj = new RecursiveCloseableObj();
+        obj.close();
+        Assertions.assertTrue(obj.isClosed());
+        Assertions.assertEquals(1, obj.getCallCount());
+    }
+
+    private static class RecursiveCloseableObj extends AbstractSynchronizedCloseable {
+
+        private final AtomicLong callCounter_ = new AtomicLong();
+        private boolean reentered_ = false;
+
+        @Override
+        protected void onClose() throws Exception {
+            callCounter_.incrementAndGet();
+            if (!reentered_) {
+                reentered_ = true;
+                // Recursive call in the same thread; must return without deadlocking.
+                close();
+            }
+        }
+
+        public long getCallCount() {
+            return callCounter_.get();
+        }
     }
 
     private static class TaskClose extends Task {

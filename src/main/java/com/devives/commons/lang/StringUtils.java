@@ -62,6 +62,16 @@ public final class StringUtils {
     }
 
     /**
+     * Возвращает длину последовательности символов.
+     *
+     * @param cs последовательность символов
+     * @return длина или "0", если строка == {@code null}.
+     */
+    public static int length(final CharSequence cs) {
+        return cs == null ? 0 : cs.length();
+    }
+
+    /**
      * Проверяет последовательность на равенство Null и пустой последовательности
      *
      * @param cs последовательность символов
@@ -70,6 +80,26 @@ public final class StringUtils {
     public static boolean isEmpty(CharSequence cs) {
         return cs == null || cs.length() == 0;
     }
+
+    /**
+     * Проверяет, что строка null, пустая или состоит из пробелов.
+     *
+     * @param cs последовательность символов
+     * @return true, если строка null, пустая или состоит из пробелов, иначе false.
+     */
+    public static boolean isBlank(final CharSequence cs) {
+        final int strLen = length(cs);
+        if (strLen == 0) {
+            return true;
+        }
+        for (int i = 0; i < strLen; i++) {
+            if (!Character.isWhitespace(cs.charAt(i))) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 
     /**
      * Проверяет последовательность на НЕ равенство Null и пустой последовательности
@@ -190,15 +220,43 @@ public final class StringUtils {
      * Проверяет значение на не равенство `null` и `пустой строке`.
      *
      * @param value   значение
-     * @param message сообщение исключения
-     * @return значение
+     * @param message текст сообщения об ошибке {@link String#format(String, Object...)}.
+     * @param args    аргументы сообщения об ошибке {@link String#format(String, Object...)}.
+     * @return переданное значение
      * @throws NullPointerException если значение `null'
      * @throws EmptyStringException если значение == `пустая строка`
      */
-    public static String requireNonEmpty(String value, String message) {
-        Objects.requireNonNull(value, message);
+    public static String requireNonEmpty(String value, String message, Object... args) {
+        Objects.requireNonNull(value, String.format(message, args));
         if (value.isEmpty()) {
             throw new EmptyStringException(message);
+        }
+        return value;
+    }
+
+    /**
+     * Проверяет значение на не равенство `null`, `пустой строке` и `строке, состоящей из пробелов`.
+     *
+     * @param value строка
+     * @return переданная срока
+     * @throws IllegalArgumentException если строка не удовлетворяет требованиям метода.
+     */
+    public static String requireNonBlank(String value) {
+        return requireNonBlank(value, "The 'value' must be not null or empty or blank.");
+    }
+
+    /**
+     * Проверяет значение на не равенство `null`, `пустой строке` и `строке, состоящей из пробелов`.
+     *
+     * @param value   значение
+     * @param message текст сообщения об ошибке {@link String#format(String, Object...)}.
+     * @param args    аргументы сообщения об ошибке {@link String#format(String, Object...)}.
+     * @return переданная срока
+     * @throws IllegalArgumentException если строка не удовлетворяет требованиям метода.
+     */
+    public static String requireNonBlank(String value, String message, Object... args) {
+        if (value == null || isBlank(value)) {
+            throw new IllegalArgumentException(String.format(message, args));
         }
         return value;
     }
@@ -440,7 +498,7 @@ public final class StringUtils {
      * @return результирующая строка
      */
     public static String decapitalize(String str) {
-        if (str == null || str.length() == 0) {
+        if (str == null || str.isEmpty()) {
             return str;
         }
         char c[] = str.toCharArray();
@@ -455,7 +513,7 @@ public final class StringUtils {
      * @return результирующая строка
      */
     public static String capitalize(String str) {
-        if (str == null || str.length() == 0) {
+        if (str == null || str.isEmpty()) {
             return str;
         }
         char c[] = str.toCharArray();

@@ -65,6 +65,21 @@ public class Validate {
     /**
      * Validate that the specified primitive value is greater than specified bound; otherwise, throws an exception.
      *
+     * @param value значение.
+     * @param bound граница.
+     * @return the validated value.
+     * @throws IllegalArgumentException if value is lower than or equal bound.
+     */
+    public static long greater(long value, long bound) {
+        if (value <= bound) {
+            throw new IllegalArgumentException(getMessage(DEFAULT_GREATER_MESSAGE, "", bound, value));
+        }
+        return value;
+    }
+
+    /**
+     * Validate that the specified primitive value is greater than specified bound; otherwise, throws an exception.
+     *
      * @param value   значение.
      * @param bound   граница.
      * @param message the {@link String#format(String, Object...)} exception message if invalid, not null

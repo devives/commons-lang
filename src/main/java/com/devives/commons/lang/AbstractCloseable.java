@@ -21,7 +21,19 @@ import com.devives.commons.state.StateHolder;
 import com.devives.commons.state.StateHolderImpl;
 
 /**
- * An abstract, thread-unsafe, implementation of a closable resource.
+ * An abstract implementation of a closable resource with lifecycle state management.
+ * <p>
+ * Subclasses implement {@link #onClose()} to release resources. The framework guarantees
+ * that {@code onClose()} is called exactly once when {@link #close()} is invoked.
+ * </p>
+ * <p>
+ * This class is NOT thread-safe. Concurrent calls to {@link #close()} are guarded by state
+ * checks (only one transition from {@code OPENED} to {@code CLOSING} is allowed), but
+ * subclasses must ensure that their {@code onClose()} implementation does not access shared
+ * mutable state from multiple threads.
+ * </p>
+ *
+ * @since 0.3.0
  */
 public abstract class AbstractCloseable extends CloseableBase {
     private static final long serialVersionUID = 1L;

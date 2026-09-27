@@ -19,7 +19,7 @@ package com.devives.commons.listener;
 /**
  * The class caches the listener array when calling {@link CachedListeners#toArray()} to avoid frequent
  * conversion of the listener collection to an array. The cache is reset when calling the {@link #add},
- * {@link #remove} or {@link #clear} methods.
+ * {@link #remove} or {@link #clear} or {@link #invalidateCachedArray} methods.
  *
  * @param <I> the type of listener.
  *
@@ -41,7 +41,7 @@ public final class CachedListeners<I> extends ListenersWrapper<I> {
      */
     @Override
     public void add(I item) {
-        array_ = null;
+        invalidateCachedArray();
         listeners_.add(item);
     }
 
@@ -50,7 +50,7 @@ public final class CachedListeners<I> extends ListenersWrapper<I> {
      */
     @Override
     public void addFirst(I item) {
-        array_ = null;
+        invalidateCachedArray();
         listeners_.addFirst(item);
     }
 
@@ -59,7 +59,7 @@ public final class CachedListeners<I> extends ListenersWrapper<I> {
      */
     @Override
     public void addBefore(I item, I prior) {
-        array_ = null;
+        invalidateCachedArray();
         listeners_.addBefore(item, prior);
     }
 
@@ -68,7 +68,7 @@ public final class CachedListeners<I> extends ListenersWrapper<I> {
      */
     @Override
     public void addAfter(I item, I next) {
-        array_ = null;
+        invalidateCachedArray();
         listeners_.addAfter(item, next);
     }
 
@@ -85,7 +85,7 @@ public final class CachedListeners<I> extends ListenersWrapper<I> {
      */
     @Override
     public void remove(I item) {
-        array_ = null;
+        invalidateCachedArray();
         listeners_.remove(item);
     }
 
@@ -94,8 +94,18 @@ public final class CachedListeners<I> extends ListenersWrapper<I> {
      */
     @Override
     public void clear() {
-        array_ = null;
+        invalidateCachedArray();
         listeners_.clear();
+    }
+
+    /**
+     * Discards the cached array so that the next {@link #toArray()} rebuilds it from the wrapped listeners.
+     * <p>
+     * Must be called after any modification of the wrapped {@link Listeners} that was not performed through
+     * this instance, otherwise {@link #toArray()} keeps returning the stale array.
+     */
+    public void invalidateCachedArray() {
+        array_ = null;
     }
 
     /**

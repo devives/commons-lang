@@ -16,28 +16,10 @@
  */
 package com.devives.commons.state;
 
-import java.io.Serializable;
-import java.util.Objects;
+public class StateHolderImplTest extends StateHolderContractTest {
 
-/**
- * Однопоточная реализация хранителя состояний объекта.
- *
- * @param <STATE> Тип экземпляров состояний.
- */
-public class StateHolderImpl<STATE> extends StateHolderBase<STATE> implements Serializable {
-    private static final long serialVersionUID = 1L;
-    private STATE state_;
-
-    public StateHolderImpl(STATE initialState) {
-        state_ = Objects.requireNonNull(initialState, "initialState");
+    @Override
+    protected StateHolder<String> newHolder(String initialState) {
+        return new StateHolderImpl<>(initialState);
     }
-
-    protected final STATE internalGet() {
-        return state_;
-    }
-
-    protected final void internalSet(STATE state) {
-        state_ = Objects.requireNonNull(state, "state");
-    }
-
 }

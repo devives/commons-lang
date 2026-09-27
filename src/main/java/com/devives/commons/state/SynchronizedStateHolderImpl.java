@@ -20,81 +20,96 @@ import com.devives.commons.lang.ExceptionUtils;
 import com.devives.commons.lang.function.FailableFunction;
 import com.devives.commons.lang.function.FailableProcedure;
 
+import java.util.Objects;
 import java.util.function.Function;
 
-public class SynchronizedStateHolderImpl<STATE> extends StateHolderImpl<STATE> implements SynchronizedStateHolder<STATE> {
+/**
+ * Потокобезопасная реализация хранителя состояний объекта.
+ *
+ * @param <STATE> Тип экземпляров состояний.
+ */
+public class SynchronizedStateHolderImpl<STATE> extends StateHolderBase<STATE> implements SynchronizedStateHolder<STATE> {
     private static final long serialVersionUID = 1L;
+    private final Object mutex = new Object();
+    private volatile STATE state_;
 
     public SynchronizedStateHolderImpl(STATE initialState) {
-        super(initialState);
+        state_ = Objects.requireNonNull(initialState, "initialState");
     }
-    private final Object mutex = new Object();
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Reads the {@code volatile} field without acquiring the mutex, so this call is never blocked by a
+     * concurrent write or by {@code performAtomicWork} in another thread.
+     */
     @Override
-    public STATE get() {
-        synchronized (mutex) {
-            return super.get();
-        }
+    protected final STATE internalGet() {
+        return state_;
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Writes the {@code volatile} field. The mutex is not acquired here: the callers requiring mutual
+     * exclusion ({@link #set(Object)}, {@link #trySet(Object, Object)}) wrap this call in
+     * {@code performAtomicWork}.
+     */
+    @Override
+    protected final void internalSet(STATE state) {
+        state_ = Objects.requireNonNull(state, "state");
+    }
+
+    /**
+     * {@inheritDoc}
+     * <p>
+     * Acquires the mutex, therefore the call may be blocked by a concurrent write or by
+     * {@code performAtomicWork} of another thread. The call is reentrant.
+     */
     @Override
     public void set(STATE value) {
-        synchronized (mutex) {
-            super.set(value);
-        }
+        performAtomicWork(() -> super.set(value));
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * The comparison and the write are performed in one critical section, so no other thread can change
+     * the state between them. The call may be blocked by a concurrent write or by
+     * {@code performAtomicWork} of another thread, and is reentrant.
+     */
     @Override
     public boolean trySet(STATE expected, STATE value) {
-        synchronized (mutex) {
-            return super.trySet(expected, value);
-        }
+        return performAtomicWork(() -> super.trySet(expected, value));
     }
 
+    /**
+     * {@inheritDoc}
+     * <p>
+     * The comparison and the write are performed in one critical section, so no other thread can change
+     * the state between them. The call may be blocked by a concurrent write or by
+     * {@code performAtomicWork} of another thread, and is reentrant.
+     */
     @Override
     public boolean trySet(STATE[] expected, STATE value) {
-        synchronized (mutex) {
-            return super.trySet(expected, value);
-        }
+        return performAtomicWork(() -> super.trySet(expected, value));
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public boolean isExpected(STATE... expected) {
-        synchronized (mutex) {
-            return super.isExpected(expected);
-        }
-    }
-
-    @Override
-    public void validate(STATE... expected) {
-        synchronized (mutex) {
-            super.validate(expected);
-        }
-    }
-
-    @Override
-    public <E extends InvalidStateException> void validate(STATE expected, Function<STATE, E> exceptionSupplier) throws E {
-        synchronized (mutex) {
-            super.validate(expected, exceptionSupplier);
-        }
-    }
-
-    @Override
-    public <E extends InvalidStateException> void validate(STATE[] expected, Function<STATE, E> exceptionSupplier) throws E {
-        synchronized (mutex) {
-            super.validate(expected, exceptionSupplier);
-        }
-    }
-
-    @Override
-    public final void performAtomicWork(FailableProcedure procedure) {
+    public void performAtomicWork(FailableProcedure procedure) {
         synchronized (mutex) {
             ExceptionUtils.passChecked(procedure);
         }
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
-    public final <R> R performAtomicWork(FailableFunction<R> function) {
+    public <R> R performAtomicWork(FailableFunction<R> function) {
         synchronized (mutex) {
             return ExceptionUtils.passChecked(function);
         }

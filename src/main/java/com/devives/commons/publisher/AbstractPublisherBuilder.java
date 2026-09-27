@@ -57,6 +57,12 @@ public abstract class AbstractPublisherBuilder<I, B, SELF extends AbstractPublis
 
     /**
      * Enables checking the presence of a listener in the collection {@link Publisher#getListeners()}, before calling the handler.
+     * <p>
+     * The check is performed by {@link Listeners#contains(Object)}, so a listener is treated as still registered
+     * when the collection holds an element {@code equals} to it, not necessarily the very same instance. With
+     * {@code equals}-equivalent listeners registered, an unsubscribed instance keeps receiving events while any of
+     * its equivalents remains registered. Combine with
+     * {@link ListenersBuilder#setDistinct()} to make such a registration impossible.
      *
      * @param value new value.
      * @return this builder.
@@ -71,6 +77,7 @@ public abstract class AbstractPublisherBuilder<I, B, SELF extends AbstractPublis
      *
      * @return this builder.
      *
+     * @see #setListenerPresenceCheck(boolean)
      * @since 0.2.0
      */
     public SELF setListenerPresenceCheck() {

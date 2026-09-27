@@ -50,18 +50,18 @@ public final class IndependentDistributor<I> extends AbstractDistributor<I> {
      * Delivers events to all valid listeners, collecting any exceptions into an {@link AggregateException}.
      *
      * @param consumer the operation to apply to each listener (non-null)
-     * @param listeners the listener collection (non-null)
+     * @param listeners the listener mutable collection (non-null)
      */
     @Override
     protected void doDistribution(Consumer<I> consumer, Listeners<I> listeners) {
-        List<Exception> exceptionList = null;
+        List<Throwable> exceptionList = null;
         Object[] listenerArray = listeners.toArray();
         for (Object oListener : listenerArray) {
             try {
                 if (isListenerPresent((I) oListener, listeners)) {
                     consumer.accept((I) oListener);
                 }
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 if (exceptionList == null) {
                     exceptionList = new ArrayList<>();
                 }

@@ -27,7 +27,7 @@ import java.util.function.Consumer;
 /**
  * Abstract {@link Publisher} builder.
  */
-public abstract class AbstractPublisherBuilder<I, B, SELF extends AbstractPublisherBuilder> {
+public abstract class AbstractPublisherBuilder<I, B, SELF extends AbstractPublisherBuilder<I, B, SELF>> {
 
     /**
      * The default error handler witch throw an exception.

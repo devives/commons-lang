@@ -40,7 +40,7 @@ public final class DefaultDistributor<I> extends AbstractDistributor<I> {
      *        (non-null, typically checks {@link Listeners#contains(Object)})
      * @param errorHandler consumer that processes exceptions during distribution (non-null)
      */
-    public DefaultDistributor(BiPredicate<I, Listeners<I>> listenerPresenceChecker, Consumer<Exception> errorHandler) {
+    public DefaultDistributor(BiPredicate<I, Listeners<I>> listenerPresenceChecker, Consumer<Throwable> errorHandler) {
         super(listenerPresenceChecker, errorHandler);
     }
 

@@ -42,7 +42,7 @@ public final class IndependentDistributor<I> extends AbstractDistributor<I> {
      * @param listenerPresenceChecker predicate to validate listeners before notification (non-null)
      * @param errorHandler consumer to process all encountered exceptions (non-null)
      */
-    public IndependentDistributor(BiPredicate<I, Listeners<I>> listenerPresenceChecker, Consumer<Exception> errorHandler) {
+    public IndependentDistributor(BiPredicate<I, Listeners<I>> listenerPresenceChecker, Consumer<Throwable> errorHandler) {
         super(listenerPresenceChecker, errorHandler);
     }
 

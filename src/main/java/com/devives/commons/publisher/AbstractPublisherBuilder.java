@@ -32,14 +32,14 @@ public abstract class AbstractPublisherBuilder<I, B, SELF extends AbstractPublis
     /**
      * The default error handler witch throw an exception.
      */
-    private static final Consumer<Exception> DEFAULT_ERROR_HANDLER = (exception) -> {
-        throw ExceptionUtils.asUnchecked(exception);
+    private static final Consumer<Throwable> DEFAULT_ERROR_HANDLER = (throwable) -> {
+        throw ExceptionUtils.asUnchecked(throwable);
     };
 
     private final ListenersBuilder<I> listenersBuilder_ = Listeners.builder();
     private boolean listenerPresenceCheck_ = false;
     private boolean independentDelivery_ = false;
-    private Consumer<Exception> errorHandler_ = DEFAULT_ERROR_HANDLER;
+    private Consumer<Throwable> errorHandler_ = DEFAULT_ERROR_HANDLER;
 
     protected AbstractPublisherBuilder() {
     }
@@ -114,7 +114,7 @@ public abstract class AbstractPublisherBuilder<I, B, SELF extends AbstractPublis
      * @param errorHandler error handler.
      * @return this builder.
      */
-    public SELF setErrorHandler(Consumer<Exception> errorHandler) {
+    public SELF setErrorHandler(Consumer<Throwable> errorHandler) {
         errorHandler_ = Objects.requireNonNull(errorHandler);
         return (SELF) this;
     }

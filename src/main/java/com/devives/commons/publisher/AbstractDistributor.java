@@ -16,6 +16,7 @@
  */
 package com.devives.commons.publisher;
 
+import com.devives.commons.lang.call.Try;
 import com.devives.commons.listener.Listeners;
 
 import java.util.Objects;
@@ -29,7 +30,7 @@ import java.util.function.Consumer;
  */
 public abstract class AbstractDistributor<I> implements Distributor<I> {
     private final BiPredicate<I, Listeners<I>> listenerPresenceChecker_;
-    private final Consumer<Exception> errorHandler_;
+    private final Consumer<Throwable> errorHandler_;
 
     /**
      * Constructs a new AbstractDistributor with the specified listener presence checker and error handler.
@@ -37,7 +38,7 @@ public abstract class AbstractDistributor<I> implements Distributor<I> {
      * @param listenerPresenceChecker the listener presence checker.
      * @param errorHandler the error handler.
      */
-    protected AbstractDistributor(BiPredicate<I, Listeners<I>> listenerPresenceChecker, Consumer<Exception> errorHandler) {
+    protected AbstractDistributor(BiPredicate<I, Listeners<I>> listenerPresenceChecker, Consumer<Throwable> errorHandler) {
         listenerPresenceChecker_ = Objects.requireNonNull(listenerPresenceChecker);
         errorHandler_ = Objects.requireNonNull(errorHandler);
     }
@@ -60,11 +61,9 @@ public abstract class AbstractDistributor<I> implements Distributor<I> {
      */
     @Override
     public final void distribute(Consumer<I> consumer, Listeners<I> listeners) {
-        try {
-            doDistribution(consumer, listeners);
-        } catch (Exception exception) {
-            errorHandler_.accept(exception);
-        }
+        Try.runnable(() -> doDistribution(consumer, listeners))
+                .onCatch(errorHandler_::accept)
+                .run();
     }
 
     /**

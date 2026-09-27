@@ -5,9 +5,9 @@
  * The ASF licenses this file to You under the Apache License, Version 2.0
  * (the "License"); you may not use this file except in compliance with
  * the License.  You may obtain a copy of the License at
- * <p>
- * http://www.apache.org/licenses/LICENSE-2.0
- * <p>
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -145,10 +145,12 @@ public abstract class StateHolderBase<STATE> implements StateHolder<STATE>, Seri
      * @param expected проверяемые/ожидаемые состояния
      * @param <T>      тип экземпляров состояний
      * @return true, если текущее эквивалентно одному из ожидаемых состояний, иначе false.
+     * @throws NullPointerException     если {@code value} равен {@code null}.
+     * @throws IllegalArgumentException если {@code expected} — пустой массив.
      */
     @SafeVarargs
     static protected <T> boolean isActualEqualToExpected(T actual, T... expected) {
-        Validate.notNull(actual, "The actual state is null.");
+        Objects.requireNonNull(actual, "The actual state is null.");
         Validate.notEmpty(expected);
         for (T expectedState : expected) {
             Objects.requireNonNull(expectedState, "The 'null' value in the array of expected states.");
@@ -172,7 +174,6 @@ public abstract class StateHolderBase<STATE> implements StateHolder<STATE>, Seri
     @SafeVarargs
     @Override
     public final void validate(STATE... expected) {
-        Validate.notEmpty(expected);
         STATE actual = internalGet();
         boolean success = isActualEqualToExpected(actual, expected);
         if (!success) {
@@ -195,7 +196,6 @@ public abstract class StateHolderBase<STATE> implements StateHolder<STATE>, Seri
      */
     @Override
     public <E extends InvalidStateException> void validate(STATE expected, Function<STATE, E> exceptionSupplier) throws E {
-        Objects.requireNonNull(expected, "expected");
         STATE actual = internalGet();
         boolean success = StateHolderBase.isActualEqualToExpected(actual, expected);
         if (!success) {
@@ -217,7 +217,6 @@ public abstract class StateHolderBase<STATE> implements StateHolder<STATE>, Seri
      */
     @Override
     public <E extends InvalidStateException> void validate(STATE[] expected, Function<STATE, E> exceptionSupplier) throws E {
-        Validate.notEmpty(expected);
         STATE actual = internalGet();
         boolean success = StateHolderBase.isActualEqualToExpected(actual, expected);
         if (!success) {

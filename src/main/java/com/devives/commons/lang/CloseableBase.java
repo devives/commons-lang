@@ -63,7 +63,6 @@ public abstract class CloseableBase extends Stateful<State> implements Closeable
     /**
      * Method is called before closing the object and makes a decision about whether the object can be closed.
      * <p><strong>Notes.</strong></p>
-     * Do not write long running checks in this method. It will lock other threads, which checking object's state.
      *
      * @return {@code true} if the object can be closed, otherwise {@code false}.
      * @throws Exception if something went wrong.

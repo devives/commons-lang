@@ -21,14 +21,13 @@ import com.devives.commons.lang.function.FailableFunction;
 import com.devives.commons.lang.function.FailableProcedure;
 
 import java.util.Objects;
-import java.util.function.Function;
 
 /**
  * Потокобезопасная реализация хранителя состояний объекта.
  *
  * @param <STATE> Тип экземпляров состояний.
  */
-public class SynchronizedStateHolderImpl<STATE> extends StateHolderBase<STATE> implements SynchronizedStateHolder<STATE> {
+public final class SynchronizedStateHolderImpl<STATE> extends StateHolderBase<STATE> implements SynchronizedStateHolder<STATE> {
     private static final long serialVersionUID = 1L;
     private final Object mutex = new Object();
     private volatile STATE state_;

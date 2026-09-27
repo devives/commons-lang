@@ -24,7 +24,7 @@ import java.util.Objects;
  *
  * @param <STATE> Тип экземпляров состояний.
  */
-public class StateHolderImpl<STATE> extends StateHolderBase<STATE> implements Serializable {
+public final class StateHolderImpl<STATE> extends StateHolderBase<STATE> implements Serializable {
     private static final long serialVersionUID = 1L;
     private STATE state_;
 

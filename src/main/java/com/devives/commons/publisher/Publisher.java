@@ -31,8 +31,7 @@ import java.util.function.Consumer;
  * }</pre>
  *
  * <p><strong>Thread safety.</strong></p>
- * Implementations should be thread-safe for both listener management and event publication,
- * unless explicitly documented otherwise.
+ * Implementations may be thread-safe or not, it depends on implementation.
  *
  * @param <I> the type of listeners managed by this publisher
  *

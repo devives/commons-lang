@@ -33,7 +33,7 @@ import java.util.Optional;
  * @since 0.2.0
  */
 public final class ListenersBuilder<I> {
-    private boolean cached_ = true;
+    private boolean cached_ = false;
     private boolean indexed_ = false;
     private boolean distinct_ = false;
     private boolean synchronized_ = false;

@@ -24,7 +24,7 @@ public class ListenersBuilderTest {
 
     @Test
     public void build_expectedWrappers() throws Exception {
-        Listeners listeners = new ListenersBuilder().build();
+        Listeners listeners = new ListenersBuilder().setCached().build();
         Assertions.assertAll(
                 () -> Assertions.assertNotNull(listeners),
                 () -> Assertions.assertTrue(Wrapper.class.isInstance(listeners)),
@@ -47,7 +47,7 @@ public class ListenersBuilderTest {
 
     @Test
     public void setDistinct_expectedWrappers() throws Exception {
-        Listeners listeners = new ListenersBuilder().setDistinct().build();
+        Listeners listeners = new ListenersBuilder().setCached().setDistinct().build();
         Assertions.assertAll(
                 () -> Assertions.assertNotNull(listeners),
                 () -> Assertions.assertTrue(Wrapper.class.isInstance(listeners)),
@@ -61,7 +61,7 @@ public class ListenersBuilderTest {
 
     @Test
     public void setIndexed_expectedWrappers() throws Exception {
-        Listeners listeners = new ListenersBuilder().setIndexed().build();
+        Listeners listeners = new ListenersBuilder().setCached().setIndexed().build();
         Assertions.assertAll(
                 () -> Assertions.assertNotNull(listeners),
                 () -> Assertions.assertTrue(Wrapper.class.isInstance(listeners)),
@@ -75,7 +75,7 @@ public class ListenersBuilderTest {
 
     @Test
     public void setIndexed_setDistinct_expectedWrappers() throws Exception {
-        Listeners listeners = new ListenersBuilder().setDistinct().setIndexed().build();
+        Listeners listeners = new ListenersBuilder().setCached().setDistinct().setIndexed().build();
         Assertions.assertAll(
                 () -> Assertions.assertNotNull(listeners),
                 () -> Assertions.assertTrue(Wrapper.class.isInstance(listeners)),
@@ -89,7 +89,7 @@ public class ListenersBuilderTest {
 
     @Test
     public void setSynchronized_expectedWrappers() throws Exception {
-        Listeners listeners = new ListenersBuilder().setSynchronized().build();
+        Listeners listeners = new ListenersBuilder().setCached().setSynchronized().build();
         Assertions.assertAll(
                 () -> Assertions.assertNotNull(listeners),
                 () -> Assertions.assertTrue(Wrapper.class.isInstance(listeners)),

@@ -132,9 +132,8 @@ public abstract class StateHolderBase<STATE> implements StateHolder<STATE>, Seri
      * @throws NullPointerException     если {@code expected} равен {@code null} либо содержит {@code null}.
      * @throws IllegalArgumentException если {@code expected} — пустой массив.
      */
-    @SafeVarargs
     @Override
-    public final boolean isExpected(STATE... expected) {
+    public boolean isExpected(STATE... expected) {
         return isActualEqualToExpected(this.internalGet(), expected);
     }
 

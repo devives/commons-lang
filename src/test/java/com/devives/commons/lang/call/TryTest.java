@@ -26,6 +26,122 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class TryTest {
 
+    /**
+     * Контрольный тест: в try-with-resources наружу уходит исключение тела,
+     * а исключение из {@code close()} добавляется к нему как suppressed (JLS 14.20.3.1).
+     */
+    @Test
+    public void tryWithResources_BodyExceptionIsPrimary_CloseExceptionIsSuppressed() {
+        final Exception finalException;
+        try (AutoCloseable resource = () -> {
+            throw new IllegalStateException("close");
+        }) {
+            throw new IOException("body");
+        } catch (Exception e) {
+            finalException = e;
+        }
+        Assertions.assertAll(
+                () -> Assertions.assertInstanceOf(IOException.class, finalException),
+                () -> Assertions.assertEquals("body", finalException.getMessage()),
+                () -> Assertions.assertEquals(1, finalException.getSuppressed().length),
+                () -> Assertions.assertInstanceOf(IllegalStateException.class, finalException.getSuppressed()[0]),
+                () -> Assertions.assertEquals("close", finalException.getSuppressed()[0].getMessage())
+        );
+    }
+
+    /**
+     * Контрольный тест: если тело try-with-resources завершилось нормально, наружу уходит исключение из {@code close()}.
+     */
+    @Test
+    public void tryWithResources_BodyCompletedNormally_CloseExceptionIsThrown() {
+        Exception exception = null;
+        try (AutoCloseable resource = () -> {
+            throw new IllegalStateException("close");
+        }) {
+            // do nothing
+        } catch (Exception e) {
+            exception = e;
+        }
+        final Exception finalException = exception;
+        Assertions.assertAll(
+                () -> Assertions.assertInstanceOf(IllegalStateException.class, finalException),
+                () -> Assertions.assertEquals(0, finalException.getSuppressed().length)
+        );
+    }
+
+    /**
+     * Контрольный тест: исключение из блока {@code finally} полностью заменяет исключение блока {@code try},
+     * исходное исключение теряется (JLS 14.20.2).
+     */
+    @Test
+    @SuppressWarnings("finally")
+    public void tryFinally_FinallyExceptionReplacesTryException() {
+        final Exception finalException;
+        try {
+            try {
+                throw new IOException("try");
+            } finally {
+                throw new IllegalStateException("finally");
+            }
+        } catch (Exception e) {
+            finalException = e;
+        }
+        Assertions.assertAll(
+                () -> Assertions.assertInstanceOf(IllegalStateException.class, finalException),
+                () -> Assertions.assertEquals(0, finalException.getSuppressed().length),
+                () -> Assertions.assertNull(finalException.getCause())
+        );
+    }
+
+    /**
+     * Контрольный тест: исключение из блока {@code catch} заменяет исключение блока {@code try},
+     * исходное исключение не добавляется ни в suppressed, ни в cause (JLS 14.20.1).
+     */
+    @Test
+    public void tryCatch_CatchExceptionReplacesTryException() {
+        final Exception finalException;
+        try {
+            try {
+                throw new IOException("try");
+            } catch (IOException e) {
+                throw new IllegalStateException("catch");
+            }
+        } catch (Exception e) {
+            finalException = e;
+        }
+        Assertions.assertAll(
+                () -> Assertions.assertInstanceOf(IllegalStateException.class, finalException),
+                () -> Assertions.assertEquals(0, finalException.getSuppressed().length),
+                () -> Assertions.assertNull(finalException.getCause())
+        );
+    }
+
+    /**
+     * Контрольный тест: исключения из блоков {@code try}, {@code catch} и {@code finally} — наружу уходит исключение
+     * из {@code finally}, остальные теряются.
+     */
+    @Test
+    @SuppressWarnings("finally")
+    public void tryCatchFinally_FinallyExceptionReplacesCatchException() {
+        final Exception finalException;
+        try {
+            try {
+                throw new IOException("try");
+            } catch (IOException e) {
+                throw new UnsupportedOperationException("catch");
+            } finally {
+                throw new IllegalStateException("finally");
+            }
+        } catch (Exception e) {
+            finalException = e;
+        }
+        Assertions.assertAll(
+                () -> Assertions.assertInstanceOf(IllegalStateException.class, finalException),
+                () -> Assertions.assertEquals(0, finalException.getSuppressed().length),
+                () -> Assertions.assertNull(finalException.getCause())
+        );
+    }
+
     @Test
     public void callable_ThrownThreeNestedExceptions() throws Exception {
         Exception exception = null;

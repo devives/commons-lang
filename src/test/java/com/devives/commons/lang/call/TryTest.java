@@ -147,20 +147,88 @@ public class TryTest {
         Exception exception = null;
         try {
             Long result = Try.<Long>callable(() -> {
-                throw new NullPointerException("1");
+                throw new NullPointerException("try");
             }).onCatch((th) -> {
-                throw new IOException("2");
+                throw new IOException("catch");
             }).doFinally(() -> {
-                throw new IndexOutOfBoundsException("3");
+                throw new IndexOutOfBoundsException("finally");
             }).call();
         } catch (Exception e) {
             exception = e;
         }
         Exception finalException = exception;
         Assertions.assertAll(
-                () -> Assertions.assertInstanceOf(IndexOutOfBoundsException.class, finalException),
-                () -> Assertions.assertInstanceOf(IOException.class, finalException.getSuppressed()[0]),
-                () -> Assertions.assertInstanceOf(NullPointerException.class, finalException.getSuppressed()[0].getSuppressed()[0])
+                () -> Assertions.assertInstanceOf(IOException.class, finalException),
+                () -> Assertions.assertInstanceOf(NullPointerException.class, finalException.getSuppressed()[0]),
+                () -> Assertions.assertInstanceOf(IndexOutOfBoundsException.class, finalException.getSuppressed()[1])
+        );
+    }
+
+    @Test
+    public void callable_Catch_ThrownThreeNestedExceptions() throws Exception {
+        Exception exception = null;
+        try {
+            Long result = Try.<Long>callable(() -> {
+                throw new NullPointerException("try");
+            }).onCatch((th) -> {
+                throw new IOException("catch", th);
+            }).doFinally(() -> {
+                throw new IndexOutOfBoundsException("finally");
+            }).call();
+        } catch (Exception e) {
+            exception = e;
+        }
+        Exception finalException = exception;
+        Assertions.assertAll(
+                () -> Assertions.assertInstanceOf(IOException.class, finalException),
+                () -> Assertions.assertInstanceOf(NullPointerException.class, finalException.getCause()),
+                () -> Assertions.assertInstanceOf(IndexOutOfBoundsException.class, finalException.getSuppressed()[0])
+        );
+    }
+
+    @Test
+    public void callable_Catch_ExceptionRethrown() throws Exception {
+        Exception exception = null;
+        try {
+            Long result = Try.<Long>callable(() -> {
+                throw new NullPointerException("try");
+            }).onCatch((th) -> {
+                throw th;
+            }).call();
+        } catch (Exception e) {
+            exception = e;
+        }
+        Exception finalException = exception;
+        Assertions.assertAll(
+                () -> Assertions.assertInstanceOf(NullPointerException.class, finalException),
+                () -> Assertions.assertNull(finalException.getCause())
+        );
+    }
+
+    /**
+     * Распаковка в {@code catch} не должна создавать цикл: исходное исключение уже ссылается
+     * на распакованное через cause, поэтому в suppressed распакованного оно не добавляется.
+     */
+    @Test
+    public void callable_Catch_UnwrapCause_NoCircularReference() throws Exception {
+        IOException cause = new IOException("cause");
+        Exception exception = null;
+        try {
+            Try.<Long>callable(() -> {
+                throw new RuntimeException("try", cause);
+            }).onCatch((th) -> {
+                throw th.getCause();
+            }).doFinally(() -> {
+                throw new IndexOutOfBoundsException("finally");
+            }).call();
+        } catch (Exception e) {
+            exception = e;
+        }
+        Exception finalException = exception;
+        Assertions.assertAll(
+                () -> Assertions.assertSame(cause, finalException),
+                () -> Assertions.assertEquals(1, finalException.getSuppressed().length),
+                () -> Assertions.assertInstanceOf(IndexOutOfBoundsException.class, finalException.getSuppressed()[0])
         );
     }
 
@@ -169,17 +237,17 @@ public class TryTest {
         Exception exception = null;
         try {
             Long result = Try.<Long>callable(() -> {
-                throw new NullPointerException("1");
+                throw new NullPointerException("try");
             }).doFinally(() -> {
-                throw new IndexOutOfBoundsException("2");
+                throw new IndexOutOfBoundsException("finally");
             }).call();
         } catch (Exception e) {
             exception = e;
         }
         Exception finalException = exception;
         Assertions.assertAll(
-                () -> Assertions.assertInstanceOf(IndexOutOfBoundsException.class, finalException),
-                () -> Assertions.assertInstanceOf(NullPointerException.class, finalException.getSuppressed()[0])
+                () -> Assertions.assertInstanceOf(NullPointerException.class, finalException),
+                () -> Assertions.assertInstanceOf(IndexOutOfBoundsException.class, finalException.getSuppressed()[0])
         );
     }
 
@@ -213,7 +281,7 @@ public class TryTest {
     public void callable_Failed_CatchWasCalled() throws Exception {
         Ref<Boolean> finallyRef = new Ref<>(false);
         Long result = Try.<Long>callable(() -> {
-            throw new RuntimeException("1");
+            throw new RuntimeException("try");
         }).onCatch((th) -> {
             finallyRef.set(true);
             return 2L;
@@ -242,7 +310,7 @@ public class TryTest {
     public void callable_CatchAndFinallyCalled() throws Exception {
         Ref<Boolean> finallyRef = new Ref<>();
         Long result = Try.<Long>callable(() -> {
-            throw new UnsupportedOperationException("1");
+            throw new UnsupportedOperationException("try");
         }).onCatch((th) -> {
             return 2L;
         }).doFinally(() -> {
@@ -329,20 +397,98 @@ public class TryTest {
         Exception exception = null;
         try {
             Try.runnable(() -> {
-                throw new UnsupportedOperationException("1");
+                throw new UnsupportedOperationException("try");
             }).onCatch((th) -> {
-                throw new IOException("2");
+                throw new IOException("catch");
             }).doFinally(() -> {
-                throw new IndexOutOfBoundsException("3");
+                throw new IndexOutOfBoundsException("finally");
             }).run();
         } catch (Exception e) {
             exception = e;
         }
         Exception finalException = exception;
         Assertions.assertAll(
-                () -> Assertions.assertInstanceOf(IndexOutOfBoundsException.class, finalException),
-                () -> Assertions.assertInstanceOf(IOException.class, finalException.getSuppressed()[0]),
-                () -> Assertions.assertInstanceOf(UnsupportedOperationException.class, finalException.getSuppressed()[0].getSuppressed()[0])
+                () -> Assertions.assertInstanceOf(IOException.class, finalException),
+                () -> Assertions.assertInstanceOf(UnsupportedOperationException.class, finalException.getSuppressed()[0]),
+                () -> Assertions.assertInstanceOf(IndexOutOfBoundsException.class, finalException.getSuppressed()[1])
+        );
+    }
+
+    @Test
+    public void runnable_CatchSuppressException() throws Exception {
+        Try.runnable(() -> {
+            throw new UnsupportedOperationException("try");
+        }).onCatch((th) -> {
+            /* Do nothing */
+        }).run();
+    }
+
+    @Test
+    public void runnable_Catch_ThrownThreeNestedExceptions() throws Exception {
+        Exception exception = null;
+        try {
+            Try.runnable(() -> {
+                throw new UnsupportedOperationException("try");
+            }).onCatch((th) -> {
+                // Исходное исключение обработано.
+                throw new IOException("catch", th);
+            }).doFinally(() -> {
+                throw new IndexOutOfBoundsException("finally");
+            }).run();
+        } catch (Exception e) {
+            exception = e;
+        }
+        Exception finalException = exception;
+        Assertions.assertAll(
+                () -> Assertions.assertInstanceOf(IOException.class, finalException),
+                () -> Assertions.assertInstanceOf(UnsupportedOperationException.class, finalException.getCause()),
+                () -> Assertions.assertInstanceOf(IndexOutOfBoundsException.class, finalException.getSuppressed()[0])
+        );
+    }
+
+    @Test
+    public void runnable_Catch_ExceptionRethrown() throws Exception {
+        Exception exception = null;
+        try {
+            Try.runnable(() -> {
+                throw new IOException("try");
+            }).onCatch((th) -> {
+                throw th;
+            }).run();
+        } catch (Exception e) {
+            exception = e;
+        }
+        Exception finalException = exception;
+        Assertions.assertAll(
+                () -> Assertions.assertInstanceOf(IOException.class, finalException),
+                () -> Assertions.assertNull(finalException.getCause())
+        );
+    }
+
+    /**
+     * Распаковка в {@code catch} не должна создавать цикл: исходное исключение уже ссылается
+     * на распакованное через cause, поэтому в suppressed распакованного оно не добавляется.
+     */
+    @Test
+    public void runnable_Catch_UnwrapCause_NoCircularReference() throws Exception {
+        IOException cause = new IOException("cause");
+        Exception exception = null;
+        try {
+            Try.runnable(() -> {
+                throw new RuntimeException("try", cause);
+            }).onCatch((th) -> {
+                throw th.getCause();
+            }).doFinally(() -> {
+                throw new IndexOutOfBoundsException("finally");
+            }).run();
+        } catch (Exception e) {
+            exception = e;
+        }
+        Exception finalException = exception;
+        Assertions.assertAll(
+                () -> Assertions.assertSame(cause, finalException),
+                () -> Assertions.assertEquals(1, finalException.getSuppressed().length),
+                () -> Assertions.assertInstanceOf(IndexOutOfBoundsException.class, finalException.getSuppressed()[0])
         );
     }
 
@@ -351,17 +497,17 @@ public class TryTest {
         Exception exception = null;
         try {
             Try.runnable(() -> {
-                throw new NullPointerException("1");
+                throw new NullPointerException("try");
             }).doFinally(() -> {
-                throw new IndexOutOfBoundsException("2");
+                throw new IndexOutOfBoundsException("finally");
             }).run();
         } catch (Exception e) {
             exception = e;
         }
         Exception finalException = exception;
         Assertions.assertAll(
-                () -> Assertions.assertInstanceOf(IndexOutOfBoundsException.class, finalException),
-                () -> Assertions.assertInstanceOf(NullPointerException.class, finalException.getSuppressed()[0])
+                () -> Assertions.assertInstanceOf(NullPointerException.class, finalException),
+                () -> Assertions.assertInstanceOf(IndexOutOfBoundsException.class, finalException.getSuppressed()[0])
         );
     }
 
@@ -395,7 +541,7 @@ public class TryTest {
     public void runnable_Failed_CatchWasCalled() throws Exception {
         Ref<Boolean> finallyRef = new Ref<>(false);
         Long result = Try.<Long>callable(() -> {
-            throw new RuntimeException("1");
+            throw new RuntimeException("try");
         }).onCatch((th) -> {
             finallyRef.set(true);
             return 2L;
@@ -411,7 +557,7 @@ public class TryTest {
         Ref<Boolean> finallyRef = new Ref<>();
         Ref<Long> resultRef = new Ref<>();
         Try.runnable(() -> {
-            throw new UnsupportedOperationException("1");
+            throw new UnsupportedOperationException("try");
         }).onCatch((th) -> {
             resultRef.set(2L);
         }).doFinally(() -> {
@@ -492,7 +638,7 @@ public class TryTest {
         Ref<Exception> exceptionRef = new Ref<>();
         try {
             Try.runnable(() -> {
-                exceptionRef.set(new IndexOutOfBoundsException("1"));
+                exceptionRef.set(new IndexOutOfBoundsException("try"));
                 throw exceptionRef.get();
             }).onCatch((th) -> {
                 throw th;

@@ -30,10 +30,20 @@ import com.devives.commons.lang.function.FailableRunnable;
  * Prevents loss of original exceptions in the `try-catch-finally` block if induced exceptions occur
  * in `catch` and/or `finally`.
  * <p>
- * When exceptions occur sequentially in `try-catch-finally` blocks, the last exception will be thrown
- * from the methods {@link TryRunnable.Catch#run()} and {@link TryCallable.Catch#call()}. Original exceptions
- * will be chained together via the {@link Exception#getSuppressed()} collection.
- * </p>
+ * The choice of the thrown exception follows the Java language rules for {@code catch} and the
+ * try-with-resources rules for {@code finally}:
+ * <ul>
+ *     <li>an exception thrown from {@code try} propagates unless a {@code catch} block is defined;
+ *     <li>an exception thrown from {@code catch} replaces the original one. If it is not already linked with the
+ *     original exception through the cause or suppressed chains, the original exception is added to its
+ *     {@link Throwable#getSuppressed() suppressed} exceptions, so it is not lost when the handler fails unexpectedly;
+ *     <li>an exception thrown from {@code finally} never hides the primary exception: it is added to the
+ *     {@link Throwable#getSuppressed() suppressed} exceptions of the primary one, and propagates itself
+ *     only when there is no primary exception. This matches the behavior of an exception thrown from
+ *     {@link AutoCloseable#close()} in the {@code try (AutoCloseable resource = ...) {}} statement (JLS 14.20.3.1).
+ * </ul>
+ * The exception is thrown from the methods {@link TryRunnable.Catch#run()} and {@link TryCallable.Catch#call()}.
+ * <p>
  * Methods of this class are not synchronized and do not assume calls from multiple threads.
  *
  * @see TryCallable

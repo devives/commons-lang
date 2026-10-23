@@ -33,7 +33,7 @@ import java.util.Objects;
  * @see Try#callable(FailableCallable)
  * @since 0.2.0
  */
-final class TryCallableScope<R> implements TryCallable<R>, TryCallable.Catch<R>, TryCallable.Finally<R> {
+final class TryCallableScope<R> extends TryScope implements TryCallable<R>, TryCallable.Catch<R>, TryCallable.Finally<R> {
     /**
      * Main code block for which error handling is performed.
      */
@@ -85,7 +85,8 @@ final class TryCallableScope<R> implements TryCallable<R>, TryCallable.Catch<R>,
      * Executes the {@code try-catch-finally} construct.
      *
      * @return the result of executing {@code TryAbst#onTry} or {@code TryAbst#onCatch}.
-     * @throws Throwable the latest thrown exception.
+     * @throws Throwable the primary exception: thrown from {@code onCatch}, or from {@code onTry} if no
+     *                   {@code onCatch} is defined, or from {@code onFinally} if there is no other exception.
      */
     public R call() {
         if (onTry == null) {
@@ -109,8 +110,14 @@ final class TryCallableScope<R> implements TryCallable<R>, TryCallable.Catch<R>,
      *   <li>Executes the finally block regardless of the results of executing {@link #onTry} and {@link #onCatch}.
      * </ol>
      * <p>
-     * This method ensures handling of the exception chain arising in each block of the <code>try-catch-finally</code> construct by
-     * adding suppressed exceptions to {@link Exception#addSuppressed(Throwable)}.
+     * Exceptions are chained with {@link Throwable#addSuppressed(Throwable)} as follows:
+     * <ul>
+     *   <li>an exception from {@link #onCatch} becomes primary. The exception from {@link #onTry} is added to its
+     *   suppressed exceptions unless the two are already linked through the cause or suppressed chains
+     *   (rethrow, wrapping as a cause, unwrapping);
+     *   <li>an exception from {@link #onFinally} is added to the suppressed exceptions of the primary one,
+     *   as in try-with-resources, and becomes primary only if there is no other exception.
+     * </ul>
      *
      * @throws RuntimeException at the repeat Try invocation.
      */
@@ -124,10 +131,10 @@ final class TryCallableScope<R> implements TryCallable<R>, TryCallable.Catch<R>,
                 try {
                     result = onCatch.apply(tryEx);
                 } catch (Throwable catchEx) {
-                    if (catchEx != tryEx) {
+                    unhandledThrowable = catchEx;
+                    if (!isLinked(catchEx, tryEx)) {
                         catchEx.addSuppressed(tryEx);
                     }
-                    unhandledThrowable = catchEx;
                 }
             } else {
                 unhandledThrowable = tryEx;
@@ -137,10 +144,11 @@ final class TryCallableScope<R> implements TryCallable<R>, TryCallable.Catch<R>,
                 try {
                     onFinally.run();
                 } catch (Throwable finallyEx) {
-                    if (unhandledThrowable != null) {
-                        finallyEx.addSuppressed(unhandledThrowable);
+                    if (unhandledThrowable != null && unhandledThrowable != finallyEx) {
+                        unhandledThrowable.addSuppressed(finallyEx);
+                    } else {
+                        unhandledThrowable = finallyEx;
                     }
-                    unhandledThrowable = finallyEx;
                 }
             }
         }

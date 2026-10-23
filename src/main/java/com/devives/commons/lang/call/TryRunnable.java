@@ -54,7 +54,7 @@ public interface TryRunnable {
     /**
      * Interface declare methods witch are available after defining {@code try-catch} code blocks.
      */
-    interface Catch<R> {
+    interface Catch {
 
         /**
          * Initializes the {@code finally} code block.

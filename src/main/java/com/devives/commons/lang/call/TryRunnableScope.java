@@ -24,12 +24,12 @@ import com.devives.commons.lang.function.ThrowableProcedure1;
 import java.util.Objects;
 
 /**
- * This class implements cascading exception handling in the {@code try-catch-finally} construct for methods that return a result.
+ * This class implements cascading exception handling in the {@code try-catch-finally} construct for methods that do not return a result.
  * <p>
  * Methods of this class are not synchronized and do not assume calls from multiple threads.
  * @see Try#runnable(FailableRunnable)
  */
-final class TryRunnableScope implements TryRunnable, TryRunnable.Catch, TryRunnable.Finally {
+final class TryRunnableScope extends TryScope implements TryRunnable, TryRunnable.Catch, TryRunnable.Finally {
     /**
      * Main code block for which error handling is performed.
      */
@@ -79,8 +79,8 @@ final class TryRunnableScope implements TryRunnable, TryRunnable.Catch, TryRunna
     /**
      * Executes the {@code try-catch-finally} construct.
      *
-     * @return the result of executing {@code TryAbst#onTry} or {@code TryAbst#onCatch}.
-     * @throws Throwable the latest thrown exception.
+     * @throws Throwable the primary exception: thrown from {@code onCatch}, or from {@code onTry} if no
+     *                   {@code onCatch} is defined, or from {@code onFinally} if there is no other exception.
      */
     public void run() {
         if (onTry == null) {
@@ -104,8 +104,14 @@ final class TryRunnableScope implements TryRunnable, TryRunnable.Catch, TryRunna
      *   <li>Executes the finally block regardless of the results of executing {@link #onTry} and {@link #onCatch}.
      * </ol>
      * <p>
-     * This method ensures handling of the exception chain arising in each block of the <code>try-catch-finally</code> construct by
-     * adding suppressed exceptions to {@link Exception#addSuppressed(Throwable)}.
+     * Exceptions are chained with {@link Throwable#addSuppressed(Throwable)} as follows:
+     * <ul>
+     *   <li>an exception from {@link #onCatch} becomes primary. The exception from {@link #onTry} is added to its
+     *   suppressed exceptions unless the two are already linked through the cause or suppressed chains
+     *   (rethrow, wrapping as a cause, unwrapping);
+     *   <li>an exception from {@link #onFinally} is added to the suppressed exceptions of the primary one,
+     *   as in try-with-resources, and becomes primary only if there is no other exception.
+     * </ul>
      *
      * @throws RuntimeException at the repeat Try invocation.
      */
@@ -118,10 +124,10 @@ final class TryRunnableScope implements TryRunnable, TryRunnable.Catch, TryRunna
                 try {
                     onCatch.accept(tryEx);
                 } catch (Throwable catchEx) {
-                    if (catchEx != tryEx) {
+                    unhandledThrowable = catchEx;
+                    if (!isLinked(catchEx, tryEx)) {
                         catchEx.addSuppressed(tryEx);
                     }
-                    unhandledThrowable = catchEx;
                 }
             } else {
                 unhandledThrowable = tryEx;
@@ -131,10 +137,11 @@ final class TryRunnableScope implements TryRunnable, TryRunnable.Catch, TryRunna
                 try {
                     onFinally.run();
                 } catch (Throwable finallyEx) {
-                    if (unhandledThrowable != null) {
-                        finallyEx.addSuppressed(unhandledThrowable);
+                    if (unhandledThrowable != null && unhandledThrowable != finallyEx) {
+                        unhandledThrowable.addSuppressed(finallyEx);
+                    } else {
+                        unhandledThrowable = finallyEx;
                     }
-                    unhandledThrowable = finallyEx;
                 }
             }
         }

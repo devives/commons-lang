@@ -87,4 +87,12 @@ public final class LazyRef<T> {
         val_ = value;
     }
 
+    /**
+     * Сбрасывает значение. Следующее обращение к {@link #get()} или {@link #getOrCreate(Supplier)}
+     * снова вызовет инициализатор.
+     */
+    public void reset() {
+        val_ = null;
+    }
+
 }

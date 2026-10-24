@@ -264,7 +264,7 @@ public class TryTest {
 
     @Test
     public void callable_Success_CatchWasNotCalled() throws Exception {
-        Ref<Boolean> finallyRef = new Ref<>(false);
+        Ref<Boolean> finallyRef = Ref.of(false);
         Long result = Try.callable(() -> {
             return 1L;
         }).onCatch((th) -> {
@@ -279,7 +279,7 @@ public class TryTest {
 
     @Test
     public void callable_Failed_CatchWasCalled() throws Exception {
-        Ref<Boolean> finallyRef = new Ref<>(false);
+        Ref<Boolean> finallyRef = Ref.of(false);
         Long result = Try.<Long>callable(() -> {
             throw new RuntimeException("try");
         }).onCatch((th) -> {
@@ -294,7 +294,7 @@ public class TryTest {
 
     @Test
     public void callable_FinallyWasRun() throws Exception {
-        Ref<Boolean> finallyRef = new Ref<>();
+        Ref<Boolean> finallyRef = Ref.ofNullable(null);
         Long result = Try.callable(() -> {
             return 1L;
         }).doFinally(() -> {
@@ -308,7 +308,7 @@ public class TryTest {
 
     @Test
     public void callable_CatchAndFinallyCalled() throws Exception {
-        Ref<Boolean> finallyRef = new Ref<>();
+        Ref<Boolean> finallyRef = Ref.ofNullable(null);
         Long result = Try.<Long>callable(() -> {
             throw new UnsupportedOperationException("try");
         }).onCatch((th) -> {
@@ -324,7 +324,7 @@ public class TryTest {
 
     @Test
     public void callable_CallableAndFinallyCalled() throws Exception {
-        Ref<Boolean> finallyRef = new Ref<>();
+        Ref<Boolean> finallyRef = Ref.ofNullable(null);
         Long result = Try.callable(() -> {
             return 1L;
         }).onCatch((th) -> {
@@ -513,7 +513,7 @@ public class TryTest {
 
     @Test
     public void runnable_RunnableWasRun() throws Exception {
-        Ref<Long> resultRef = new Ref<>();
+        Ref<Long> resultRef = Ref.ofNullable(null);
         Try.runnable(() -> {
             resultRef.set(1L);
         }).onCatch((th) -> {
@@ -524,7 +524,7 @@ public class TryTest {
 
     @Test
     public void runnable_Success_CatchWasNotCalled() throws Exception {
-        Ref<Boolean> finallyRef = new Ref<>(false);
+        Ref<Boolean> finallyRef = Ref.of(false);
         Long result = Try.callable(() -> {
             return 1L;
         }).onCatch((th) -> {
@@ -539,7 +539,7 @@ public class TryTest {
 
     @Test
     public void runnable_Failed_CatchWasCalled() throws Exception {
-        Ref<Boolean> finallyRef = new Ref<>(false);
+        Ref<Boolean> finallyRef = Ref.of(false);
         Long result = Try.<Long>callable(() -> {
             throw new RuntimeException("try");
         }).onCatch((th) -> {
@@ -554,8 +554,8 @@ public class TryTest {
 
     @Test
     public void runnable_CatchAndFinallyCalled() throws Exception {
-        Ref<Boolean> finallyRef = new Ref<>();
-        Ref<Long> resultRef = new Ref<>();
+        Ref<Boolean> finallyRef = Ref.ofNullable(null);
+        Ref<Long> resultRef = Ref.ofNullable(null);
         Try.runnable(() -> {
             throw new UnsupportedOperationException("try");
         }).onCatch((th) -> {
@@ -571,8 +571,8 @@ public class TryTest {
 
     @Test
     public void runnable_RunnableAndFinallyRun() throws Exception {
-        Ref<Boolean> finallyRef = new Ref<>();
-        Ref<Long> resultRef = new Ref<>();
+        Ref<Boolean> finallyRef = Ref.ofNullable(null);
+        Ref<Long> resultRef = Ref.ofNullable(null);
         Try.runnable(() -> {
             resultRef.set(1L);
         }).onCatch((th) -> {
@@ -588,8 +588,8 @@ public class TryTest {
 
     @Test
     public void runnable_RunnableAndFinallyWasRun() throws Exception {
-        Ref<Boolean> finallyRef = new Ref<>();
-        Ref<Long> resultRef = new Ref<>();
+        Ref<Boolean> finallyRef = Ref.ofNullable(null);
+        Ref<Long> resultRef = Ref.ofNullable(null);
         Try.runnable(() -> {
             resultRef.set(1L);
         }).doFinally(() -> {
@@ -635,7 +635,7 @@ public class TryTest {
 
     @Test
     public void runnable_ReThrowTryException_DifferentValues() throws Exception {
-        Ref<Exception> exceptionRef = new Ref<>();
+        Ref<Exception> exceptionRef = Ref.ofNullable(null);
         try {
             Try.runnable(() -> {
                 exceptionRef.set(new IndexOutOfBoundsException("try"));

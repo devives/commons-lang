@@ -16,48 +16,100 @@
  */
 package com.devives.commons.lang;
 
-import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 /**
- * Вспомогательный класс для организации передачи скалярных переменных по ссылке
+ * A mutable reference to a value, used to pass a variable "by reference",
+ * e.g. to change a local variable from a lambda.
+ * <p>
+ * Instances are created by the factory methods:
+ * <ul>
+ *     <li>{@link #of(Object)} &mdash; the reference never holds {@code null};
+ *     <li>{@link #ofNullable(Object)} &mdash; the reference may hold {@code null}.
+ * </ul>
+ *
+ * <p><strong>Equality.</strong></p>
+ * Two references are equal if both are {@code Ref} and their values are equal
+ * according to {@link java.util.Objects#equals(Object, Object)}. The implementation and
+ * {@link #isNullable()} do not affect equality. The hash code is the hash code of the value,
+ * or 0 if the value is {@code null}.
+ *
+ * <p><strong>Thread safety.</strong></p>
+ * Implementations are not thread-safe. Concurrent access requires external synchronization.
+ *
+ * @param <T> the type of the value
  */
-public final class Ref<C> {
-    private C value = null;
+public interface Ref<T> {
 
-    public C get() {
-        return value;
+    /**
+     * Creates a reference that never holds {@code null}.
+     *
+     * @param value the initial value.
+     * @param <T>   the type of the value.
+     * @return a new reference.
+     * @throws NullPointerException if {@code value} is {@code null}.
+     */
+    static <T> Ref<T> of(T value) {
+        return new NonNullableRef<>(value);
     }
 
-    public void set(C value) {
-        this.value = value;
+    /**
+     * Creates a reference that may hold {@code null}.
+     *
+     * @param value the initial value, may be {@code null}.
+     * @param <T>   the type of the value.
+     * @return a new reference.
+     */
+    static <T> Ref<T> ofNullable(T value) {
+        return new NullableRef<>(value);
     }
 
-    public Ref(C value) {
-        this.value = value;
+    /**
+     * Creates a reference that may hold {@code null}.
+     *
+     * @param <T> the type of the value.
+     * @return a new reference.
+     */
+    static <T> Ref<T> ofNullable() {
+        return new NullableRef<>(null);
     }
 
-    public Ref() {
-    }
+    /**
+     * Returns the value.
+     *
+     * @return the value; never {@code null} unless {@link #isNullable()}.
+     */
+    T get();
+
+    /**
+     * Sets the value.
+     *
+     * @param value the new value.
+     * @throws NullPointerException if {@code value} is {@code null} and the reference is not {@link #isNullable()}.
+     */
+    void set(T value);
+
+    /**
+     * Returns whether the reference may hold {@code null}.
+     *
+     * @return {@code true} if created by {@link #ofNullable(Object)}, {@code false} if by {@link #of(Object)}.
+     */
+    boolean isNullable();
 
     /**
      * Return {@code true} if there is a value not present, otherwise {@code false}.
      *
      * @return {@code true} if there is a value not present, otherwise {@code false}
      */
-    public boolean isNull() {
-        return value == null;
-    }
+    boolean isNull();
 
     /**
      * Return {@code true} if there is a value present, otherwise {@code false}.
      *
      * @return {@code true} if there is a value present, otherwise {@code false}
      */
-    public boolean isPresent() {
-        return value != null;
-    }
+    boolean isPresent();
 
     /**
      * If a value is present, invoke the specified consumer with the value,
@@ -67,11 +119,7 @@ public final class Ref<C> {
      * @throws NullPointerException if value is present and {@code consumer} is
      *                              null
      */
-    public void ifPresent(Consumer<? super C> consumer) {
-        if (value != null) {
-            consumer.accept(value);
-        }
-    }
+    void ifPresent(Consumer<? super T> consumer);
 
     /**
      * Return the value if present, otherwise return {@code other}.
@@ -80,9 +128,7 @@ public final class Ref<C> {
      *              be null
      * @return the value, if present, otherwise {@code other}
      */
-    public C orElse(C other) {
-        return value != null ? value : other;
-    }
+    T orElse(T other);
 
     /**
      * Return the value if present, otherwise invoke {@code other} and return
@@ -94,60 +140,6 @@ public final class Ref<C> {
      * @throws NullPointerException if value is not present and {@code other} is
      *                              null
      */
-    public C orElseGet(Supplier<? extends C> other) {
-        return value != null ? value : other.get();
-    }
+    T orElseGet(Supplier<? extends T> other);
 
-
-    /**
-     * Indicates whether some other object is "equal to" this Ref. The
-     * other object is considered equal if:
-     * <ul>
-     * <li>it is also an {@code Ref} and;
-     * <li>both instances have no value present or;
-     * <li>the present values are "equal to" each other via {@code equals()}.
-     * </ul>
-     *
-     * @param obj an object to be tested for equality
-     * @return {code true} if the other object is "equal to" this object
-     * otherwise {@code false}
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (!(obj instanceof Ref)) {
-            return false;
-        }
-
-        Ref<?> other = (Ref<?>) obj;
-        return Objects.equals(value, other.value);
-    }
-
-    /**
-     * Returns the hash code value of the present value, if any, or 0 (zero) if
-     * no value is present.
-     *
-     * @return hash code value of the present value or 0 if no value is present
-     */
-    @Override
-    public int hashCode() {
-        return Objects.hashCode(value);
-    }
-
-    /**
-     * Returns a non-empty string representation of this Optional suitable for
-     * debugging. The exact presentation format is unspecified and may vary
-     * between implementations and versions.
-     *
-     * @return the string representation of this instance
-     */
-    @Override
-    public String toString() {
-        return value != null
-                ? "Ref[" + value + "]"
-                : "Ref[null]";
-    }
 }

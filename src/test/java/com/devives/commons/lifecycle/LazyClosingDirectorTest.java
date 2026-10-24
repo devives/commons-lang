@@ -27,7 +27,7 @@ public class LazyClosingDirectorTest {
 
     @Test
     public void close_afterCreate_callbackWasCalled() throws Exception {
-        Ref<Boolean> calledRef = new Ref<>(false);
+        Ref<Boolean> calledRef = Ref.of(false);
         SynchronizedLazyClosingDirector director = new SynchronizedLazyClosingDirector(() -> calledRef.set(true));
         director.closeAsync();
         Assertions.assertTrue(calledRef.get());
@@ -43,7 +43,7 @@ public class LazyClosingDirectorTest {
 
     @Test
     public void close_afterAutoRelease_callbackWasCalled() throws Exception {
-        Ref<Boolean> calledRef = new Ref<>(false);
+        Ref<Boolean> calledRef = Ref.of(false);
         SynchronizedLazyClosingDirector director = new SynchronizedLazyClosingDirector(() -> calledRef.set(true));
         try (Usage usage = OrdinalUsage.of(director)) {
             Assertions.assertFalse(calledRef.get());
@@ -55,7 +55,7 @@ public class LazyClosingDirectorTest {
 
     @Test
     public void close_afterRelease_callbackWasCalled() throws Exception {
-        Ref<Boolean> calledRef = new Ref<>(false);
+        Ref<Boolean> calledRef = Ref.of(false);
         SynchronizedLazyClosingDirector director = new SynchronizedLazyClosingDirector(() -> calledRef.set(true));
         director.incUsageCount();
         Assertions.assertFalse(calledRef.get());

@@ -117,7 +117,7 @@ public final class SynchronizedLazyClosingDirector extends LazyClosingDirectorBa
      *
      * @return completion stage for the lazy close operation.
      */
-    public synchronized CompletionStage<Void> closeAsync() {
+    public CompletionStage<Void> closeAsync() {
         boolean needClose = false;
         synchronized (lock_) {
             if (closeTimeStamp_ == OPENED) {

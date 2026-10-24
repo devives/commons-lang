@@ -14,7 +14,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.devives.commons.lang;
+package com.devives.commons.lang.ref;
 
 /**
  * {@link Ref} that may hold {@code null}. Created by {@link Ref#ofNullable(Object)}.

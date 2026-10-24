@@ -16,6 +16,8 @@
  */
 package com.devives.commons.lang;
 
+import com.devives.commons.lang.ref.LazyRef;
+import com.devives.commons.lang.ref.SynchronizedLazyRef;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

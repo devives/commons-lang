@@ -16,6 +16,7 @@
  */
 package com.devives.commons.lang;
 
+import com.devives.commons.lang.ref.Ref;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 

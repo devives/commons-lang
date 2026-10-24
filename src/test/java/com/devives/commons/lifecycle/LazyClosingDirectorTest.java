@@ -16,7 +16,7 @@
  */
 package com.devives.commons.lifecycle;
 
-import com.devives.commons.lang.Ref;
+import com.devives.commons.lang.ref.Ref;
 import com.devives.commons.lang.SynchronizedLazyClosingDirector;
 import com.devives.commons.util.usage.OrdinalUsage;
 import com.devives.commons.util.usage.Usage;

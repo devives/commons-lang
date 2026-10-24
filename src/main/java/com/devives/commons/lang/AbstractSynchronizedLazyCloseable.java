@@ -17,17 +17,37 @@
 package com.devives.commons.lang;
 
 
+import com.devives.commons.lang.LazyClosingDirectorBase.LazyCloseHandler;
+import com.devives.commons.lang.SynchronizedLazyClosingDirector.SynchronizedLazyCloseHandler;
 import com.devives.commons.state.State;
 import com.devives.commons.state.StateHolder;
 import com.devives.commons.state.SynchronizedStateHolder;
 import com.devives.commons.state.SynchronizedStateHolderImpl;
 import com.devives.commons.util.usage.UsageCounter;
 
+import java.util.Optional;
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.Executor;
 
 public abstract class AbstractSynchronizedLazyCloseable extends CloseableBase implements UsageCounter {
     private static final long serialVersionUID = 1L;
-    protected final SynchronizedLazyClosingDirector lazyClosingDirector_ = new SynchronizedLazyClosingDirector(this::lazyClose);
+    protected final SynchronizedLazyClosingDirector lazyClosingDirector_ = new SynchronizedLazyClosingDirector(
+            new SynchronizedLazyCloseHandler() {
+                @Override
+                public void lazyClose() throws Exception {
+                    AbstractSynchronizedLazyCloseable.this.lazyClose();
+                }
+
+                @Override
+                public boolean isReentrantUsageAllowed() {
+                    return AbstractSynchronizedLazyCloseable.this.isReentrantUsageAllowed();
+                }
+
+                @Override
+                public Optional<Executor> getLazyCloseExecutor() {
+                    return AbstractSynchronizedLazyCloseable.this.getLazyCloseExecutor();
+                }
+            });
 
     public AbstractSynchronizedLazyCloseable() {
         super(new SynchronizedStateHolderImpl<>(OPENED));
@@ -50,6 +70,32 @@ public abstract class AbstractSynchronizedLazyCloseable extends CloseableBase im
     @Override
     protected SynchronizedStateHolder<State> getStateHolder() {
         return (SynchronizedStateHolder<State>) super.getStateHolder();
+    }
+
+    /**
+     * Разрешает потоку, выполняющему закрытие объекта, увеличивать счётчик использований объекта, например,
+     * если код {@link #onClose()} порождает цепочку вызовов, захватывающую закрываемый объект.
+     * <p>
+     * Значение читается в момент захвата объекта во время закрытия. Все захваты, сделанные во время закрытия,
+     * должны быть освобождены до выхода из {@link #onClose()}.
+     *
+     * @return {@code false} по умолчанию.
+     * @see LazyCloseHandler#isReentrantUsageAllowed()
+     */
+    protected boolean isReentrantUsageAllowed() {
+        return false;
+    }
+
+    /**
+     * Исполнитель, в котором выполняется закрытие объекта.
+     * <p>
+     * Значение читается в момент запуска закрытия.
+     *
+     * @return {@link Optional#empty()} по умолчанию: закрытие выполняется в потоке, который его инициировал.
+     * @see SynchronizedLazyCloseHandler#getLazyCloseExecutor()
+     */
+    protected Optional<Executor> getLazyCloseExecutor() {
+        return Optional.empty();
     }
 
     private void lazyClose() throws Exception {

@@ -16,21 +16,20 @@
  */
 package com.devives.commons.lang;
 
-import com.devives.commons.lang.function.FailableProcedure;
-
 /**
  * Класс реализует функциональность подсчёта использований и отложенного закрытия объекта.
  * <p>
- * Принимает в качестве аргумента конструктора, ссылку на метод объекта, делегирующего управление своим закрытием.
+ * Принимает в качестве аргумента конструктора обработчик закрытия {@link LazyCloseHandler}. Закрытие всегда
+ * выполняется в потоке, который его инициировал.
  */
 public final class LazyClosingDirector extends LazyClosingDirectorBase {
     private static final long serialVersionUID = 1L;
 
     /**
-     * @param closeDelegate Ссылка на метод объекта, делегирующего управление закрытием.
+     * @param closeHandler Обработчик закрытия объекта, делегирующего управление закрытием.
      */
-    public LazyClosingDirector(FailableProcedure closeDelegate) {
-        super(closeDelegate);
+    public LazyClosingDirector(LazyCloseHandler closeHandler) {
+        super(closeHandler);
     }
 
 }

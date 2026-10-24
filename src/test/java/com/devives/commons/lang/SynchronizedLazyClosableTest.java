@@ -21,6 +21,12 @@ import com.devives.commons.util.usage.Usage;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
+import java.util.Optional;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
+
 public class SynchronizedLazyClosableTest {
 
     @Test
@@ -75,6 +81,59 @@ public class SynchronizedLazyClosableTest {
             return 0;
         }
     }
+
+    @Test
+    public void closeAsync_reentrantUsageInOnClose_closed() throws Exception {
+        ReentrantLazyCloseableImpl lazyCloseable = new ReentrantLazyCloseableImpl(null);
+        Assertions.assertNull(lazyCloseable.closeAsync().toCompletableFuture().get(10, TimeUnit.SECONDS));
+        Assertions.assertTrue(lazyCloseable.isClosed());
+        Assertions.assertEquals(1, lazyCloseable.onCloseCalls);
+    }
+
+    @Test
+    public void closeAsync_withExecutor_closed() throws Exception {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        try {
+            ReentrantLazyCloseableImpl lazyCloseable = new ReentrantLazyCloseableImpl(executor);
+            Assertions.assertNull(lazyCloseable.closeAsync().toCompletableFuture().get(10, TimeUnit.SECONDS));
+            Assertions.assertTrue(lazyCloseable.isClosed());
+            Assertions.assertEquals(1, lazyCloseable.onCloseCalls);
+        } finally {
+            executor.shutdownNow();
+        }
+    }
+
+    private static class ReentrantLazyCloseableImpl extends AbstractSynchronizedLazyCloseable {
+
+        private static final long serialVersionUID = 1L;
+        private final Executor executor;
+        private int onCloseCalls = 0;
+
+        private ReentrantLazyCloseableImpl(Executor executor) {
+            this.executor = executor;
+        }
+
+        @Override
+        protected boolean isReentrantUsageAllowed() {
+            return true;
+        }
+
+        @Override
+        protected Optional<Executor> getLazyCloseExecutor() {
+            return Optional.ofNullable(executor);
+        }
+
+        @Override
+        protected void onClose() throws Exception {
+            onCloseCalls++;
+            try (Usage<?> usage = OrdinalUsage.of(this)) {
+                Assertions.assertEquals(1, lazyClosingDirector_.getUsageCount());
+            }
+        }
+
+        @Override
+        public int getUsageCount() {
+            return lazyClosingDirector_.getUsageCount();
+        }
+    }
 }
-
-

@@ -17,6 +17,7 @@
 package com.devives.commons.lang;
 
 
+import com.devives.commons.lang.LazyClosingDirectorBase.LazyCloseHandler;
 import com.devives.commons.state.State;
 import com.devives.commons.state.StateHolder;
 import com.devives.commons.state.SynchronizedStateHolder;
@@ -27,7 +28,18 @@ import java.util.concurrent.CompletionStage;
 
 public abstract class AbstractLazyCloseable extends CloseableBase implements UsageCounter {
     private static final long serialVersionUID = 1L;
-    protected final LazyClosingDirector lazyClosingDirector_ = new LazyClosingDirector(this::lazyClose);
+    protected final LazyClosingDirector lazyClosingDirector_ = new LazyClosingDirector(
+            new LazyCloseHandler() {
+                @Override
+                public void lazyClose() throws Exception {
+                    AbstractLazyCloseable.this.lazyClose();
+                }
+
+                @Override
+                public boolean isReentrantUsageAllowed() {
+                    return AbstractLazyCloseable.this.isReentrantUsageAllowed();
+                }
+            });
 
     public AbstractLazyCloseable() {
         super(new SynchronizedStateHolderImpl<>(OPENED));
@@ -50,6 +62,20 @@ public abstract class AbstractLazyCloseable extends CloseableBase implements Usa
     @Override
     protected SynchronizedStateHolder<State> getStateHolder() {
         return (SynchronizedStateHolder<State>) super.getStateHolder();
+    }
+
+    /**
+     * Разрешает потоку, выполняющему закрытие объекта, увеличивать счётчик использований объекта, например,
+     * если код {@link #onClose()} порождает цепочку вызовов, захватывающую закрываемый объект.
+     * <p>
+     * Значение читается в момент захвата объекта во время закрытия. Все захваты, сделанные во время закрытия,
+     * должны быть освобождены до выхода из {@link #onClose()}.
+     *
+     * @return {@code false} по умолчанию.
+     * @see LazyCloseHandler#isReentrantUsageAllowed()
+     */
+    protected boolean isReentrantUsageAllowed() {
+        return false;
     }
 
     private void lazyClose() throws Exception {

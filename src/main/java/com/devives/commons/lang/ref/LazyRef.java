@@ -17,7 +17,6 @@
 package com.devives.commons.lang.ref;
 
 
-import java.util.Objects;
 import java.util.function.Supplier;
 
 /**
@@ -35,64 +34,99 @@ import java.util.function.Supplier;
  * }
  * }</pre>
  *
+ * <p><strong>Потокобезопасность.</strong></p>
+ * Зависит от реализации:
+ * <ul>
+ *     <li>{@link UnsynchronizedLazyRef} ({@link #of()}, {@link #of(Supplier)}) &mdash; не потокобезопасна;
+ *     <li>{@link SynchronizedLazyRef} ({@link #ofSynchronized()}, {@link #ofSynchronized(Supplier)}) &mdash;
+ *     потокобезопасна, инициализатор вызывается не более одного раза до сброса.
+ * </ul>
+ *
  * @param <T> - Тип объекта, на который будет храниться ссылка.
  */
-public final class LazyRef<T> {
-    private T val_;
-    private final Supplier<T> initiator_;
+public interface LazyRef<T> {
 
     /**
-     * Используйте этот конструктор, если планируете использовать метод {@link #getOrCreate(Supplier)}.
+     * Создаёт ленивую ссылку без синхронизации и без инициализатора.
+     * Значение создаётся методом {@link #getOrCreate(Supplier)}.
+     *
+     * @param <T> тип значения.
+     * @return новая ссылка {@link UnsynchronizedLazyRef}.
      */
-    public LazyRef() {
-        this(null);
+    static <T> LazyRef<T> of() {
+        return new UnsynchronizedLazyRef<>();
     }
 
     /**
-     * Используйте этот конструктор, если планируете использовать метод get().
+     * Создаёт ленивую ссылку без синхронизации.
      *
-     * @param initiator инициализатор значения.
+     * @param initiator инициализатор значения, будет вызван при первом обращении к методу {@link #get()}.
+     * @param <T>       тип значения.
+     * @return новая ссылка {@link UnsynchronizedLazyRef}.
      */
-    public LazyRef(Supplier<T> initiator) {
-        initiator_ = initiator;
+    static <T> LazyRef<T> of(Supplier<T> initiator) {
+        return new UnsynchronizedLazyRef<>(initiator);
+    }
+
+    /**
+     * Создаёт потокобезопасную ленивую ссылку без инициализатора.
+     * Значение создаётся методом {@link #getOrCreate(Supplier)}.
+     *
+     * @param <T> тип значения.
+     * @return новая ссылка {@link SynchronizedLazyRef}.
+     */
+    static <T> LazyRef<T> ofSynchronized() {
+        return new SynchronizedLazyRef<>();
+    }
+
+    /**
+     * Создаёт потокобезопасную ленивую ссылку.
+     *
+     * @param initiator инициализатор значения, будет вызван при первом обращении к методу {@link #get()}.
+     * @param <T>       тип значения.
+     * @return новая ссылка {@link SynchronizedLazyRef}.
+     */
+    static <T> LazyRef<T> ofSynchronized(Supplier<T> initiator) {
+        return new SynchronizedLazyRef<>(initiator);
     }
 
     /**
      * Вернёт ссылку на объект типа T, создав его при первом обращении к ленивой ссылке.
      *
      * @param initiator Будет вызван при первом обращении к ссылке.
-     * @return Ссылки на объект типа <code>T</code>
+     * @return Ссылка на объект, созданный ранее или новый.
+     * @throws NullPointerException если значения нет и {@code initiator} равен {@code null}.
      */
-    public T getOrCreate(Supplier<T> initiator) {
-        if (val_ == null) {
-            val_ = Objects.requireNonNull(initiator, "initiator").get();
-        }
-        return val_;
-    }
-
-    public T get() {
-        return getOrCreate(initiator_);
-    }
+    T getOrCreate(Supplier<T> initiator);
 
     /**
-     * Метод проверяет, наличие значения.
+     * Возвращает ссылку на объект типа T, создав его при первом обращении к ленивой ссылке с помощью переданной
+     * при создании функции инициализатора.
      *
-     * @return {@code true}, если значение равно {@code null}, иначе {@code false}.
+     * @return Значение
+     * @throws NullPointerException если значения нет и ссылка создана без инициализатора.
      */
-    public boolean isPresent() {
-        return val_ != null;
-    }
+    T get();
 
-    public void set(T value) {
-        val_ = value;
-    }
+    /**
+     * Метод проверяет наличие значения.
+     *
+     * @return {@code true}, если значение не равно {@code null}, иначе {@code false}.
+     */
+    boolean isPresent();
+
+    /**
+     * Устанавливает значение. Инициализатор при этом не вызывается.
+     * Установка {@code null} равносильна {@link #reset()}.
+     *
+     * @param value новое значение.
+     */
+    void set(T value);
 
     /**
      * Сбрасывает значение. Следующее обращение к {@link #get()} или {@link #getOrCreate(Supplier)}
      * снова вызовет инициализатор.
      */
-    public void reset() {
-        val_ = null;
-    }
+    void reset();
 
 }

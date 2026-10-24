@@ -42,7 +42,7 @@ import java.util.function.Supplier;
  *
  * @param <T> - Тип объекта, на который будет храниться ссылка.
  */
-public final class SynchronizedLazyRef<T> {
+public final class SynchronizedLazyRef<T> implements LazyRef<T> {
     private final Object mutex_ = new Object();
     private final Supplier<T> initiator_;
     private volatile T val_;
@@ -63,12 +63,7 @@ public final class SynchronizedLazyRef<T> {
         initiator_ = initiator;
     }
 
-    /**
-     * Вернёт ссылку на объект типа T, создав его при первом обращении к ленивой ссылке.
-     *
-     * @param initiator Будет вызван при первом обращении к ссылке.
-     * @return Ссылки на объект, созданный ранее или новый.
-     */
+    @Override
     public T getOrCreate(Supplier<T> initiator) {
         T val = val_;
         if (val == null) {
@@ -83,30 +78,36 @@ public final class SynchronizedLazyRef<T> {
         return val;
     }
 
-    /**
-     * Возвращает ссылку на объект типа T, создав его при первом обращении к ленивой ссылке с помощью переданной
-     * в конструктор функции инициализатора.
-     *
-     * @return Значение
-     */
+    @Override
     public T get() {
         return getOrCreate(initiator_);
     }
 
-    /**
-     * @return {@code true}, если значение равно {@code null}.
-     */
+    @Override
     public boolean isPresent() {
         return val_ != null;
     }
 
     /**
-     * Сбрасывает значение. Следующее обращение к {@link #get()} или {@link #getOrCreate(Supplier)}
-     * снова вызовет инициализатор.
+     * {@inheritDoc}
+     * <p>
+     * Выполняется под той же блокировкой, что и инициализация, поэтому не пересекается
+     * с выполняющимся в другом потоке инициализатором: значение будет установлено до или после него.
+     */
+    @Override
+    public void set(T value) {
+        synchronized (mutex_) {
+            val_ = value;
+        }
+    }
+
+    /**
+     * {@inheritDoc}
      * <p>
      * Выполняется под той же блокировкой, что и инициализация, поэтому не пересекается
      * с выполняющимся в другом потоке инициализатором: сброс произойдёт до или после него.
      */
+    @Override
     public void reset() {
         synchronized (mutex_) {
             val_ = null;

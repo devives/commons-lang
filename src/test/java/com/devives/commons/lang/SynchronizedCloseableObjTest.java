@@ -14,11 +14,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.devives.commons.lifecycle;
+package com.devives.commons.lang;
 
 import com.devives.commons.Task;
-import com.devives.commons.lang.AbstractSynchronizedCloseable;
-import com.devives.commons.lang.ExceptionUtils;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
@@ -112,6 +110,7 @@ public class SynchronizedCloseableObjTest {
 
     private static class TestCloseableObj extends AbstractSynchronizedCloseable {
 
+        private static final long serialVersionUID = 1L;
         private final AtomicLong callCounter_ = new AtomicLong();
 
         @Override

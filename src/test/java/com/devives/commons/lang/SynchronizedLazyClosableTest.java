@@ -14,9 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.devives.commons.lifecycle;
+package com.devives.commons.lang;
 
-import com.devives.commons.lang.AbstractSynchronizedLazyCloseable;
 import com.devives.commons.util.usage.OrdinalUsage;
 import com.devives.commons.util.usage.Usage;
 import org.junit.jupiter.api.Assertions;
@@ -57,6 +56,7 @@ public class SynchronizedLazyClosableTest {
 
     private static class SynchronizedLazyCloseableImpl extends AbstractSynchronizedLazyCloseable {
 
+        private static final long serialVersionUID = 1L;
         private int someValue = 1;
 
         public int someFunction() {

@@ -82,7 +82,7 @@ abstract class LifeCycleBase extends Stateful<State> implements LifeCycle {
     private static final long serialVersionUID = 1L;
     private static final Logger LOGGER = Logger.getLogger(LifeCycleBase.class.getName());
     private final Publisher<Listener> publisher_;
-    private volatile boolean isStartAfterFailAllowed = true;
+    private volatile boolean startAfterFailAllowed_ = true;
 
     /**
      * Creates a life cycle object.
@@ -103,7 +103,7 @@ abstract class LifeCycleBase extends Stateful<State> implements LifeCycle {
      * @return {@code true} if restart from {@code FAILED} is allowed.
      */
     protected boolean isStartAfterFailAllowed() {
-        return isStartAfterFailAllowed;
+        return startAfterFailAllowed_;
     }
 
     /**
@@ -113,7 +113,7 @@ abstract class LifeCycleBase extends Stateful<State> implements LifeCycle {
      * @param value {@code true} to allow restart from {@code FAILED}.
      */
     protected void setStartAfterFailAllowed(boolean value) {
-        isStartAfterFailAllowed = value;
+        startAfterFailAllowed_ = value;
     }
 
     /**
@@ -214,7 +214,7 @@ abstract class LifeCycleBase extends Stateful<State> implements LifeCycle {
      */
     @Override
     public void start() throws Exception {
-        State[] expected = isStartAfterFailAllowed
+        State[] expected = isStartAfterFailAllowed()
                 ? new State[]{LifeCycleStates.FAILED, LifeCycleStates.STOPPED}
                 : new State[]{LifeCycleStates.STOPPED};
         if (getStateHolder().trySet(expected, LifeCycleStates.STARTING)) {

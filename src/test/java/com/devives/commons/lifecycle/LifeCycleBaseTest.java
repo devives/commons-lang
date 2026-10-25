@@ -71,6 +71,43 @@ public class LifeCycleBaseTest {
         Assertions.assertTrue(lifeCycle.isFailed());
     }
 
+    @Test
+    public void start_afterFailureByDefault_restarts() throws Exception {
+        final FailingOnceLifeCycle lifeCycle = new FailingOnceLifeCycle();
+        lifeCycle.start();
+        Assertions.assertTrue(lifeCycle.isFailed());
+
+        lifeCycle.start();
+
+        Assertions.assertTrue(lifeCycle.isStarted());
+        Assertions.assertEquals(2, lifeCycle.startCount);
+    }
+
+    @Test
+    public void start_afterFailureDisallowedBySetter_isIgnored() throws Exception {
+        final FailingOnceLifeCycle lifeCycle = new FailingOnceLifeCycle();
+        lifeCycle.setStartAfterFailAllowed(false);
+        lifeCycle.start();
+        Assertions.assertTrue(lifeCycle.isFailed());
+
+        lifeCycle.start();
+
+        Assertions.assertTrue(lifeCycle.isFailed());
+        Assertions.assertEquals(1, lifeCycle.startCount);
+    }
+
+    @Test
+    public void start_afterFailureDisallowedByOverriddenGetter_isIgnored() throws Exception {
+        final FailingOnceLifeCycle lifeCycle = new RestartForbiddingLifeCycle();
+        lifeCycle.start();
+        Assertions.assertTrue(lifeCycle.isFailed());
+
+        lifeCycle.start();
+
+        Assertions.assertTrue(lifeCycle.isFailed());
+        Assertions.assertEquals(1, lifeCycle.startCount);
+    }
+
     private static class DefaultFailureLifeCycle extends AbstractLifeCycle {
         private final RuntimeException startFailure;
         private final RuntimeException stopFailure;
@@ -117,6 +154,37 @@ public class LifeCycleBaseTest {
         protected FailureAction onFailure(Ref<Throwable> thRef) {
             thRef.set(new IllegalStateException("replaced", thRef.get()));
             return FailureAction.RETHROW;
+        }
+    }
+
+    /**
+     * Fails the first {@code onStart()} call (the failure is suppressed) and succeeds on the following ones.
+     */
+    private static class FailingOnceLifeCycle extends AbstractLifeCycle {
+        private int startCount;
+
+        @Override
+        protected void onStart() {
+            if (++startCount == 1) {
+                throw new RuntimeException("first start failed");
+            }
+        }
+
+        @Override
+        protected void onStop() {
+        }
+
+        @Override
+        protected FailureAction onFailure(Ref<Throwable> thRef) {
+            return FailureAction.SUPPRESS;
+        }
+    }
+
+    private static final class RestartForbiddingLifeCycle extends FailingOnceLifeCycle {
+
+        @Override
+        protected boolean isStartAfterFailAllowed() {
+            return false;
         }
     }
 

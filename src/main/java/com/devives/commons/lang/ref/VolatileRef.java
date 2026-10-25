@@ -19,7 +19,8 @@ package com.devives.commons.lang.ref;
 /**
  * A reference backed by a {@code volatile} field.
  * <p>
- * Instances are created by {@link #of(Object)}, {@link #ofNullable(Object)} and {@link #ofNullable()}.
+ * Implementations: {@link VolatileNullableRef} (created by {@link #ofNullable(Object)} and {@link #ofNullable()})
+ * and {@link VolatileNonNullRef} (created by {@link #of(Object)}).
  *
  * <p><strong>Thread safety.</strong></p>
  * {@link #get()} and {@link #set(Object)} are volatile read and write: a value set by one thread
@@ -28,7 +29,7 @@ package com.devives.commons.lang.ref;
  *
  * @param <T> the type of the value
  */
-public class VolatileRef<T> extends Ref<T> {
+public abstract class VolatileRef<T> extends Ref<T> {
 
     private volatile T value_;
 
@@ -56,7 +57,7 @@ public class VolatileRef<T> extends Ref<T> {
      * @return a new reference.
      */
     public static <T> VolatileRef<T> ofNullable(T value) {
-        return new VolatileRef<>(value);
+        return new VolatileNullableRef<>(value);
     }
 
     /**
@@ -66,7 +67,7 @@ public class VolatileRef<T> extends Ref<T> {
      * @return a new reference.
      */
     public static <T> VolatileRef<T> ofNullable() {
-        return new VolatileRef<>(null);
+        return new VolatileNullableRef<>(null);
     }
 
     T validate(T value) {
@@ -81,11 +82,6 @@ public class VolatileRef<T> extends Ref<T> {
     @Override
     public final void set(T value) {
         value_ = validate(value);
-    }
-
-    @Override
-    public boolean isNullable() {
-        return true;
     }
 
 }

@@ -35,7 +35,7 @@ final class NonNullRef<T> extends SimpleRef<T> {
      * @throws NullPointerException if {@code value} is {@code null}.
      */
     @Override
-    T validate(T value) {
+    protected T validate(T value) {
         return Objects.requireNonNull(value, "value");
     }
 

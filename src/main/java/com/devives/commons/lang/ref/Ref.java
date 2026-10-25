@@ -30,6 +30,8 @@ import java.util.function.Supplier;
  *     <li>{@link VolatileRef} &mdash; a {@code volatile} field; created by {@link VolatileRef#of(Object)}
  *     and {@link VolatileRef#ofNullable(Object)}.
  * </ul>
+ * {@link SimpleRef} and {@link VolatileRef} are abstract; each has two {@code final} implementations,
+ * one that may hold {@code null} and one that never does.
  * The {@code of} factories create references that never hold {@code null};
  * the {@code ofNullable} factories create references that may hold {@code null}.
  *
@@ -76,7 +78,7 @@ public abstract class Ref<T> {
      * @return a new reference.
      */
     public static <T> Ref<T> ofNullable(T value) {
-        return new SimpleRef<>(value);
+        return new NullableRef<>(value);
     }
 
     /**
@@ -86,7 +88,7 @@ public abstract class Ref<T> {
      * @return a new reference.
      */
     public static <T> Ref<T> ofNullable() {
-        return new SimpleRef<>(null);
+        return new NullableRef<>(null);
     }
 
     /**

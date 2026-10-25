@@ -19,14 +19,15 @@ package com.devives.commons.lang.ref;
 /**
  * A reference backed by a plain field.
  * <p>
- * Instances are created by {@link Ref#of(Object)}, {@link Ref#ofNullable(Object)} and {@link Ref#ofNullable()}.
+ * Implementations: {@link NullableRef} (created by {@link Ref#ofNullable(Object)} and {@link Ref#ofNullable()})
+ * and {@link NonNullRef} (created by {@link Ref#of(Object)}).
  *
  * <p><strong>Thread safety.</strong></p>
  * Not thread-safe. Concurrent access requires external synchronization.
  *
  * @param <T> the type of the value
  */
-public class SimpleRef<T> extends Ref<T> {
+public abstract class SimpleRef<T> extends Ref<T> {
 
     private T value_;
 
@@ -34,7 +35,7 @@ public class SimpleRef<T> extends Ref<T> {
         value_ = validate(value);
     }
 
-    T validate(T value) {
+    protected T validate(T value) {
         return value;
     }
 
@@ -46,11 +47,6 @@ public class SimpleRef<T> extends Ref<T> {
     @Override
     public final void set(T value) {
         value_ = validate(value);
-    }
-
-    @Override
-    public boolean isNullable() {
-        return true;
     }
 
 }

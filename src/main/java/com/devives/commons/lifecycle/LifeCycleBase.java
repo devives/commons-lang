@@ -25,6 +25,8 @@ import com.devives.commons.state.StateHolder;
 import com.devives.commons.state.Stateful;
 
 import java.util.Objects;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 /**
  * Base implementation of {@link LifeCycle} that drives the state machine of {@link LifeCycleStates}
@@ -43,15 +45,42 @@ import java.util.Objects;
  * </ul>
  * A call to {@code start()} or {@code stop()} made in any other state is silently ignored.
  *
+ * <p><strong>Releasing resources.</strong></p>
+ * This class does not track or release any resources: releasing them is the responsibility of subclasses.
+ * <ul>
+ *     <li>On a normal stop, resources acquired during start must be released in {@link #onStop()}
+ *     (or {@link #onStopping()}/{@link #onStopped()}).
+ *     <li>On a failure, {@code onStop()} is not called: {@code stop()} is ignored in the
+ *     {@link LifeCycleStates#FAILED} state. Resources acquired before the failure must therefore be released
+ *     in {@link #onFailure(Ref)}, which is called for failures of both {@code start()} and {@code stop()}.
+ *     The stage at which the failure occurred, and hence which resources have already been acquired or released,
+ *     can be determined from the current state (see {@link #onFailure(Ref)}).
+ *     <li>If restart after a failure is allowed (see {@link #isStartAfterFailAllowed()}), {@code onStarting()}
+ *     and {@code onStart()} may be called again on an object that failed earlier, so resources left over from
+ *     the previous attempt must be released before that.
+ * </ul>
+ *
  * <p><strong>Thread safety.</strong></p>
- * The transition into {@code STARTING}/{@code STOPPING} is an atomic compare-and-set on the
- * {@link StateHolder}, so of concurrent callers only one performs the operation; the others return
- * immediately without waiting for it to complete. Thread safety of listener registration and
- * notification is defined by the supplied {@link Publisher}.
+ * This class is not thread-safe by itself: it does no synchronization and relies entirely on the
+ * supplied {@link StateHolder} and {@link Publisher}.
+ * <ul>
+ *     <li>The transition into {@code STARTING}/{@code STOPPING} is a {@link StateHolder#trySet} call, which is
+ *     atomic only if the holder makes it so. {@link com.devives.commons.state.StateHolderImpl} (used by
+ *     {@link AbstractLifeCycle}) is a plain check-then-set over a non-volatile field, so concurrent calls of
+ *     {@code start()}/{@code stop()} may run the operation more than once or interleave.
+ *     <li>Hooks and listeners are called in the thread that called {@code start()}/{@code stop()};
+ *     no lock is held while they run, unless a subclass takes one.
+ *     <li>Thread safety of listener registration and notification is defined by the supplied {@link Publisher}.
+ * </ul>
+ * {@link AbstractSynchronizedLifeCycle} runs the whole of {@code start()}/{@code stop()}, including hooks and
+ * listener notification, under the lock of its {@link com.devives.commons.state.SynchronizedStateHolder}:
+ * concurrent callers are serialized and block until the running operation completes, after which they
+ * see the new state and, as a rule, return without doing anything.
  */
 abstract class LifeCycleBase extends Stateful<State> implements LifeCycle {
 
     private static final long serialVersionUID = 1L;
+    private static final Logger LOGGER = Logger.getLogger(LifeCycleBase.class.getName());
     private final Publisher<Listener> publisher_;
     private volatile boolean isStartAfterFailAllowed = true;
 
@@ -241,16 +270,25 @@ abstract class LifeCycleBase extends Stateful<State> implements LifeCycle {
         }
     }
 
-    private void beginStart() {
+    /**
+     * @throws Exception a thrown exception aborts the start procedure and moves the object to the {@link LifeCycleStates#FAILED} state.
+     */
+    private void beginStart() throws Exception {
         onStarting();
         publishStarting();
     }
 
+    /**
+     * @throws Exception a thrown exception aborts the start procedure and moves the object to the {@link LifeCycleStates#FAILED} state.
+     */
     private void doStart() throws Exception {
         onStart();
     }
 
-    private void endStart() {
+    /**
+     * @throws Exception a thrown exception aborts the start procedure and moves the object to the {@link LifeCycleStates#FAILED} state.
+     */
+    private void endStart() throws Exception {
         onStarted();
         publishStarted();
     }
@@ -259,7 +297,7 @@ abstract class LifeCycleBase extends Stateful<State> implements LifeCycle {
      * Called at the beginning of {@link #start()}, in the {@link LifeCycleStates#STARTING} state,
      * before listeners are notified. Does nothing by default.
      */
-    protected void onStarting() {
+    protected void onStarting() throws Exception {
     }
 
     /**
@@ -273,11 +311,17 @@ abstract class LifeCycleBase extends Stateful<State> implements LifeCycle {
     /**
      * Called after the object has started successfully, in the {@link LifeCycleStates#STARTED} state,
      * before listeners are notified. Does nothing by default.
+     *
+     * @throws Exception a thrown exception aborts the start procedure and moves the object to the {@link LifeCycleStates#FAILED} state.
      */
-    protected void onStarted() {
+    protected void onStarted() throws Exception {
     }
 
-    private void beginStop() {
+    /**
+     *
+     * @throws Exception a thrown exception aborts the stop procedure and moves the object to the {@link LifeCycleStates#FAILED} state.
+     */
+    private void beginStop() throws Exception {
         onStopping();
         publishStopping();
     }
@@ -285,10 +329,15 @@ abstract class LifeCycleBase extends Stateful<State> implements LifeCycle {
     /**
      * Called at the beginning of {@link #stop()}, in the {@link LifeCycleStates#STOPPING} state,
      * before listeners are notified. Does nothing by default.
+     *
+     * @throws Exception a thrown exception aborts the stop procedure and moves the object to the {@link LifeCycleStates#FAILED} state.
      */
-    protected void onStopping() {
+    protected void onStopping() throws Exception {
     }
 
+    /**
+     * @throws Exception a thrown exception aborts the stop procedure and moves the object to the {@link LifeCycleStates#FAILED} state.
+     */
     private void doStop() throws Exception {
         onStop();
     }
@@ -297,11 +346,14 @@ abstract class LifeCycleBase extends Stateful<State> implements LifeCycle {
      * Stops the object and its subordinate objects.
      * Called in the {@link LifeCycleStates#STOPPING} state.
      *
-     * @throws Exception if the object fails to stop.
+     * @throws Exception a thrown exception aborts the stop procedure and moves the object to the {@link LifeCycleStates#FAILED} state.
      */
     protected abstract void onStop() throws Exception;
 
-    private void endStop() {
+    /**
+     * @throws Exception a thrown exception aborts the stop procedure and moves the object to the {@link LifeCycleStates#FAILED} state.
+     */
+    private void endStop() throws Exception {
         onStopped();
         publishStopped();
     }
@@ -309,8 +361,10 @@ abstract class LifeCycleBase extends Stateful<State> implements LifeCycle {
     /**
      * Called after the object has stopped successfully, in the {@link LifeCycleStates#STOPPED} state,
      * before listeners are notified. Does nothing by default.
+     *
+     * @throws Exception a thrown exception aborts the stop procedure and moves the object to the {@link LifeCycleStates#FAILED} state.
      */
-    protected void onStopped() {
+    protected void onStopped() throws Exception {
     }
 
     /**
@@ -358,23 +412,50 @@ abstract class LifeCycleBase extends Stateful<State> implements LifeCycle {
     }
 
     private void publishStarting() {
-        publisher_.publish(listener -> listener.onStarting(this));
+        try {
+            publisher_.publish(listener -> listener.onStarting(this));
+        } catch (Throwable th) {
+            handleListenerError(th);
+        }
     }
 
     private void publishStarted() {
-        publisher_.publish(listener -> listener.onStarted(this));
+        try {
+            publisher_.publish(listener -> listener.onStarted(this));
+        } catch (Throwable th) {
+            handleListenerError(th);
+        }
     }
 
     private void publishStopping() {
-        publisher_.publish(listener -> listener.onStopping(this));
+        try {
+            publisher_.publish(listener -> listener.onStopping(this));
+        } catch (Throwable th) {
+            handleListenerError(th);
+        }
     }
 
     private void publishStopped() {
-        publisher_.publish(listener -> listener.onStopped(this));
+        try {
+            publisher_.publish(listener -> listener.onStopped(this));
+        } catch (Throwable th) {
+            handleListenerError(th);
+        }
     }
 
     private void publishFailure(Throwable th) {
-        publisher_.publish(listener -> listener.onFailure(this, th));
+        try {
+            publisher_.publish(listener -> listener.onFailure(this, th));
+        } catch (Throwable th2) {
+            if (th2 != th) {
+                th2.addSuppressed(th);
+            }
+            handleListenerError(th2);
+        }
     }
 
+    protected void handleListenerError(Throwable throwable) {
+        ExceptionUtils.restoreInterruptIfIsInterruptedException(throwable);
+        LOGGER.log(Level.SEVERE, throwable, () -> "Listener of " + getClass().getName() + " failed");
+    }
 }

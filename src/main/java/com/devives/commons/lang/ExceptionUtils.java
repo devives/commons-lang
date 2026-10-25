@@ -24,10 +24,7 @@ import com.devives.commons.lang.function.FailableProcedure;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 /**
  * The class contains helper methods for working with exception objects.
@@ -92,10 +89,11 @@ public final class ExceptionUtils {
      * @param innerClasses Classes of the exceptions to be searched for
      * @return {@code true} if the exception chain contains exceptions of the specified classes, otherwise {@code false}.
      */
-    public static boolean hasCauseOfClass(Throwable throwable, Class... innerClasses) {
+    @SafeVarargs
+    public static boolean hasCauseOfClass(Throwable throwable, Class<? extends Throwable>... innerClasses) {
         Throwable t = throwable;
         while (t != null) {
-            for (Class clazz : innerClasses) {
+            for (Class<?> clazz : innerClasses) {
                 if (t.getClass() == clazz) {
                     return true;
                 }
@@ -311,5 +309,17 @@ public final class ExceptionUtils {
      */
     static public void collectAndThrow(FailableProcedure... procs) {
         collect(procs).ifPresent(ExceptionUtils::throwCollected);
+    }
+
+    /**
+     * Method restore {@link Thread#isInterrupted()} flag if {@code th instanceof InterruptedException}.
+     *
+     * @param th Throwable
+     */
+    static public void restoreInterruptIfIsInterruptedException(Throwable th) {
+        Objects.requireNonNull(th);
+        if (th instanceof InterruptedException) {
+            Thread.currentThread().interrupt();
+        }
     }
 }

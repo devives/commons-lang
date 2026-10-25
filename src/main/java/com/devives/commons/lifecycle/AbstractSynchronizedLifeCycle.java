@@ -60,7 +60,7 @@ public abstract class AbstractSynchronizedLifeCycle extends LifeCycleBase {
      * @param stateHolder holder of the current state; its current value is used as the initial state.
      * @param publisher   publisher used to notify registered {@link LifeCycle.Listener}s.
      */
-    public AbstractSynchronizedLifeCycle(StateHolder<State> stateHolder, Publisher<Listener> publisher) {
+    public AbstractSynchronizedLifeCycle(SynchronizedStateHolder<State> stateHolder, Publisher<Listener> publisher) {
         super(stateHolder, publisher);
     }
 

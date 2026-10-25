@@ -36,7 +36,7 @@ final class NonNullRef<T> extends SimpleRef<T> {
      */
     @Override
     protected T validate(T value) {
-        return Objects.requireNonNull(value, "value");
+        return Objects.requireNonNull(value, "The reference value can not be null.");
     }
 
     @Override

@@ -36,7 +36,7 @@ final class VolatileNonNullRef<T> extends VolatileRef<T> {
      */
     @Override
     T validate(T value) {
-        return Objects.requireNonNull(value, "value");
+        return Objects.requireNonNull(value, "The reference value can not be null.");
     }
 
     @Override

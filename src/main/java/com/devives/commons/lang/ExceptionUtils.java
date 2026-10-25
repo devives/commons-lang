@@ -20,6 +20,7 @@ import com.devives.commons.lang.exception.AggregateException;
 import com.devives.commons.lang.exception.ArgumentNullException;
 import com.devives.commons.lang.function.FailableFunction;
 import com.devives.commons.lang.function.FailableProcedure;
+import com.devives.commons.lang.function.ThrowableProcedure;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
@@ -285,12 +286,13 @@ public final class ExceptionUtils {
      * @param procs array of anonymous methods.
      * @return collection of occurred exceptions.
      */
-    static public Optional<List<Exception>> collect(FailableProcedure... procs) {
-        List<Exception> throwables = null;
-        for (FailableProcedure proc : procs) {
+    @SafeVarargs
+    static public Optional<List<Throwable>> collect(ThrowableProcedure<? extends Throwable>... procs) {
+        List<Throwable> throwables = null;
+        for (ThrowableProcedure<? extends Throwable> proc : procs) {
             try {
                 proc.accept();
-            } catch (Exception thr) {
+            } catch (Throwable thr) {
                 if (throwables == null) {
                     throwables = new ArrayList<>();
                 }
@@ -307,7 +309,8 @@ public final class ExceptionUtils {
      *
      * @param procs array of anonymous methods.
      */
-    static public void collectAndThrow(FailableProcedure... procs) {
+    @SafeVarargs
+    static public void collectAndThrow(ThrowableProcedure<? extends Throwable>... procs) {
         collect(procs).ifPresent(ExceptionUtils::throwCollected);
     }
 

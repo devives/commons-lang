@@ -17,6 +17,7 @@
 package com.devives.commons.state;
 
 import com.devives.commons.lang.ExceptionUtils;
+import com.devives.commons.lang.Mutex;
 import com.devives.commons.lang.function.FailableFunction;
 import com.devives.commons.lang.function.FailableProcedure;
 
@@ -32,7 +33,7 @@ public final class SynchronizedStateHolderImpl<STATE> extends StateHolderBase<ST
     /**
      * Монитор, под которым выполняются изменения состояния и {@code performAtomicWork(...)}.
      */
-    private final Object mutex = new Object();
+    private final Mutex mutex = new Mutex();
     /**
      * Текущее состояние.
      */

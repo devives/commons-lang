@@ -38,7 +38,7 @@ public final class SynchronizedLazyClosingDirector extends LazyClosingDirectorBa
      * Синхронизирует доступ к полям {@link #closeTimeStamp_}, {@link #usageCounter_}, {@link #closingThread_}
      * и {@link #closeCompleted_}.
      */
-    private final Object lock_ = new Object();
+    private final Mutex lock_ = new Mutex();
 
     /**
      * Создаёт распорядителя отложенного закрытия.

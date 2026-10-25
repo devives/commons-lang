@@ -16,6 +16,8 @@
  */
 package com.devives.commons.listener;
 
+import com.devives.commons.lang.Mutex;
+
 /**
  * A class that extends ListenersWrapper and provides a way to synchronize access to listeners.
  *
@@ -25,7 +27,7 @@ package com.devives.commons.listener;
  */
 public final class SynchronizedListeners<I> extends ListenersWrapper<I> {
 
-    private final Object mutex_ = new Object();
+    private final Mutex mutex_ = new Mutex();
 
     /**
      * Constructs a new SynchronizedListeners with the specified listeners.

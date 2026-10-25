@@ -16,6 +16,8 @@
  */
 package com.devives.commons.lang.ref;
 
+import com.devives.commons.lang.Mutex;
+
 import java.util.Objects;
 import java.util.function.Supplier;
 
@@ -43,7 +45,7 @@ import java.util.function.Supplier;
  * @param <T> - Тип объекта, на который будет храниться ссылка.
  */
 public final class SynchronizedLazyRef<T> extends LazyRef<T> {
-    private final Object mutex_ = new Object();
+    private final Mutex mutex_ = new Mutex();
     private volatile T val_;
 
     /**

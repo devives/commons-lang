@@ -16,6 +16,7 @@
  */
 package com.devives.commons.state;
 
+import java.io.Serializable;
 import java.util.function.Function;
 
 /**
@@ -23,7 +24,7 @@ import java.util.function.Function;
  *
  * @param <STATE> the type of states.
  */
-public interface StateHolder<STATE> {
+public interface StateHolder<STATE> extends Serializable {
 
     /**
      * Return object state.

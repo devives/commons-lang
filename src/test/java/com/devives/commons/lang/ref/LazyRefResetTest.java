@@ -14,11 +14,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.devives.commons.lang;
+package com.devives.commons.lang.ref;
 
-import com.devives.commons.lang.ref.LazyRef;
-import com.devives.commons.lang.ref.SynchronizedLazyRef;
-import com.devives.commons.lang.ref.SimpleLazyRef;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +28,7 @@ public class LazyRefResetTest {
     @Test
     public void unsynchronizedLazyRef_reset_reinitializesOnNextGet() {
         final AtomicInteger counter = new AtomicInteger();
-        final LazyRef<Integer> ref = new SimpleLazyRef<>(counter::incrementAndGet);
+        final LazyRef<Integer> ref = LazyRef.of(counter::incrementAndGet);
 
         Assertions.assertEquals(1, ref.get());
         Assertions.assertEquals(1, ref.get());
@@ -46,7 +43,7 @@ public class LazyRefResetTest {
     @Test
     public void synchronizedLazyRef_reset_reinitializesOnNextGet() {
         final AtomicInteger counter = new AtomicInteger();
-        final LazyRef<Integer> ref = new SynchronizedLazyRef<>(counter::incrementAndGet);
+        final LazyRef<Integer> ref = LazyRef.ofSynchronized(counter::incrementAndGet);
 
         Assertions.assertEquals(1, ref.get());
         Assertions.assertEquals(1, ref.get());
@@ -60,12 +57,12 @@ public class LazyRefResetTest {
 
     @Test
     public void unsynchronizedLazyRef_set_skipsInitiator() {
-        assertSetSkipsInitiator(SimpleLazyRef::new);
+        assertSetSkipsInitiator(LazyRef::of);
     }
 
     @Test
     public void synchronizedLazyRef_set_skipsInitiator() {
-        assertSetSkipsInitiator(SynchronizedLazyRef::new);
+        assertSetSkipsInitiator(LazyRef::ofSynchronized);
     }
 
     @Test

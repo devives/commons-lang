@@ -39,24 +39,23 @@ import java.util.function.Supplier;
  *
  * @param <T> - Тип объекта, на который будет храниться ссылка.
  */
-public final class SimpleLazyRef<T> implements LazyRef<T> {
+public final class SimpleLazyRef<T> extends LazyRef<T> {
     private T val_;
-    private final Supplier<T> initiator_;
 
     /**
-     * Используйте этот конструктор, если планируете использовать метод {@link #getOrCreate(Supplier)}.
+     * Используется фабрикой {@link LazyRef#of()}, если планируется использовать метод {@link #getOrCreate(Supplier)}.
      */
-    public SimpleLazyRef() {
+    SimpleLazyRef() {
         this(null);
     }
 
     /**
-     * Используйте этот конструктор, если планируете использовать метод get().
+     * Используется фабрикой {@link LazyRef#of(Supplier)}, если планируется использовать метод {@link #get()}.
      *
      * @param initiator инициализатор значения.
      */
-    public SimpleLazyRef(Supplier<T> initiator) {
-        initiator_ = initiator;
+    SimpleLazyRef(Supplier<T> initiator) {
+        super(initiator);
     }
 
     @Override
@@ -65,11 +64,6 @@ public final class SimpleLazyRef<T> implements LazyRef<T> {
             val_ = Objects.requireNonNull(initiator, "initiator").get();
         }
         return val_;
-    }
-
-    @Override
-    public T get() {
-        return getOrCreate(initiator_);
     }
 
     @Override

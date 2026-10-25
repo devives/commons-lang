@@ -42,25 +42,26 @@ import java.util.function.Supplier;
  *
  * @param <T> - Тип объекта, на который будет храниться ссылка.
  */
-public final class SynchronizedLazyRef<T> implements LazyRef<T> {
+public final class SynchronizedLazyRef<T> extends LazyRef<T> {
     private final Object mutex_ = new Object();
-    private final Supplier<T> initiator_;
     private volatile T val_;
 
     /**
-     * Используйте этот конструктор, если планируете использовать метод {@link #getOrCreate(Supplier)}.
+     * Используется фабрикой {@link LazyRef#ofSynchronized()}, если планируется использовать метод
+     * {@link #getOrCreate(Supplier)}.
      */
-    public SynchronizedLazyRef() {
+    SynchronizedLazyRef() {
         this(null);
     }
 
     /**
-     * Используйте этот конструктор, если планируете использовать метод get().
+     * Используется фабрикой {@link LazyRef#ofSynchronized(Supplier)}, если планируется использовать метод
+     * {@link #get()}.
      *
      * @param initiator Будет вызван при первом обращении к методу {@link #get()}.
      */
-    public SynchronizedLazyRef(Supplier<T> initiator) {
-        initiator_ = initiator;
+    SynchronizedLazyRef(Supplier<T> initiator) {
+        super(initiator);
     }
 
     @Override
@@ -76,11 +77,6 @@ public final class SynchronizedLazyRef<T> implements LazyRef<T> {
             }
         }
         return val;
-    }
-
-    @Override
-    public T get() {
-        return getOrCreate(initiator_);
     }
 
     @Override

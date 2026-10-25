@@ -34,6 +34,10 @@ import java.util.function.Supplier;
  * }
  * }</pre>
  *
+ * <p>
+ * Иерархия закрыта: наследовать класс можно только внутри пакета. Экземпляры создаются фабриками
+ * {@link #of()}, {@link #of(Supplier)}, {@link #ofSynchronized()} и {@link #ofSynchronized(Supplier)}.
+ *
  * <p><strong>Потокобезопасность.</strong></p>
  * Зависит от реализации:
  * <ul>
@@ -44,7 +48,13 @@ import java.util.function.Supplier;
  *
  * @param <T> - Тип объекта, на который будет храниться ссылка.
  */
-public interface LazyRef<T> {
+public abstract class LazyRef<T> {
+
+    private final Supplier<T> initiator_;
+
+    LazyRef(Supplier<T> initiator) {
+        initiator_ = initiator;
+    }
 
     /**
      * Создаёт ленивую ссылку без синхронизации и без инициализатора.
@@ -53,7 +63,7 @@ public interface LazyRef<T> {
      * @param <T> тип значения.
      * @return новая ссылка {@link SimpleLazyRef}.
      */
-    static <T> LazyRef<T> of() {
+    public static <T> LazyRef<T> of() {
         return new SimpleLazyRef<>();
     }
 
@@ -64,7 +74,7 @@ public interface LazyRef<T> {
      * @param <T>       тип значения.
      * @return новая ссылка {@link SimpleLazyRef}.
      */
-    static <T> LazyRef<T> of(Supplier<T> initiator) {
+    public static <T> LazyRef<T> of(Supplier<T> initiator) {
         return new SimpleLazyRef<>(initiator);
     }
 
@@ -75,7 +85,7 @@ public interface LazyRef<T> {
      * @param <T> тип значения.
      * @return новая ссылка {@link SynchronizedLazyRef}.
      */
-    static <T> LazyRef<T> ofSynchronized() {
+    public static <T> LazyRef<T> ofSynchronized() {
         return new SynchronizedLazyRef<>();
     }
 
@@ -86,7 +96,7 @@ public interface LazyRef<T> {
      * @param <T>       тип значения.
      * @return новая ссылка {@link SynchronizedLazyRef}.
      */
-    static <T> LazyRef<T> ofSynchronized(Supplier<T> initiator) {
+    public static <T> LazyRef<T> ofSynchronized(Supplier<T> initiator) {
         return new SynchronizedLazyRef<>(initiator);
     }
 
@@ -97,7 +107,7 @@ public interface LazyRef<T> {
      * @return Ссылка на объект, созданный ранее или новый.
      * @throws NullPointerException если значения нет и {@code initiator} равен {@code null}.
      */
-    T getOrCreate(Supplier<T> initiator);
+    public abstract T getOrCreate(Supplier<T> initiator);
 
     /**
      * Возвращает ссылку на объект типа T, создав его при первом обращении к ленивой ссылке с помощью переданной
@@ -106,14 +116,16 @@ public interface LazyRef<T> {
      * @return Значение
      * @throws NullPointerException если значения нет и ссылка создана без инициализатора.
      */
-    T get();
+    public final T get() {
+        return getOrCreate(initiator_);
+    }
 
     /**
      * Метод проверяет наличие значения.
      *
      * @return {@code true}, если значение не равно {@code null}, иначе {@code false}.
      */
-    boolean isPresent();
+    public abstract boolean isPresent();
 
     /**
      * Устанавливает значение. Инициализатор при этом не вызывается.
@@ -121,12 +133,12 @@ public interface LazyRef<T> {
      *
      * @param value новое значение.
      */
-    void set(T value);
+    public abstract void set(T value);
 
     /**
      * Сбрасывает значение. Следующее обращение к {@link #get()} или {@link #getOrCreate(Supplier)}
      * снова вызовет инициализатор.
      */
-    void reset();
+    public abstract void reset();
 
 }

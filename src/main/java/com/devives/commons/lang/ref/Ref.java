@@ -16,6 +16,7 @@
  */
 package com.devives.commons.lang.ref;
 
+import java.util.Objects;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
@@ -23,24 +24,37 @@ import java.util.function.Supplier;
  * A mutable reference to a value, used to pass a variable "by reference",
  * e.g. to change a local variable from a lambda.
  * <p>
- * Instances are created by the factory methods:
+ * The hierarchy is closed: it cannot be extended outside this package.
  * <ul>
- *     <li>{@link #of(Object)} &mdash; the reference never holds {@code null};
- *     <li>{@link #ofNullable(Object)} &mdash; the reference may hold {@code null}.
+ *     <li>{@link SimpleRef} &mdash; a plain field; created by {@link #of(Object)} and {@link #ofNullable(Object)};
+ *     <li>{@link VolatileRef} &mdash; a {@code volatile} field; created by {@link VolatileRef#of(Object)}
+ *     and {@link VolatileRef#ofNullable(Object)}.
  * </ul>
+ * The {@code of} factories create references that never hold {@code null};
+ * the {@code ofNullable} factories create references that may hold {@code null}.
  *
  * <p><strong>Equality.</strong></p>
  * Two references are equal if both are {@code Ref} and their values are equal
- * according to {@link java.util.Objects#equals(Object, Object)}. The implementation and
- * {@link #isNullable()} do not affect equality. The hash code is the hash code of the value,
+ * according to {@link java.util.Objects#equals(Object, Object)}. The implementation,
+ * {@link #isNullable()} and volatility do not affect equality. The hash code is the hash code of the value,
  * or 0 if the value is {@code null}.
  *
  * <p><strong>Thread safety.</strong></p>
- * Implementations are not thread-safe. Concurrent access requires external synchronization.
+ * {@link SimpleRef} is not thread-safe; concurrent access requires external synchronization.
+ * {@link VolatileRef} guarantees visibility of {@link #get()} and {@link #set(Object)} between threads,
+ * but compound actions (check-then-act) are not atomic.
+ *
+ * <p><strong>Performance.</strong></p>
+ * {@link #get()} and {@link #set(Object)} have two implementations ({@link SimpleRef} and {@link VolatileRef}).
+ * A hot call site through the {@code Ref} type that sees all kinds of references may become megamorphic;
+ * declare variables as {@link SimpleRef} or {@link VolatileRef} where this matters.
  *
  * @param <T> the type of the value
  */
-public interface Ref<T> {
+public abstract class Ref<T> {
+
+    Ref() {
+    }
 
     /**
      * Creates a reference that never holds {@code null}.
@@ -50,8 +64,8 @@ public interface Ref<T> {
      * @return a new reference.
      * @throws NullPointerException if {@code value} is {@code null}.
      */
-    static <T> Ref<T> of(T value) {
-        return new NonNullableRef<>(value);
+    public static <T> Ref<T> of(T value) {
+        return new NonNullRef<>(value);
     }
 
     /**
@@ -61,8 +75,8 @@ public interface Ref<T> {
      * @param <T>   the type of the value.
      * @return a new reference.
      */
-    static <T> Ref<T> ofNullable(T value) {
-        return new NullableRef<>(value);
+    public static <T> Ref<T> ofNullable(T value) {
+        return new SimpleRef<>(value);
     }
 
     /**
@@ -71,8 +85,8 @@ public interface Ref<T> {
      * @param <T> the type of the value.
      * @return a new reference.
      */
-    static <T> Ref<T> ofNullable() {
-        return new NullableRef<>(null);
+    public static <T> Ref<T> ofNullable() {
+        return new SimpleRef<>(null);
     }
 
     /**
@@ -80,7 +94,7 @@ public interface Ref<T> {
      *
      * @return the value; never {@code null} unless {@link #isNullable()}.
      */
-    T get();
+    public abstract T get();
 
     /**
      * Sets the value.
@@ -88,28 +102,32 @@ public interface Ref<T> {
      * @param value the new value.
      * @throws NullPointerException if {@code value} is {@code null} and the reference is not {@link #isNullable()}.
      */
-    void set(T value);
+    public abstract void set(T value);
 
     /**
      * Returns whether the reference may hold {@code null}.
      *
-     * @return {@code true} if created by {@link #ofNullable(Object)}, {@code false} if by {@link #of(Object)}.
+     * @return {@code true} if created by an {@code ofNullable} factory, {@code false} if by an {@code of} factory.
      */
-    boolean isNullable();
+    public abstract boolean isNullable();
 
     /**
      * Return {@code true} if there is a value not present, otherwise {@code false}.
      *
      * @return {@code true} if there is a value not present, otherwise {@code false}
      */
-    boolean isNull();
+    public final boolean isNull() {
+        return get() == null;
+    }
 
     /**
      * Return {@code true} if there is a value present, otherwise {@code false}.
      *
      * @return {@code true} if there is a value present, otherwise {@code false}
      */
-    boolean isPresent();
+    public final boolean isPresent() {
+        return get() != null;
+    }
 
     /**
      * If a value is present, invoke the specified consumer with the value,
@@ -119,7 +137,12 @@ public interface Ref<T> {
      * @throws NullPointerException if value is present and {@code consumer} is
      *                              null
      */
-    void ifPresent(Consumer<? super T> consumer);
+    public final void ifPresent(Consumer<? super T> consumer) {
+        final T value = get();
+        if (value != null) {
+            consumer.accept(value);
+        }
+    }
 
     /**
      * Return the value if present, otherwise return {@code other}.
@@ -128,7 +151,10 @@ public interface Ref<T> {
      *              be null
      * @return the value, if present, otherwise {@code other}
      */
-    T orElse(T other);
+    public final T orElse(T other) {
+        final T value = get();
+        return value != null ? value : other;
+    }
 
     /**
      * Return the value if present, otherwise invoke {@code other} and return
@@ -140,6 +166,30 @@ public interface Ref<T> {
      * @throws NullPointerException if value is not present and {@code other} is
      *                              null
      */
-    T orElseGet(Supplier<? extends T> other);
+    public final T orElseGet(Supplier<? extends T> other) {
+        final T value = get();
+        return value != null ? value : other.get();
+    }
+
+    @Override
+    public final boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof Ref)) {
+            return false;
+        }
+        return Objects.equals(get(), ((Ref<?>) obj).get());
+    }
+
+    @Override
+    public final int hashCode() {
+        return Objects.hashCode(get());
+    }
+
+    @Override
+    public final String toString() {
+        return "Ref[" + get() + "]";
+    }
 
 }

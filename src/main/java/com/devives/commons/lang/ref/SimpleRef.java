@@ -17,14 +17,35 @@
 package com.devives.commons.lang.ref;
 
 /**
- * {@link Ref} that may hold {@code null}. Created by {@link Ref#ofNullable(Object)}.
+ * A reference backed by a plain field.
+ * <p>
+ * Instances are created by {@link Ref#of(Object)}, {@link Ref#ofNullable(Object)} and {@link Ref#ofNullable()}.
+ *
+ * <p><strong>Thread safety.</strong></p>
+ * Not thread-safe. Concurrent access requires external synchronization.
  *
  * @param <T> the type of the value
  */
-final class NullableRef<T> extends AbstractRef<T> {
+public class SimpleRef<T> extends Ref<T> {
 
-    NullableRef(T value) {
-        super(value);
+    private T value_;
+
+    SimpleRef(T value) {
+        value_ = validate(value);
+    }
+
+    T validate(T value) {
+        return value;
+    }
+
+    @Override
+    public final T get() {
+        return value_;
+    }
+
+    @Override
+    public final void set(T value) {
+        value_ = validate(value);
     }
 
     @Override

@@ -23,9 +23,9 @@ import java.util.Objects;
  *
  * @param <T> the type of the value
  */
-final class NonNullableRef<T> extends AbstractRef<T> {
+final class NonNullRef<T> extends SimpleRef<T> {
 
-    NonNullableRef(T value) {
+    NonNullRef(T value) {
         super(value);
     }
 
@@ -35,7 +35,7 @@ final class NonNullableRef<T> extends AbstractRef<T> {
      * @throws NullPointerException if {@code value} is {@code null}.
      */
     @Override
-    protected T validate(T value) {
+    T validate(T value) {
         return Objects.requireNonNull(value, "value");
     }
 

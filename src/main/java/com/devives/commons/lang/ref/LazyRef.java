@@ -37,7 +37,7 @@ import java.util.function.Supplier;
  * <p><strong>Потокобезопасность.</strong></p>
  * Зависит от реализации:
  * <ul>
- *     <li>{@link UnsynchronizedLazyRef} ({@link #of()}, {@link #of(Supplier)}) &mdash; не потокобезопасна;
+ *     <li>{@link SimpleLazyRef} ({@link #of()}, {@link #of(Supplier)}) &mdash; не потокобезопасна;
  *     <li>{@link SynchronizedLazyRef} ({@link #ofSynchronized()}, {@link #ofSynchronized(Supplier)}) &mdash;
  *     потокобезопасна, инициализатор вызывается не более одного раза до сброса.
  * </ul>
@@ -51,10 +51,10 @@ public interface LazyRef<T> {
      * Значение создаётся методом {@link #getOrCreate(Supplier)}.
      *
      * @param <T> тип значения.
-     * @return новая ссылка {@link UnsynchronizedLazyRef}.
+     * @return новая ссылка {@link SimpleLazyRef}.
      */
     static <T> LazyRef<T> of() {
-        return new UnsynchronizedLazyRef<>();
+        return new SimpleLazyRef<>();
     }
 
     /**
@@ -62,10 +62,10 @@ public interface LazyRef<T> {
      *
      * @param initiator инициализатор значения, будет вызван при первом обращении к методу {@link #get()}.
      * @param <T>       тип значения.
-     * @return новая ссылка {@link UnsynchronizedLazyRef}.
+     * @return новая ссылка {@link SimpleLazyRef}.
      */
     static <T> LazyRef<T> of(Supplier<T> initiator) {
-        return new UnsynchronizedLazyRef<>(initiator);
+        return new SimpleLazyRef<>(initiator);
     }
 
     /**

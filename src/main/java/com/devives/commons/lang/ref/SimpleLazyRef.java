@@ -39,14 +39,14 @@ import java.util.function.Supplier;
  *
  * @param <T> - Тип объекта, на который будет храниться ссылка.
  */
-public final class UnsynchronizedLazyRef<T> implements LazyRef<T> {
+public final class SimpleLazyRef<T> implements LazyRef<T> {
     private T val_;
     private final Supplier<T> initiator_;
 
     /**
      * Используйте этот конструктор, если планируете использовать метод {@link #getOrCreate(Supplier)}.
      */
-    public UnsynchronizedLazyRef() {
+    public SimpleLazyRef() {
         this(null);
     }
 
@@ -55,7 +55,7 @@ public final class UnsynchronizedLazyRef<T> implements LazyRef<T> {
      *
      * @param initiator инициализатор значения.
      */
-    public UnsynchronizedLazyRef(Supplier<T> initiator) {
+    public SimpleLazyRef(Supplier<T> initiator) {
         initiator_ = initiator;
     }
 

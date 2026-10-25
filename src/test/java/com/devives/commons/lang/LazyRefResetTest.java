@@ -18,7 +18,7 @@ package com.devives.commons.lang;
 
 import com.devives.commons.lang.ref.LazyRef;
 import com.devives.commons.lang.ref.SynchronizedLazyRef;
-import com.devives.commons.lang.ref.UnsynchronizedLazyRef;
+import com.devives.commons.lang.ref.SimpleLazyRef;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 
@@ -31,7 +31,7 @@ public class LazyRefResetTest {
     @Test
     public void unsynchronizedLazyRef_reset_reinitializesOnNextGet() {
         final AtomicInteger counter = new AtomicInteger();
-        final LazyRef<Integer> ref = new UnsynchronizedLazyRef<>(counter::incrementAndGet);
+        final LazyRef<Integer> ref = new SimpleLazyRef<>(counter::incrementAndGet);
 
         Assertions.assertEquals(1, ref.get());
         Assertions.assertEquals(1, ref.get());
@@ -60,7 +60,7 @@ public class LazyRefResetTest {
 
     @Test
     public void unsynchronizedLazyRef_set_skipsInitiator() {
-        assertSetSkipsInitiator(UnsynchronizedLazyRef::new);
+        assertSetSkipsInitiator(SimpleLazyRef::new);
     }
 
     @Test
@@ -73,7 +73,7 @@ public class LazyRefResetTest {
         final AtomicInteger counter = new AtomicInteger();
         final LazyRef<Integer> ref = LazyRef.of(counter::incrementAndGet);
 
-        Assertions.assertInstanceOf(UnsynchronizedLazyRef.class, ref);
+        Assertions.assertInstanceOf(SimpleLazyRef.class, ref);
         Assertions.assertEquals(0, counter.get());
         Assertions.assertEquals(1, ref.get());
     }
@@ -82,7 +82,7 @@ public class LazyRefResetTest {
     public void of_withoutInitiator_returnsUnsynchronizedRef() {
         final LazyRef<Integer> ref = LazyRef.of();
 
-        Assertions.assertInstanceOf(UnsynchronizedLazyRef.class, ref);
+        Assertions.assertInstanceOf(SimpleLazyRef.class, ref);
         Assertions.assertThrows(NullPointerException.class, ref::get);
         Assertions.assertEquals(42, ref.getOrCreate(() -> 42));
     }

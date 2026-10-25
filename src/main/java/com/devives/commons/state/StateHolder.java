@@ -74,7 +74,7 @@ public interface StateHolder<STATE> extends Serializable {
      * Checks whether the current state is equivalent to the expected state.
      *
      * @param expected Expected state.
-     * @throws InvalidStateException if the current state is equivalent to the one of expected states.
+     * @throws InvalidStateException if the current state is not equivalent to the one of expected states.
      * @throws IllegalArgumentException expected array length is empty.
      */
     void validate(STATE... expected);
@@ -85,7 +85,7 @@ public interface StateHolder<STATE> extends Serializable {
      * @param expected          Expected state.
      * @param exceptionSupplier Exception instance supplier.
      * @param <E>               Type of exception.
-     * @throws InvalidStateException if the current state is equivalent to the expected state.
+     * @throws InvalidStateException if the current state is not equivalent to the expected state.
      */
     <E extends InvalidStateException> void validate(STATE expected, Function<STATE, E> exceptionSupplier) throws E;
 
@@ -95,7 +95,7 @@ public interface StateHolder<STATE> extends Serializable {
      * @param expected          Expected state.
      * @param exceptionSupplier Exception instance supplier.
      * @param <E>               Type of exception.
-     * @throws InvalidStateException if the current state is equivalent to the expected state.
+     * @throws InvalidStateException if the current state is not equivalent to the expected state.
      */
     <E extends InvalidStateException> void validate(STATE[] expected, Function<STATE, E> exceptionSupplier) throws E;
 

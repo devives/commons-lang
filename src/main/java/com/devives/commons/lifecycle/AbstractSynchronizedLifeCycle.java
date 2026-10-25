@@ -20,7 +20,6 @@ import com.devives.commons.listener.ListenersBuilder;
 import com.devives.commons.publisher.Publisher;
 import com.devives.commons.publisher.Publishers;
 import com.devives.commons.state.State;
-import com.devives.commons.state.StateHolder;
 import com.devives.commons.state.SynchronizedStateHolder;
 import com.devives.commons.state.SynchronizedStateHolderImpl;
 

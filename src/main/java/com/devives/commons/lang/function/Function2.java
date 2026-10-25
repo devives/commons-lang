@@ -16,7 +16,21 @@
  */
 package com.devives.commons.lang.function;
 
+/**
+ * A function with two arguments.
+ *
+ * @param <T1> the type of the first argument
+ * @param <T2> the type of the second argument
+ * @param <R> the type of the result
+ */
 @FunctionalInterface
 public interface Function2<T1, T2, R> {
+    /**
+     * Applies this function to the given arguments.
+     *
+     * @param a1 the first argument
+     * @param a2 the second argument
+     * @return the function result
+     */
     R apply(T1 a1, T2 a2);
 }

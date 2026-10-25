@@ -16,13 +16,24 @@
  */
 package com.devives.commons.state;
 
+/**
+ * Signals that an object is in a state that does not allow the requested operation.
+ */
 public class InvalidStateException extends IllegalStateException {
 
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Creates an exception without a message.
+     */
     public InvalidStateException() {
     }
 
+    /**
+     * Creates an exception.
+     *
+     * @param message the detail message.
+     */
     public InvalidStateException(String message) {
         super(message);
     }

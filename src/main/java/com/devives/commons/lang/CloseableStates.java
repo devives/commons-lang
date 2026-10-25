@@ -19,6 +19,9 @@ package com.devives.commons.lang;
 import com.devives.commons.state.State;
 import com.devives.commons.state.StateFactory;
 
+/**
+ * States of a closeable object and the methods that check them.
+ */
 public interface CloseableStates {
 
     /**
@@ -49,8 +52,20 @@ public interface CloseableStates {
      */
     boolean isClosed();
 
+    /**
+     * The resource is being opened.
+     */
     State OPENING = StateFactory.named("OPENING");
+    /**
+     * The resource is open.
+     */
     State OPENED = StateFactory.named("OPENED");
+    /**
+     * The resource is being closed.
+     */
     State CLOSING = StateFactory.named("CLOSING");
+    /**
+     * The resource is closed.
+     */
     State CLOSED = StateFactory.named("CLOSED");
 }

@@ -21,6 +21,11 @@ package com.devives.commons.lang.exception;
  */
 public class ArgumentNullException extends RuntimeException {
 
+    /**
+     * Создаёт исключение.
+     *
+     * @param argumentName имя аргумента, переданного со значением {@code null}.
+     */
     public ArgumentNullException(String argumentName) {
         super("Required argument '" + argumentName + "' value is null.");
     }

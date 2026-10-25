@@ -18,9 +18,16 @@ package com.devives.commons.lang.function;
 
 /**
  * A procedure with one argument.
+ *
+ * @param <T> the type of the argument
  */
 @FunctionalInterface
 public interface Procedure1<T> {
+    /**
+     * Performs this procedure on the given argument.
+     *
+     * @param a the argument
+     */
     void accept(T a);
 
 }

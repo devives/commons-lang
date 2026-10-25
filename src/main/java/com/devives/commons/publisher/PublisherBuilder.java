@@ -43,6 +43,12 @@ import com.devives.commons.listener.ListenersBuilder;
 public final class PublisherBuilder<I> extends AbstractPublisherBuilder<I, Publisher<I>, PublisherBuilder<I>> {
 
     /**
+     * Creates a builder with the default settings.
+     */
+    public PublisherBuilder() {
+    }
+
+    /**
      * Creates the concrete {@link DefaultPublisher} instance using the configured
      * listeners and distributor strategy.
      *

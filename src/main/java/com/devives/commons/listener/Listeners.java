@@ -92,6 +92,7 @@ public interface Listeners<I> {
     /**
      * Return the new instance of {@link ListenersBuilder}.
      *
+     * @param <I> the type of listeners.
      * @return new instance of builder.
      */
     static <I> ListenersBuilder<I> builder() {

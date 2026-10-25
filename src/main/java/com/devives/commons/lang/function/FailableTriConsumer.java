@@ -18,6 +18,10 @@ package com.devives.commons.lang.function;
 
 /**
  * A procedure with three arguments that can throw an exception of the specified type.
+ *
+ * @param <T1> the type of the first argument
+ * @param <T2> the type of the second argument
+ * @param <T3> the type of the third argument
  */
 @FunctionalInterface
 public interface FailableTriConsumer<T1, T2, T3> extends ThrowableTriConsumer<T1, T2, T3, Exception> {

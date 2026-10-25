@@ -296,6 +296,8 @@ abstract class LifeCycleBase extends Stateful<State> implements LifeCycle {
     /**
      * Called at the beginning of {@link #start()}, in the {@link LifeCycleStates#STARTING} state,
      * before listeners are notified. Does nothing by default.
+     *
+     * @throws Exception a thrown exception aborts the start procedure and moves the object to the {@link LifeCycleStates#FAILED} state.
      */
     protected void onStarting() throws Exception {
     }
@@ -454,6 +456,15 @@ abstract class LifeCycleBase extends Stateful<State> implements LifeCycle {
         }
     }
 
+    /**
+     * Handles an exception thrown by a {@link LifeCycle.Listener} or by the {@link Publisher} while notifying listeners.
+     * <p>
+     * By default restores the interrupt flag for {@link InterruptedException} and logs the error;
+     * the life cycle operation continues. An override may throw a {@link RuntimeException} to abort
+     * the operation and move the object to the {@link LifeCycleStates#FAILED} state.
+     *
+     * @param throwable the exception thrown during notification.
+     */
     protected void handleListenerError(Throwable throwable) {
         ExceptionUtils.restoreInterruptIfIsInterruptedException(throwable);
         LOGGER.log(Level.SEVERE, throwable, () -> "Listener of " + getClass().getName() + " failed");

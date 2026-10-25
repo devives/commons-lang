@@ -16,6 +16,9 @@
  */
 package com.devives.commons.lang.tuple;
 
+/**
+ * Неизменяемый кортеж без элементов.
+ */
 public final class Tuple0 extends Tuple {
 
     Tuple0() {

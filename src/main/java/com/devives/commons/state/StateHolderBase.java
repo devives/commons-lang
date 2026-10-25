@@ -45,6 +45,12 @@ public abstract class StateHolderBase<STATE> implements StateHolder<STATE>, Seri
     private static final long serialVersionUID = 1L;
 
     /**
+     * Создаёт хранитель состояния.
+     */
+    protected StateHolderBase() {
+    }
+
+    /**
      * INTERNAL: Возвращает текущее значение состояния.
      *
      * @return текущее состояние.

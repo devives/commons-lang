@@ -21,5 +21,9 @@ package com.devives.commons.lang.function;
  */
 @FunctionalInterface
 public interface Procedure {
+    /**
+     * Performs this procedure.
+     *
+     */
     void accept();
 }

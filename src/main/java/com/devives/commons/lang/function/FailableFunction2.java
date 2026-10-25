@@ -18,6 +18,10 @@ package com.devives.commons.lang.function;
 
 /**
  * A function with two arguments that can throw an exception of the specified type.
+ *
+ * @param <T1> the type of the first argument
+ * @param <T2> the type of the second argument
+ * @param <R> the type of the result
  */
 @FunctionalInterface
 public interface FailableFunction2<T1, T2, R> extends ThrowableFunction2<T1, T2, R, Exception> {

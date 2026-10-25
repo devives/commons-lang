@@ -16,7 +16,23 @@
  */
 package com.devives.commons.lang.function;
 
+/**
+ * A function with three arguments.
+ *
+ * @param <T1> the type of the first argument
+ * @param <T2> the type of the second argument
+ * @param <T3> the type of the third argument
+ * @param <R> the type of the result
+ */
 @FunctionalInterface
 public interface Function3<T1, T2, T3, R> {
+    /**
+     * Applies this function to the given arguments.
+     *
+     * @param a1 the first argument
+     * @param a2 the second argument
+     * @param a3 the third argument
+     * @return the function result
+     */
     R apply(T1 a1, T2 a2, T3 a3);
 }

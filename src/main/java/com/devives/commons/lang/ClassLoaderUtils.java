@@ -20,6 +20,9 @@ package com.devives.commons.lang;
 import com.devives.commons.lang.function.FailableFunction;
 import com.devives.commons.lang.function.FailableProcedure;
 
+/**
+ * Утилиты выполнения кода с заданным загрузчиком классов контекста потока.
+ */
 public final class ClassLoaderUtils {
 
     private ClassLoaderUtils() {

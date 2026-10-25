@@ -21,17 +21,36 @@ package com.devives.commons.lang.exception;
  */
 public class EmptyStringException extends RuntimeException {
 
+    /**
+     * Создаёт исключение без сообщения.
+     */
     public EmptyStringException() {
     }
 
+    /**
+     * Создаёт исключение с сообщением.
+     *
+     * @param message сообщение.
+     */
     public EmptyStringException(String message) {
         super(message);
     }
 
+    /**
+     * Создаёт исключение с сообщением и причиной.
+     *
+     * @param message сообщение.
+     * @param cause   причина.
+     */
     public EmptyStringException(String message, Throwable cause) {
         super(message, cause);
     }
 
+    /**
+     * Создаёт исключение с причиной.
+     *
+     * @param cause причина.
+     */
     public EmptyStringException(Throwable cause) {
         super(cause);
     }

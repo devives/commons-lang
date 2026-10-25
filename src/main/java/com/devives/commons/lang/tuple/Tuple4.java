@@ -18,10 +18,30 @@ package com.devives.commons.lang.tuple;
 
 import java.util.Objects;
 
+/**
+ * Неизменяемый кортеж из 4 элементов.
+ *
+ * @param <T1> тип элемента 1
+ * @param <T2> тип элемента 2
+ * @param <T3> тип элемента 3
+ * @param <T4> тип элемента 4
+ */
 public final class Tuple4<T1, T2, T3, T4> extends Tuple {
+    /**
+     * Элемент 1.
+     */
     public final T1 _1;
+    /**
+     * Элемент 2.
+     */
     public final T2 _2;
+    /**
+     * Элемент 3.
+     */
     public final T3 _3;
+    /**
+     * Элемент 4.
+     */
     public final T4 _4;
 
     Tuple4(T1 _1, T2 _2, T3 _3, T4 _4) {

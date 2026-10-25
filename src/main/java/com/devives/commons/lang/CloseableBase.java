@@ -27,6 +27,11 @@ import com.devives.commons.state.Stateful;
 public abstract class CloseableBase extends Stateful<State> implements CloseableStates {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Creates an object.
+     *
+     * @param stateHolder holder of the current state.
+     */
     public CloseableBase(StateHolder<State> stateHolder) {
         super(stateHolder);
     }

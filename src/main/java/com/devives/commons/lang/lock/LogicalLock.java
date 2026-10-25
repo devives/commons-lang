@@ -28,6 +28,12 @@ public class LogicalLock implements AutoLock {
     private long lockCount_ = 0;
 
     /**
+     * Creates an unlocked lock.
+     */
+    public LogicalLock() {
+    }
+
+    /**
      * Increases the lock counter.
      *
      * @return {@link AutoCloseable} to use the lock in a construction:

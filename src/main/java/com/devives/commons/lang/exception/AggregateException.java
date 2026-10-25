@@ -26,25 +26,56 @@ import java.util.stream.Stream;
  */
 public class AggregateException extends RuntimeException {
 
+    /**
+     * Создаёт исключение без вложенных исключений.
+     *
+     * @param message сообщение.
+     */
     public AggregateException(String message) {
         super(message);
     }
 
+    /**
+     * Создаёт исключение, объединяющее заданные исключения.
+     *
+     * @param suppressed объединяемые исключения, в порядке возникновения.
+     * @param <E>        тип объединяемых исключений.
+     */
     public <E extends Throwable> AggregateException(Collection<E> suppressed) {
         super();
         suppressed.forEach(this::addSuppressed);
     }
 
+    /**
+     * Создаёт исключение, объединяющее заданные исключения.
+     *
+     * @param suppressed объединяемые исключения, в порядке возникновения.
+     * @param <E>        тип объединяемых исключений.
+     */
     public <E extends Throwable> AggregateException(E[] suppressed) {
         super();
         Stream.of(suppressed).forEach(this::addSuppressed);
     }
 
+    /**
+     * Создаёт исключение с сообщением, объединяющее заданные исключения.
+     *
+     * @param message    сообщение.
+     * @param suppressed объединяемые исключения, в порядке возникновения.
+     * @param <E>        тип объединяемых исключений.
+     */
     public <E extends Throwable> AggregateException(String message, E[] suppressed) {
         super(message);
         Stream.of(suppressed).forEach(this::addSuppressed);
     }
 
+    /**
+     * Создаёт исключение с сообщением, объединяющее заданные исключения.
+     *
+     * @param message    сообщение.
+     * @param suppressed объединяемые исключения, в порядке возникновения.
+     * @param <E>        тип объединяемых исключений.
+     */
     public <E extends Throwable> AggregateException(String message, Collection<E> suppressed) {
         super(message);
         suppressed.forEach(this::addSuppressed);

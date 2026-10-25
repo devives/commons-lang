@@ -21,12 +21,18 @@ import java.util.Objects;
 
 /**
  * Base class of stateful objects.
+ *
+ * @param <STATE> the type of states.
  */
 public class Stateful<STATE> implements Serializable {
     private static final long serialVersionUID = 1L;
+    /**
+     * Хранитель текущего состояния объекта.
+     */
     private final StateHolder<STATE> stateHolder_;
 
     /**
+     * Создаёт объект с состоянием.
      *
      * @param stateHolder контейнер состояния объекта.
      */

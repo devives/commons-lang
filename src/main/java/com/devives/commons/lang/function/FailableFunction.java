@@ -18,6 +18,8 @@ package com.devives.commons.lang.function;
 
 /**
  * A function that can throw an exception of the specified type.
+ *
+ * @param <R> the type of the result
  */
 @FunctionalInterface
 public interface FailableFunction<R> extends ThrowableFunction<R, Exception> {

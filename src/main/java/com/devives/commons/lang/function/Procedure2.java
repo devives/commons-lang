@@ -18,9 +18,18 @@ package com.devives.commons.lang.function;
 
 /**
  * A procedure with two arguments.
+ *
+ * @param <T1> the type of the first argument
+ * @param <T2> the type of the second argument
  */
 @FunctionalInterface
 public interface Procedure2<T1, T2> {
+    /**
+     * Performs this procedure on the given arguments.
+     *
+     * @param a1 the first argument
+     * @param a2 the second argument
+     */
     void accept(T1 a1, T2 a2);
 
 }

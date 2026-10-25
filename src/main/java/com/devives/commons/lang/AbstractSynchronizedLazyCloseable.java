@@ -29,8 +29,18 @@ import java.util.Optional;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.Executor;
 
+/**
+ * Потокобезопасная базовая реализация объекта с отложенным закрытием: {@link #closeAsync()} закрывает объект
+ * после того, как будут освобождены все его использования ({@link UsageCounter}).
+ * <p>
+ * Закрытие может выполняться в заданном исполнителе, см. {@link SynchronizedLazyCloseHandler#getLazyCloseExecutor()}.
+ */
 public abstract class AbstractSynchronizedLazyCloseable extends CloseableBase implements UsageCounter {
     private static final long serialVersionUID = 1L;
+    /**
+     * Распорядитель отложенного закрытия: закрывает объект, когда вызван {@link #closeAsync()}
+     * и счётчик использований равен нулю.
+     */
     protected final SynchronizedLazyClosingDirector lazyClosingDirector_ = new SynchronizedLazyClosingDirector(
             new SynchronizedLazyCloseHandler() {
                 @Override
@@ -49,6 +59,9 @@ public abstract class AbstractSynchronizedLazyCloseable extends CloseableBase im
                 }
             });
 
+    /**
+     * Создаёт объект в состоянии {@link #OPENED}.
+     */
     public AbstractSynchronizedLazyCloseable() {
         super(new SynchronizedStateHolderImpl<>(OPENED));
     }
@@ -63,6 +76,11 @@ public abstract class AbstractSynchronizedLazyCloseable extends CloseableBase im
         return lazyClosingDirector_.decUsageCount();
     }
 
+    /**
+     * Помечает объект для отложенного закрытия. Объект будет закрыт, когда счётчик использований станет равен нулю.
+     *
+     * @return стадия, завершающаяся по окончании закрытия.
+     */
     public final CompletionStage<Void> closeAsync() {
         return lazyClosingDirector_.closeAsync();
     }

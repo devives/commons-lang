@@ -32,6 +32,11 @@ public final class CachedListeners<I> extends ListenersWrapper<I> {
      */
     private Object[] array_;
 
+    /**
+     * Создаёт кэширующую обёртку над коллекцией слушателей.
+     *
+     * @param listeners оборачиваемая коллекция слушателей.
+     */
     public CachedListeners(Listeners<I> listeners) {
         super(listeners);
     }

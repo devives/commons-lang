@@ -65,6 +65,7 @@ public interface Wrapper {
     boolean isWrapperFor(Class<?> clazz);
 
     /**
+     * Unwraps the instance to the required class, if the instance is a {@link Wrapper} for it.
      *
      * @param instance checking instance
      * @param iface    required class

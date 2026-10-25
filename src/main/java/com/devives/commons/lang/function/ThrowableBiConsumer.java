@@ -19,6 +19,8 @@ package com.devives.commons.lang.function;
 /**
  * An alternative of {@link java.util.function.BiConsumer} which can throw exceptions.
  *
+ * @param <T1> the type of the first argument
+ * @param <T2> the type of the second argument
  * @param <E> The type of exception
  */
 @FunctionalInterface

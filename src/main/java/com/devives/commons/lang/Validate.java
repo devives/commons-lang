@@ -24,10 +24,31 @@ import java.util.function.Supplier;
  */
 public class Validate {
 
+    /**
+     * Prevents instantiation of the utility class.
+     */
+    private Validate() {
+    }
+
+    /**
+     * The default message of a failed not-empty array check.
+     */
     public static final String DEFAULT_NOT_EMPTY_ARRAY_MESSAGE = "The validated array is empty";
+    /**
+     * The default message format of a failed {@code greater} check: the value name, the bound, the actual value.
+     */
     public static final String DEFAULT_GREATER_MESSAGE = "The %s value must be greater than %s. Actual value: %s";
+    /**
+     * The default message format of a failed {@code greaterOrEqual} check: the value name, the bound, the actual value.
+     */
     public static final String DEFAULT_GREATER_OR_EQUAL_MESSAGE = "The %s value must be greater than or equal %s. Actual value: %s";
+    /**
+     * The default message format of a failed {@code lower} check: the value name, the bound, the actual value.
+     */
     public static final String DEFAULT_LOWER_MESSAGE = "The %s value must be lower than %s. Actual value: %s";
+    /**
+     * The default message format of a failed {@code lowerOrEqual} check: the value name, the bound, the actual value.
+     */
     public static final String DEFAULT_LOWER_OR_EQUAL_MESSAGE = "The %s value must be lower than or equal %s. Actual value: %s";
 
     /**

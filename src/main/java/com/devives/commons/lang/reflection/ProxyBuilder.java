@@ -32,6 +32,8 @@ import java.util.stream.Stream;
  * Proxy object factory.
  * <p>
  * Creates an instance of a proxy object that implements stubs-methods of the required interfaces.
+ *
+ * @param <T> the type of the proxy object.
  */
 public final class ProxyBuilder<T> {
 

@@ -24,6 +24,8 @@ import java.lang.reflect.Method;
 @FunctionalInterface
 public interface MethodFinder {
     /**
+     * Finds a method of the class suitable for calling.
+     *
      * @param clazz          The class in which the method is being searched
      * @param name           The name of the method being searched
      * @param parameterTypes The parameters of the method being searched

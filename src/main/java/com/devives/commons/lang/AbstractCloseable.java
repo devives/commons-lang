@@ -38,10 +38,18 @@ import com.devives.commons.state.StateHolderImpl;
 public abstract class AbstractCloseable extends CloseableBase {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Creates an object in the {@link #OPENED} state.
+     */
     public AbstractCloseable() {
         this(OPENED);
     }
 
+    /**
+     * Creates an object in the specified state.
+     *
+     * @param initialState the initial state.
+     */
     public AbstractCloseable(State initialState) {
         super(new StateHolderImpl<State>(initialState));
     }

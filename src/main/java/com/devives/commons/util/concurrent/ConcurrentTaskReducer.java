@@ -43,6 +43,12 @@ import java.util.concurrent.atomic.AtomicBoolean;
 public class ConcurrentTaskReducer<K, R> {
 
     /**
+     * Creates a reducer with no running tasks.
+     */
+    public ConcurrentTaskReducer() {
+    }
+
+    /**
      * Task map that synchronizes access to task execution synchronization objects.
      */
     private final ConcurrentMap<K, Task<R>> taskMap_ = new ConcurrentHashMap<>();
@@ -153,7 +159,9 @@ public class ConcurrentTaskReducer<K, R> {
      * A decorator method is created for the provided callable and owns an instance of
      * {@link ConcurrentTaskReducer}.
      *
+     * @param keyFormatter task key formatter.
      * @param callable callable method (task) to execute.
+     * @param <K> task key type.
      * @param <R> callable result type.
      * @return new method instance with a limit on the number of concurrent executions.
      */
@@ -192,6 +200,7 @@ public class ConcurrentTaskReducer<K, R> {
      * @param callable callable method (task) to execute.
      * @param <A1> first callable argument type.
      * @param <A2> second callable argument type.
+     * @param <K> task key type.
      * @param <R> callable result type.
      * @return new method instance with a limit on the number of concurrent executions.
      */
@@ -304,6 +313,7 @@ public class ConcurrentTaskReducer<K, R> {
     /**
      * Method with a limit on the number of concurrent executions by multiple threads.
      *
+     * @param <A1> method argument type.
      * @param <R> method result type.
      */
     public interface ReducedCallable1<A1, R> {
@@ -331,6 +341,8 @@ public class ConcurrentTaskReducer<K, R> {
     /**
      * Method with a limit on the number of concurrent executions by multiple threads.
      *
+     * @param <A1> first method argument type.
+     * @param <A2> second method argument type.
      * @param <R> method result type.
      */
     public interface ReducedCallable2<A1, A2, R> {

@@ -18,16 +18,60 @@ package com.devives.commons.lang.tuple;
 
 import java.util.Objects;
 
+/**
+ * Неизменяемый кортеж из 10 элементов.
+ *
+ * @param <T1> тип элемента 1
+ * @param <T2> тип элемента 2
+ * @param <T3> тип элемента 3
+ * @param <T4> тип элемента 4
+ * @param <T5> тип элемента 5
+ * @param <T6> тип элемента 6
+ * @param <T7> тип элемента 7
+ * @param <T8> тип элемента 8
+ * @param <T9> тип элемента 9
+ * @param <T10> тип элемента 10
+ */
 public final class Tuple10<T1, T2, T3, T4, T5, T6, T7, T8, T9, T10> extends Tuple {
+    /**
+     * Элемент 1.
+     */
     public final T1 _1;
+    /**
+     * Элемент 2.
+     */
     public final T2 _2;
+    /**
+     * Элемент 3.
+     */
     public final T3 _3;
+    /**
+     * Элемент 4.
+     */
     public final T4 _4;
+    /**
+     * Элемент 5.
+     */
     public final T5 _5;
+    /**
+     * Элемент 6.
+     */
     public final T6 _6;
+    /**
+     * Элемент 7.
+     */
     public final T7 _7;
+    /**
+     * Элемент 8.
+     */
     public final T8 _8;
+    /**
+     * Элемент 9.
+     */
     public final T9 _9;
+    /**
+     * Элемент 10.
+     */
     public final T10 _10;
 
     Tuple10(T1 _1, T2 _2, T3 _3, T4 _4, T5 _5, T6 _6, T7 _7, T8 _8, T9 _9, T10 _10) {

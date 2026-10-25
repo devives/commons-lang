@@ -61,6 +61,8 @@ import com.devives.commons.lang.function.ThrowableFunction1;
 public interface TryCallable<R> {
     /**
      * Interface declare methods witch are available after defining {@code try-catch} code blocks.
+     *
+     * @param <R> the type of the result.
      */
     interface Catch<R> {
 
@@ -86,6 +88,8 @@ public interface TryCallable<R> {
 
     /**
      * Interface declare methods witch are available after defining {@code finally} code block.
+     *
+     * @param <R> the type of the result.
      */
     interface Finally<R> {
 

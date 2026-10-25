@@ -18,6 +18,8 @@ package com.devives.commons.lang.function;
 
 /**
  * An alternative of {@link java.util.function.Consumer} which can throw exceptions.
+ *
+ * @param <T> the type of the input argument
  */
 @FunctionalInterface
 public interface FailableConsumer<T> extends ThrowableConsumer<T, Exception> {

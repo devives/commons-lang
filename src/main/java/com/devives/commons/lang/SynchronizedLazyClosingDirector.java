@@ -41,6 +41,8 @@ public final class SynchronizedLazyClosingDirector extends LazyClosingDirectorBa
     private final Object lock_ = new Object();
 
     /**
+     * Создаёт распорядителя отложенного закрытия.
+     *
      * @param closeHandler Обработчик закрытия объекта, делегирующего управление закрытием.
      */
     public SynchronizedLazyClosingDirector(SynchronizedLazyCloseHandler closeHandler) {

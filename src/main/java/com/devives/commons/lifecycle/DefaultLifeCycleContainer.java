@@ -24,6 +24,8 @@ import java.util.*;
 
 /**
  * Не синхронизированная реализация контейнера элементов с жизненным циклом.
+ *
+ * @param <T> тип элементов контейнера.
  */
 public final class DefaultLifeCycleContainer<T extends LifeCycle> extends AbstractLifeCycle implements LifeCycleContainer<T> {
     private static final long serialVersionUID = 1L;
@@ -35,6 +37,12 @@ public final class DefaultLifeCycleContainer<T extends LifeCycle> extends Abstra
      * Содержит множество запущенных элементов.
      */
     private final HashSet<T> startedItemSet = new LinkedHashSet<T>();
+
+    /**
+     * Создаёт пустой контейнер в состоянии {@link LifeCycleStates#STOPPED}.
+     */
+    public DefaultLifeCycleContainer() {
+    }
 
     public void addItem(T lifeCycle) {
         Objects.requireNonNull(lifeCycle, "Item cannot be null");

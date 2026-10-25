@@ -31,10 +31,20 @@ public class TransparentDecorator<DELEGATE> {
 
     private final DELEGATE delegate_;
 
+    /**
+     * Creates a decorator.
+     *
+     * @param delegate the delegate that handles methods not implemented by the decorator.
+     */
     public TransparentDecorator(DELEGATE delegate) {
         delegate_ = Objects.requireNonNull(delegate, "delegate");
     }
 
+    /**
+     * Returns the delegate.
+     *
+     * @return the delegate.
+     */
     protected final DELEGATE getDelegate() {
         return delegate_;
     }

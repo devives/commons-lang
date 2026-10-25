@@ -26,12 +26,25 @@ import java.util.Objects;
 public class NamedState implements State, Serializable {
 
     private static final long serialVersionUID = 1L;
+    /**
+     * The state name.
+     */
     private final String name;
 
+    /**
+     * Creates a state.
+     *
+     * @param name the state name.
+     */
     protected NamedState(String name) {
         this.name = Objects.requireNonNull(name);
     }
 
+    /**
+     * Returns the state name.
+     *
+     * @return the state name.
+     */
     public String getName() {
         return name;
     }

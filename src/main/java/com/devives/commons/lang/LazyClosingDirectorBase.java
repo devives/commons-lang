@@ -33,6 +33,9 @@ import java.util.concurrent.Future;
  */
 public abstract class LazyClosingDirectorBase implements UsageCounter, Serializable {
     private static final long serialVersionUID = 1L;
+    /**
+     * Значение метки времени закрытия, означающее, что закрытие не запрошено.
+     */
     protected static final long OPENED = 0;
     /**
      * Фьючерс закрытия объекта.
@@ -61,6 +64,8 @@ public abstract class LazyClosingDirectorBase implements UsageCounter, Serializa
     protected boolean closeCompleted_ = false;
 
     /**
+     * Создаёт распорядителя отложенного закрытия.
+     *
      * @param closeHandler Обработчик закрытия объекта, делегирующего управление закрытием.
      */
     protected LazyClosingDirectorBase(LazyCloseHandler closeHandler) {

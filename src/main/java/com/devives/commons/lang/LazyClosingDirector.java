@@ -26,6 +26,8 @@ public final class LazyClosingDirector extends LazyClosingDirectorBase {
     private static final long serialVersionUID = 1L;
 
     /**
+     * Создаёт распорядителя отложенного закрытия.
+     *
      * @param closeHandler Обработчик закрытия объекта, делегирующего управление закрытием.
      */
     public LazyClosingDirector(LazyCloseHandler closeHandler) {

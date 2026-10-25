@@ -20,6 +20,8 @@ import java.util.function.Function;
 
 /**
  * State holder interface. Implementations can be thread-safe or thread-unsafe.
+ *
+ * @param <STATE> the type of states.
  */
 public interface StateHolder<STATE> {
 
@@ -60,6 +62,7 @@ public interface StateHolder<STATE> {
     void set(STATE value);
 
     /**
+     * Checks whether the current state is equivalent to one of the expected states.
      *
      * @param expected expected states.
      * @return true, if one of states is set, else false.

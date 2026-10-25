@@ -23,5 +23,10 @@ package com.devives.commons.lang.function;
  */
 @FunctionalInterface
 public interface Function<R> {
+    /**
+     * Applies this function.
+     *
+     * @return the function result
+     */
     R apply();
 }

@@ -26,6 +26,10 @@ import java.util.function.Consumer;
 
 /**
  * Abstract {@link Publisher} builder.
+ *
+ * @param <I>    the type of listeners.
+ * @param <B>    the type of the built publisher.
+ * @param <SELF> the type of the concrete builder, returned by the fluent setters.
  */
 public abstract class AbstractPublisherBuilder<I, B, SELF extends AbstractPublisherBuilder<I, B, SELF>> {
 
@@ -41,6 +45,10 @@ public abstract class AbstractPublisherBuilder<I, B, SELF extends AbstractPublis
     private boolean independentDelivery_ = false;
     private Consumer<Throwable> errorHandler_ = DEFAULT_ERROR_HANDLER;
 
+    /**
+     * Creates a builder with the default settings: dependent delivery, no listener presence check,
+     * an error handler that rethrows.
+     */
     protected AbstractPublisherBuilder() {
     }
 
@@ -138,6 +146,13 @@ public abstract class AbstractPublisherBuilder<I, B, SELF extends AbstractPublis
         return newInstance(listeners, distributor);
     }
 
+    /**
+     * Creates the publisher instance.
+     *
+     * @param listeners   the configured listeners collection.
+     * @param distributor the configured distributor.
+     * @return a new publisher.
+     */
     protected abstract B newInstance(Listeners<I> listeners, Distributor<I> distributor);
 }
 

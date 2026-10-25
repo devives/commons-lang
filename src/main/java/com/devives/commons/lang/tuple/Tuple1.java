@@ -18,7 +18,15 @@ package com.devives.commons.lang.tuple;
 
 import java.util.Objects;
 
+/**
+ * Неизменяемый кортеж из одного элемента.
+ *
+ * @param <T1> тип элемента 1
+ */
 public final class Tuple1<T1> extends Tuple {
+    /**
+     * Элемент 1.
+     */
     public final T1 _1;
 
     Tuple1(T1 _1) {

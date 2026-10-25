@@ -44,10 +44,18 @@ public abstract class AbstractSynchronizedCloseable extends CloseableBase {
      */
     private transient volatile Thread closingThread_;
 
+    /**
+     * Creates an object in the {@link #OPENED} state.
+     */
     public AbstractSynchronizedCloseable() {
         this(OPENED);
     }
 
+    /**
+     * Creates an object in the specified state.
+     *
+     * @param initialState the initial state.
+     */
     public AbstractSynchronizedCloseable(State initialState) {
         super(new SynchronizedStateHolderImpl<>(initialState));
     }

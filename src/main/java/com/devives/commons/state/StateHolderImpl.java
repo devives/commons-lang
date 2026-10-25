@@ -26,8 +26,17 @@ import java.util.Objects;
  */
 public final class StateHolderImpl<STATE> extends StateHolderBase<STATE> implements Serializable {
     private static final long serialVersionUID = 1L;
+    /**
+     * Текущее состояние.
+     */
     private STATE state_;
 
+    /**
+     * Создаёт хранитель состояния.
+     *
+     * @param initialState начальное состояние.
+     * @throws NullPointerException если {@code initialState} равен {@code null}.
+     */
     public StateHolderImpl(STATE initialState) {
         state_ = Objects.requireNonNull(initialState, "initialState");
     }

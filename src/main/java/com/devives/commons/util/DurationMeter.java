@@ -33,6 +33,14 @@ public class DurationMeter {
     private long duration_ = 0;
 
     /**
+     * Создаёт счётчик с нулевой длительностью.
+     */
+    public DurationMeter() {
+    }
+
+    /**
+     * Возвращает длительность последнего измерения.
+     *
      * @return Длительность
      */
     public Duration duration() {
@@ -40,6 +48,8 @@ public class DurationMeter {
     }
 
     /**
+     * Возвращает длительность последнего измерения в наносекундах.
+     *
      * @return Длительность в наносекундах.
      */
     public long durationNanos() {
@@ -47,6 +57,8 @@ public class DurationMeter {
     }
 
     /**
+     * Возвращает длительность последнего измерения в микросекундах.
+     *
      * @return Длительность в микросекундах.
      */
     public long durationMicros() {
@@ -54,6 +66,8 @@ public class DurationMeter {
     }
 
     /**
+     * Возвращает длительность последнего измерения в миллисекундах.
+     *
      * @return Длительность в миллисекундах.
      */
     public long durationMills() {
@@ -61,6 +75,8 @@ public class DurationMeter {
     }
 
     /**
+     * Возвращает длительность последнего измерения в секундах.
+     *
      * @return Длительность в секундах.
      */
     public double durationSeconds() {

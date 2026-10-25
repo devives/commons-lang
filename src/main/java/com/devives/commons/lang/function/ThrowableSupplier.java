@@ -19,6 +19,7 @@ package com.devives.commons.lang.function;
 /**
  * An alternative of {@link java.util.function.Supplier} which can throw exceptions of specified type.
  * @param <R> the type of function result.
+ * @param <E> the type of exception.
  */
 @FunctionalInterface
 public interface ThrowableSupplier<R, E extends Throwable> {

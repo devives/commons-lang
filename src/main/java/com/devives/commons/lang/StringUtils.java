@@ -466,6 +466,13 @@ public final class StringUtils {
     }
 
     // Port: org.apache.commons.lang3.StringUtils#countMatches
+    /**
+     * Counts how many times the substring appears in the larger string. Overlapping occurrences are not counted.
+     *
+     * @param str the string to check, may be {@code null}
+     * @param sub the substring to count, may be {@code null}
+     * @return the number of occurrences, {@code 0} if either string is {@code null} or empty
+     */
     public static int countMatches(CharSequence str, CharSequence sub) {
         if (isEmpty(str) || isEmpty(sub)) {
             return 0;
@@ -484,6 +491,13 @@ public final class StringUtils {
         return cs.toString().indexOf(searchChar.toString(), start);
     }
 
+    /**
+     * Removes control characters (char &lt;= 32) from both ends of the string, handling {@code null}.
+     *
+     * @param str the string to trim, may be {@code null}
+     * @return the trimmed string, {@code null} if {@code str} is {@code null}
+     * @see String#trim()
+     */
     public static String trim(String str) {
         if (str != null) {
             return str.trim();

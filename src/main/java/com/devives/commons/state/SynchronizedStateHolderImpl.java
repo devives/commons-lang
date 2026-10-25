@@ -29,9 +29,21 @@ import java.util.Objects;
  */
 public final class SynchronizedStateHolderImpl<STATE> extends StateHolderBase<STATE> implements SynchronizedStateHolder<STATE> {
     private static final long serialVersionUID = 1L;
+    /**
+     * Монитор, под которым выполняются изменения состояния и {@code performAtomicWork(...)}.
+     */
     private final Object mutex = new Object();
+    /**
+     * Текущее состояние.
+     */
     private volatile STATE state_;
 
+    /**
+     * Создаёт хранитель состояния.
+     *
+     * @param initialState начальное состояние.
+     * @throws NullPointerException если {@code initialState} равен {@code null}.
+     */
     public SynchronizedStateHolderImpl(STATE initialState) {
         state_ = Objects.requireNonNull(initialState, "initialState");
     }

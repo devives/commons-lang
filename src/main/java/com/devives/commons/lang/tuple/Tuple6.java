@@ -18,12 +18,40 @@ package com.devives.commons.lang.tuple;
 
 import java.util.Objects;
 
+/**
+ * Неизменяемый кортеж из 6 элементов.
+ *
+ * @param <T1> тип элемента 1
+ * @param <T2> тип элемента 2
+ * @param <T3> тип элемента 3
+ * @param <T4> тип элемента 4
+ * @param <T5> тип элемента 5
+ * @param <T6> тип элемента 6
+ */
 public final class Tuple6<T1, T2, T3, T4, T5, T6> extends Tuple {
+    /**
+     * Элемент 1.
+     */
     public final T1 _1;
+    /**
+     * Элемент 2.
+     */
     public final T2 _2;
+    /**
+     * Элемент 3.
+     */
     public final T3 _3;
+    /**
+     * Элемент 4.
+     */
     public final T4 _4;
+    /**
+     * Элемент 5.
+     */
     public final T5 _5;
+    /**
+     * Элемент 6.
+     */
     public final T6 _6;
 
     Tuple6(T1 _1, T2 _2, T3 _3, T4 _4, T5 _5, T6 _6) {

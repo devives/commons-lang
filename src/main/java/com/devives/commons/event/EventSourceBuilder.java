@@ -23,9 +23,16 @@ import com.devives.commons.publisher.Distributor;
 /**
  * Event source builder.
  *
+ * @param <E> the type of events.
  * @since 0.2.0
  */
 public final class EventSourceBuilder<E extends Event> extends AbstractPublisherBuilder<EventListener<E>, EventSource<E>, EventSourceBuilder<E>> {
+
+    /**
+     * Creates a builder with the default settings.
+     */
+    public EventSourceBuilder() {
+    }
 
     /**
      * Creates the concrete {@link DefaultEventSource} instance using the configured

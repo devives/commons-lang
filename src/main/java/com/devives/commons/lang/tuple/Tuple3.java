@@ -18,9 +18,25 @@ package com.devives.commons.lang.tuple;
 
 import java.util.Objects;
 
+/**
+ * Неизменяемый кортеж из 3 элементов.
+ *
+ * @param <T1> тип элемента 1
+ * @param <T2> тип элемента 2
+ * @param <T3> тип элемента 3
+ */
 public final class Tuple3<T1, T2, T3> extends Tuple {
+    /**
+     * Элемент 1.
+     */
     public final T1 _1;
+    /**
+     * Элемент 2.
+     */
     public final T2 _2;
+    /**
+     * Элемент 3.
+     */
     public final T3 _3;
 
     Tuple3(T1 _1, T2 _2, T3 _3) {
@@ -67,6 +83,18 @@ public final class Tuple3<T1, T2, T3> extends Tuple {
         return Objects.hash(_1, _2, _3);
     }
 
+    /**
+     * Создаёт кортеж из трёх элементов.
+     *
+     * @param a1   элемент 1.
+     * @param a2   элемент 2.
+     * @param a3   элемент 3.
+     * @param <T1> тип элемента 1.
+     * @param <T2> тип элемента 2.
+     * @param <T3> тип элемента 3.
+     * @return новый кортеж.
+     * @deprecated используйте {@link Tuple#of(Object, Object, Object)}.
+     */
     @Deprecated
     public static <T1, T2, T3> Tuple3<T1, T2, T3> of(T1 a1, T2 a2, T3 a3) {
         return new Tuple3<>(a1, a2, a3);

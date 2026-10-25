@@ -19,15 +19,22 @@ package com.devives.commons.lifecycle;
 import com.devives.commons.state.State;
 import com.devives.commons.state.StateFactory;
 
+/**
+ * States of a life cycle object and the methods that check them.
+ */
 public interface LifeCycleStates {
 
     /**
+     * Returns whether the component is starting.
+     *
      * @return true if the component is starting.
      * @see #isStarted()
      */
     boolean isStarting();
 
     /**
+     * Returns whether the component has been started.
+     *
      * @return true if the component has been started.
      * @see LifeCycle#start()
      * @see #isStarting()
@@ -35,12 +42,16 @@ public interface LifeCycleStates {
     boolean isStarted();
 
     /**
+     * Returns whether the component is stopping.
+     *
      * @return true if the component is stopping.
      * @see #isStopped()
      */
     boolean isStopping();
 
     /**
+     * Returns whether the component has been stopped.
+     *
      * @return true if the component has been stopped.
      * @see LifeCycle#stop()
      * @see #isStopping()
@@ -48,14 +59,31 @@ public interface LifeCycleStates {
     boolean isStopped();
 
     /**
+     * Returns whether the component has failed.
+     *
      * @return true if the component has failed to start or has failed to stop.
      */
     boolean isFailed();
 
+    /**
+     * The component is starting.
+     */
     State STARTING = StateFactory.named("STARTING");
+    /**
+     * The component has been started.
+     */
     State STARTED = StateFactory.named("STARTED");
+    /**
+     * The component is stopping.
+     */
     State STOPPING = StateFactory.named("STOPPING");
+    /**
+     * The component has been stopped.
+     */
     State STOPPED = StateFactory.named("STOPPED");
+    /**
+     * The component has failed to start or to stop.
+     */
     State FAILED = StateFactory.named("FAILED");
 
 }

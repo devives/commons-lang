@@ -35,6 +35,12 @@ public abstract class SimpleRef<T> extends Ref<T> {
         value_ = validate(value);
     }
 
+    /**
+     * Validates a value before it is stored. Accepts any value by default; subclasses may reject some values.
+     *
+     * @param value the value to store.
+     * @return the value to store.
+     */
     protected T validate(T value) {
         return value;
     }

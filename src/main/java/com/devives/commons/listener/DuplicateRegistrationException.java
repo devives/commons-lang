@@ -23,6 +23,11 @@ package com.devives.commons.listener;
  */
 public class DuplicateRegistrationException extends RuntimeException {
 
+    /**
+     * Creates an exception.
+     *
+     * @param message the detail message.
+     */
     public DuplicateRegistrationException(String message) {
         super(message);
     }

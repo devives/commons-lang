@@ -22,13 +22,27 @@ import com.devives.commons.state.State;
 import com.devives.commons.state.StateHolder;
 import com.devives.commons.state.StateHolderImpl;
 
+/**
+ * Base life cycle implementation without synchronization.
+ *
+ * @see LifeCycleBase
+ */
 public abstract class AbstractLifeCycle extends LifeCycleBase {
     private static final long serialVersionUID = 1L;
 
+    /**
+     * Creates a life cycle object in the {@link LifeCycleStates#STOPPED} state.
+     */
     public AbstractLifeCycle() {
         this(LifeCycleStates.STOPPED);
     }
 
+    /**
+     * Creates a life cycle object in the specified state, with a {@link StateHolderImpl}
+     * and a publisher that delivers events to listeners independently.
+     *
+     * @param initialState the initial state.
+     */
     public AbstractLifeCycle(State initialState) {
         this(new StateHolderImpl<>(initialState),
                 Publishers.<Listener>builder()
@@ -36,6 +50,12 @@ public abstract class AbstractLifeCycle extends LifeCycleBase {
                         .build());
     }
 
+    /**
+     * Creates a life cycle object.
+     *
+     * @param stateHolder holder of the current state; its current value is used as the initial state.
+     * @param publisher   publisher used to notify registered {@link LifeCycle.Listener}s.
+     */
     public AbstractLifeCycle(StateHolder<State> stateHolder, Publisher<Listener> publisher) {
         super(stateHolder, publisher);
     }

@@ -19,9 +19,16 @@ package com.devives.commons.lang.function;
 /**
  * A function with one argument.
  *
+ * @param <T> the type of the argument.
  * @param <R> type of the function result.
  */
 @FunctionalInterface
 public interface Function1<T,R> {
+    /**
+     * Applies this function to the given argument.
+     *
+     * @param a the argument
+     * @return the function result
+     */
     R apply(T a);
 }

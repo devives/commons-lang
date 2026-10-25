@@ -36,7 +36,7 @@ public final class DefaultLifeCycleContainer<T extends LifeCycle> extends Abstra
     /**
      * Содержит множество запущенных элементов.
      */
-    private final HashSet<T> startedItemSet = new LinkedHashSet<T>();
+    private final LinkedHashSet<T> startedItemSet = new LinkedHashSet<T>();
 
     /**
      * Создаёт пустой контейнер в состоянии {@link LifeCycleStates#STOPPED}.

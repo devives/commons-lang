@@ -51,12 +51,14 @@ public class NamedState implements State, Serializable {
 
     @Override
     public boolean equals(Object o) {
-        return super.equals(o);
+        if (!(o instanceof NamedState)) return false;
+        NamedState that = (NamedState) o;
+        return this == o || Objects.equals(name, that.name);
     }
 
     @Override
     public int hashCode() {
-        return super.hashCode();
+        return Objects.hashCode(name);
     }
 
     @Override

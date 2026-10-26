@@ -107,6 +107,66 @@ public class ExceptionUtilsTest {
         Assertions.assertSame(procs.customCheckedException, suppressed[2]);
     }
 
+    @Test
+    public void getMessageTree_null_throwsNullPointerException() {
+        Assertions.assertThrows(NullPointerException.class, () -> ExceptionUtils.getMessageTree(null));
+    }
+
+    @Test
+    public void getMessageTree_singleException_returnsToString() {
+        final IOException exception = new IOException("io");
+
+        Assertions.assertEquals("java.io.IOException: io", ExceptionUtils.getMessageTree(exception));
+    }
+
+    @Test
+    public void getMessageTree_suppressedAndCause_indentsNestedSuppressedFirst() {
+        final IllegalStateException a = new IllegalStateException("a");
+        final IOException s = new IOException("s");
+        s.initCause(new TimeoutException("t"));
+        a.addSuppressed(s);
+        a.initCause(new IllegalArgumentException("b"));
+
+        Assertions.assertEquals(lines(
+                        "java.lang.IllegalStateException: a",
+                        "    Suppressed: java.io.IOException: s",
+                        "        Caused by: java.util.concurrent.TimeoutException: t",
+                        "    Caused by: java.lang.IllegalArgumentException: b"),
+                ExceptionUtils.getMessageTree(a));
+    }
+
+    @Test
+    public void getMessageTree_circularCause_marksCircularReferenceWithCaption() {
+        final IllegalStateException a = new IllegalStateException("a");
+        final IllegalArgumentException b = new IllegalArgumentException("b");
+        a.initCause(b);
+        b.initCause(a);
+
+        Assertions.assertEquals(lines(
+                        "java.lang.IllegalStateException: a",
+                        "    Caused by: java.lang.IllegalArgumentException: b",
+                        "        Caused by: [CIRCULAR REFERENCE: java.lang.IllegalStateException: a]"),
+                ExceptionUtils.getMessageTree(a));
+    }
+
+    @Test
+    public void getMessageTree_circularSuppressed_marksCircularReferenceWithCaption() {
+        final IllegalStateException a = new IllegalStateException("a");
+        final IllegalArgumentException b = new IllegalArgumentException("b");
+        a.addSuppressed(b);
+        b.addSuppressed(a);
+
+        Assertions.assertEquals(lines(
+                        "java.lang.IllegalStateException: a",
+                        "    Suppressed: java.lang.IllegalArgumentException: b",
+                        "        Suppressed: [CIRCULAR REFERENCE: java.lang.IllegalStateException: a]"),
+                ExceptionUtils.getMessageTree(a));
+    }
+
+    private static String lines(String... lines) {
+        return String.join(System.lineSeparator(), lines);
+    }
+
     private static final class CustomCheckedException extends Exception {
         private static final long serialVersionUID = 1L;
 

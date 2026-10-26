@@ -315,13 +315,13 @@ public final class ExceptionUtils {
     }
 
     /**
-     * Method restore {@link Thread#isInterrupted()} flag if {@code th instanceof InterruptedException}.
+     * Method restore {@link Thread#isInterrupted()} flag if {@code throwable instanceof InterruptedException}.
      *
-     * @param th Throwable
+     * @param throwable Throwable
      */
-    static public void restoreInterruptIfIsInterruptedException(Throwable th) {
-        Objects.requireNonNull(th);
-        if (th instanceof InterruptedException) {
+    static public void restoreInterruptIfIsInterruptedException(Throwable throwable) {
+        Objects.requireNonNull(throwable);
+        if (throwable instanceof InterruptedException) {
             Thread.currentThread().interrupt();
         }
     }
@@ -363,6 +363,66 @@ public final class ExceptionUtils {
             }
         }
         return false;
+    }
+
+
+    private static final String INDENT = "    ";
+    private static final String CAUSE_CAPTION = "Caused by: ";
+    private static final String SUPPRESSED_CAPTION = "Suppressed: ";
+    private static final String CIRCULAR_CAPTION = "[CIRCULAR REFERENCE: ";
+
+
+    /**
+     * Собирает многострочный текст из сообщений всего дерева исключения, включая подавленные
+     * ({@link Throwable#getSuppressed()}), без стек-трейсов.
+     * <p>
+     * Каждое исключение представлено в виде {@link Throwable#toString()} (имя класса и сообщение) на отдельной строке.
+     * Вложенные исключения выводятся с отступом на уровень глубже владельца: подавленные — с префиксом
+     * {@value #SUPPRESSED_CAPTION}, причина — с префиксом {@value #CAUSE_CAPTION}. Циклические ссылки помечаются
+     * и обрываются.
+     * <p>
+     * Пример:
+     * <pre>
+     * Exception: exception
+     *     Suppressed: S: s
+     *         Caused by: T: t
+     *     Caused by: B: b
+     * </pre>
+     *
+     * @param throwable исключение
+     * @return многострочный текст с сообщениями дерева исключений
+     */
+    public static String getMessageTree(Throwable throwable) {
+        StringBuilder sb = new StringBuilder();
+        sb.append(Objects.requireNonNull(throwable, "throwable"));
+        appendNested(sb, throwable, 1, Collections.newSetFromMap(new IdentityHashMap<>()));
+        return sb.toString();
+    }
+
+    private static void appendNested(StringBuilder sb, Throwable throwable, int depth, Set<Throwable> visited) {
+        visited.add(throwable);
+        for (Throwable suppressed : throwable.getSuppressed()) {
+            appendEnclosed(sb, suppressed, SUPPRESSED_CAPTION, depth, visited);
+        }
+        Throwable cause = throwable.getCause();
+        if (cause != null) {
+            appendEnclosed(sb, cause, CAUSE_CAPTION, depth, visited);
+        }
+    }
+
+    private static void appendEnclosed(StringBuilder sb, Throwable throwable, String caption, int depth,
+                                       Set<Throwable> visited) {
+        sb.append(System.lineSeparator());
+        for (int i = 0; i < depth; i++) {
+            sb.append(INDENT);
+        }
+        sb.append(caption);
+        if (visited.contains(throwable)) {
+            sb.append(CIRCULAR_CAPTION).append(throwable).append(']');
+            return;
+        }
+        sb.append(throwable);
+        appendNested(sb, throwable, depth + 1, visited);
     }
 
 }

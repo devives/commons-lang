@@ -132,7 +132,7 @@ final class TryCallableScope<R> extends TryScope implements TryCallable<R>, TryC
                     result = onCatch.apply(tryEx);
                 } catch (Throwable catchEx) {
                     unhandledThrowable = catchEx;
-                    if (!isLinked(catchEx, tryEx)) {
+                    if (notLinked(catchEx, tryEx)) {
                         catchEx.addSuppressed(tryEx);
                     }
                 }

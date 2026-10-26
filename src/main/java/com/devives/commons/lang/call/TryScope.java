@@ -16,11 +16,7 @@
  */
 package com.devives.commons.lang.call;
 
-import java.util.ArrayDeque;
-import java.util.Collections;
-import java.util.Deque;
-import java.util.IdentityHashMap;
-import java.util.Set;
+import static com.devives.commons.lang.ExceptionUtils.isEqualOrReferenced;
 
 /**
  * Общий код реализаций конструкции {@code try-catch-finally}.
@@ -29,42 +25,6 @@ import java.util.Set;
  * @see TryRunnableScope
  */
 class TryScope {
-
-    /**
-     * Проверяет, достижимо ли исключение {@code target} из {@code throwable} по цепочкам cause и suppressed.
-     * Сравнение выполняется по ссылке; циклические ссылки в графе исключений допускаются.
-     *
-     * @param throwable исключение, с которого начинается обход.
-     * @param target    искомое исключение.
-     * @return {@code true}, если {@code target} совпадает с {@code throwable} или достижимо из него.
-     */
-    protected static boolean hasReference(Throwable throwable, Throwable target) {
-        if (throwable == target) {
-            return true;
-        }
-        if (throwable.getCause() == target) {
-            return true;
-        }
-        Set<Throwable> visited = Collections.newSetFromMap(new IdentityHashMap<>());
-        Deque<Throwable> stack = new ArrayDeque<>();
-        stack.push(throwable);
-        while (!stack.isEmpty()) {
-            Throwable t = stack.pop();
-            if (t == target) {
-                return true;
-            }
-            if (!visited.add(t)) {
-                continue;
-            }
-            if (t.getCause() != null) {
-                stack.push(t.getCause());
-            }
-            for (Throwable s : t.getSuppressed()) {
-                stack.push(s);
-            }
-        }
-        return false;
-    }
 
     /**
      * Проверяет, связаны ли исключения {@code a} и {@code b} в любом направлении по цепочкам cause и suppressed.
@@ -76,7 +36,7 @@ class TryScope {
      * @param b второе исключение.
      * @return {@code true}, если одно исключение достижимо из другого.
      */
-    protected static boolean isLinked(Throwable a, Throwable b) {
-        return hasReference(a, b) || hasReference(b, a);
+    protected static boolean notLinked(Throwable a, Throwable b) {
+        return !isEqualOrReferenced(a, b) && !isEqualOrReferenced(b, a);
     }
 }

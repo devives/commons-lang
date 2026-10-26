@@ -125,7 +125,7 @@ final class TryRunnableScope extends TryScope implements TryRunnable, TryRunnabl
                     onCatch.accept(tryEx);
                 } catch (Throwable catchEx) {
                     unhandledThrowable = catchEx;
-                    if (!isLinked(catchEx, tryEx)) {
+                    if (notLinked(catchEx, tryEx)) {
                         catchEx.addSuppressed(tryEx);
                     }
                 }

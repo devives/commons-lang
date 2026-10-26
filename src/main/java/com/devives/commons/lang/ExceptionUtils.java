@@ -325,4 +325,44 @@ public final class ExceptionUtils {
             Thread.currentThread().interrupt();
         }
     }
+
+    /**
+     * Проверяет, достижимо ли исключение {@code target} через {@code throwable} по цепочкам cause и suppressed.
+     * Сравнение выполняется по ссылке; циклические ссылки в графе исключений допускаются.
+     *
+     * @param throwable исключение, с которого начинается обход.
+     * @param target    искомое исключение.
+     * @return {@code true}, если {@code target} совпадает с {@code throwable} или достижимо из него.
+     */
+    static public boolean isEqualOrReferenced(Throwable throwable, Throwable target) {
+        if (throwable == null || target == null) {
+            return false;
+        }
+        if (throwable == target) {
+            return true;
+        }
+        if (throwable.getCause() == target) {
+            return true;
+        }
+        Set<Throwable> visited = Collections.newSetFromMap(new IdentityHashMap<>());
+        Deque<Throwable> stack = new ArrayDeque<>();
+        stack.push(throwable);
+        while (!stack.isEmpty()) {
+            Throwable t = stack.pop();
+            if (t == target) {
+                return true;
+            }
+            if (!visited.add(t)) {
+                continue;
+            }
+            if (t.getCause() != null) {
+                stack.push(t.getCause());
+            }
+            for (Throwable s : t.getSuppressed()) {
+                stack.push(s);
+            }
+        }
+        return false;
+    }
+
 }

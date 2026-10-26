@@ -24,9 +24,14 @@ import com.devives.commons.state.State;
 import com.devives.commons.state.StateHolder;
 import com.devives.commons.state.Stateful;
 
+import java.util.Collections;
+import java.util.IdentityHashMap;
 import java.util.Objects;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import static com.devives.commons.lang.ExceptionUtils.isEqualOrReferenced;
 
 /**
  * Base implementation of {@link LifeCycle} that drives the state machine of {@link LifeCycleStates}
@@ -384,8 +389,25 @@ abstract class LifeCycleBase extends Stateful<State> implements LifeCycle {
     private FailureAction handleFailure(Ref<Throwable> thRef) {
         final Ref<FailureAction> action = Ref.of(FailureAction.RETHROW);
         ExceptionUtils.collectAndThrow(
-                () -> action.set(Objects.requireNonNull(onFailure(thRef))),
-                () -> publishFailure(thRef.get()),
+                () -> {
+                    try {
+                        action.set(Objects.requireNonNull(onFailure(thRef)));
+                    } catch (Throwable th2) {
+                        if (!isEqualOrReferenced(thRef.get(), th2) && !isEqualOrReferenced(th2, thRef.get())) {
+                            th2.addSuppressed(th2);
+                        }
+                        thRef.get().addSuppressed(th2);
+                    }
+                },
+                () -> {
+                    try {
+                        publishFailure(thRef.get());
+                    } catch (Throwable th2) {
+                        if (!isEqualOrReferenced(thRef.get(), th2) && !isEqualOrReferenced(th2, thRef.get())) {
+                            th2.addSuppressed(th2);
+                        }
+                    }
+                },
                 () -> getStateHolder().set(LifeCycleStates.FAILED)
         );
         return action.get();
@@ -449,9 +471,6 @@ abstract class LifeCycleBase extends Stateful<State> implements LifeCycle {
         try {
             publisher_.publish(listener -> listener.onFailure(this, th));
         } catch (Throwable th2) {
-            if (th2 != th) {
-                th2.addSuppressed(th);
-            }
             handleListenerError(th2);
         }
     }
